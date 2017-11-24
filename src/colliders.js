@@ -1,14 +1,17 @@
 class TestCollision{
 	static SphereVsRect(sphere, rect){
+		// to do
 		return;
 	}
 	static RectVsSphere(rect, sphere){
 		return this.SphereVsRect(sphere, rect);
 	}
 	static RectVsRect(rect, rect){
+		// to do
 		return;
 	}
 	static SphereVsSphere(sphere, sphere){
+		// to do
 		return;
 	}
 }
@@ -16,13 +19,8 @@ class Collider extends GameObject{
 	constructor(parent, x, y, width, height){
 		super(parent, x, y, width, height);
 	}
-	test(collider){
-		if (this.x < collider.x + collider.width &&
-			this.x + this.width > collider.x &&
-			this.y < collider.y + collider.height &&
-			this.height + this.y > collider.y) {
-				return true;
-		}
+	test(collider){ 
+		// to do
 	}
 }
 class SphereCollider extends Collider{
@@ -31,10 +29,10 @@ class SphereCollider extends Collider{
 	}
 	test(collider){
 		if(collider instanceof SphereCollider){
-			// sphere vs sphere
+			TestCollision.SphereVsSphere(this, collider);
 		}
 		if(collider instanceof RectCollider){
-			// sphere vs rect
+			TestCollision.SphereVsRect(this, collider);
 		}
 	}
 }
@@ -44,10 +42,10 @@ class RectCollider extends Collider{
 	}
 	test(collider){
 		if(collider instanceof SphereCollider){
-			// rect vs sphere
+			TestCollision.SphereVsRect(collider, this);
 		}
 		if(collider instanceof RectCollider){
-			// rect vs rect
+			TestCollision.RectVsRect(this, collider);
 		}
 	}
 }
