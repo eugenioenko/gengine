@@ -1,4 +1,4 @@
-class GameObject{
+class GameObject {
 	constructor(parent, x, y, width, height){
 		this.parent = parent;
 		this.x = x;
@@ -13,8 +13,9 @@ class GameObject{
 		return this.parent ? this.y + this.parent.gy : this.y;
 	}
 
-	debugDraw(){
+	debugDraw(color){
+		color = typeof color === "undefined" ? "red" : color;
 		if(this.parent && this.parent.display)
-			this.parent.display.rect(this.x, this.y, this.width, this.height, 'red');
+			this.parent.display.rect(this.gx, this.gy, this.width, this.height, color);
 	}
 }

@@ -1,0 +1,32 @@
+{
+  "name": "gengine",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eugenioenko/gengine.git"
+  },
+  "keywords": [
+    "javascript",
+    "game",
+    "engine"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/eugenioenko/gengine/issues"
+  },
+  "homepage": "https://github.com/eugenioenko/gengine#readme",
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-append-prepend": "^1.0.4",
+    "gulp-concat": "^2.6.1",
+    "gulp-jshint": "^2.0.4",
+    "jshint": "^2.9.5",
+    "jshint-stylish": "^2.2.1"
+  }
+}

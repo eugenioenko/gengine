@@ -1,39 +1,29 @@
-class TestCollision{
-	static SphereVsRect(sphere, rect){
-		// to do
-		return;
-	}
-	static RectVsSphere(rect, sphere){
-		return this.SphereVsRect(sphere, rect);
-	}
-	static RectVsRect(rect, rect){
-		// to do
-		return;
-	}
-	static SphereVsSphere(sphere, sphere){
-		// to do
-		return;
-	}
-}
 class Collider extends GameObject{
 	constructor(parent, x, y, width, height){
 		super(parent, x, y, width, height);
 	}
-	test(collider){ 
+	test(collider){
 		// to do
 	}
 }
-class SphereCollider extends Collider{
+class CircleCollider extends Collider{
 	constructor(parent, x, y, width, height){
 		super(parent, x, y, width, height);
+		this.radius = this.width / 2;
 	}
 	test(collider){
-		if(collider instanceof SphereCollider){
-			TestCollision.SphereVsSphere(this, collider);
+		if(collider instanceof CircleCollider){
+			return TestCollision.CircleVsCircle(this, collider);
 		}
 		if(collider instanceof RectCollider){
-			TestCollision.SphereVsRect(this, collider);
+			return TestCollision.CircleVsRect(this, collider);
 		}
+		return false; //posible bug with not knowing which collider to choose
+	}
+	debugDraw(color){
+		color = typeof color === "undefined" ? "red" : color;
+		if(this.parent && this.parent.display)
+			this.parent.display.circle(this.gx, this.gy, this.width, color);
 	}
 }
 class RectCollider extends Collider{
@@ -41,11 +31,12 @@ class RectCollider extends Collider{
 		super(parent, x, y, width, height);
 	}
 	test(collider){
-		if(collider instanceof SphereCollider){
-			TestCollision.SphereVsRect(collider, this);
+		if(collider instanceof CircleCollider){
+			return TestCollision.CircleVsRect(collider, this);
 		}
 		if(collider instanceof RectCollider){
-			TestCollision.RectVsRect(this, collider);
+			return TestCollision.RectVsRect(this, collider);
 		}
+		return false; //if unknow collider will return false, posible bug
 	}
 }

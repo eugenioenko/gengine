@@ -9,18 +9,24 @@ class Display {
 	}
 	clear(){
 		this.ctx.clearRect(0,0,this.width,this.height);
-	};
+	}
 
 	fillRect(x, y, width, height, color){
 		this.ctx.beginPath();
 		this.ctx.fillStyle =  color;
 		this.ctx.rect(this.x + x, this.y + y, width, height);
 		this.ctx.fill();
-	};
+	}
 	rect(x, y, width, height, color){
 		this.ctx.beginPath();
 		this.ctx.strokeStyle =  color;
 		this.ctx.rect(this.x + x, this.y + y, width, height);
 		this.ctx.stroke();
-	};
+	}
+	circle(x, y, width, color){
+		this.ctx.beginPath();
+		this.ctx.arc(x, y, width/2, 0, 2 * Math.PI, false);
+		this.ctx.strokeStyle =  color;
+		this.ctx.stroke();
+	}
 }
