@@ -15,16 +15,22 @@ class GameObject {
 		this.height = height;
 	}
 	get gx(){
-		return this.parent ? this.x + this.parent.gx : this.x;
+		return this.x;
 	}
 	get gy(){
-		return this.parent ? this.y + this.parent.gy : this.y;
+		return this.y;
+	}
+	get rx(){
+		return this.parent ? this.parent.x - this.x  : this.x;
+	}
+	get ry(){
+		return this.parent ? this.parent.y - this.y : this.y;
 	}
 
 	debugDraw(color){
 		color = typeof color === "undefined" ? "red" : color;
 		if(this.parent && this.parent.display)
-			this.parent.display.rect(this.gx, this.gy, this.width, this.height, color);
+			this.parent.display.rect(this.x, this.y, this.width, this.height, color);
 	}
 }
 class Input {
@@ -82,14 +88,10 @@ class TestCollision{
 		let halfRectHeight = rect.height / 2;
 		let halfDistX = Math.abs(circle.gx - rect.gx - halfRectWidth);
 		let halfDistY = Math.abs(circle.gy - rect.gy - halfRectHeight);
-		if (halfDistX > (halfRectWidth + circle.radius))
-			return false;
-		if (halfDistY > (halfRectHeight + circle.radius))
-			return false;
-		if (halfDistX <= (halfRectWidth))
-			return true;
-		if (halfDistY <= (halfRectHeight))
-			return true;
+		if (halfDistX > (halfRectWidth + circle.radius)) return false;
+		if (halfDistY > (halfRectHeight + circle.radius)) return false;
+		if (halfDistX <= (halfRectWidth)) return true;
+		if (halfDistY <= (halfRectHeight)) return true;
 		//corner collision
 		let dx = halfDistX - halfRectWidth;
 		let dy = halfDistY - halfRectHeight;
@@ -125,6 +127,12 @@ class Collider extends GameObject{
 	test(collider){
 		// to do
 	}
+	get gx(){
+		return this.parent.x + this.x;
+	}
+	get gy(){
+		return this.parent.y + this.y;
+	}
 }
 class CircleCollider extends Collider{
 	constructor(parent, x, y, width, height){
@@ -158,6 +166,11 @@ class RectCollider extends Collider{
 			return TestCollision.RectVsRect(this, collider);
 		}
 		return false; //if unknow collider will return false, posible bug
+	}
+	debugDraw(color){
+		color = typeof color === "undefined" ? "red" : color;
+		if(this.parent && this.parent.display)
+			this.parent.display.rect(this.gx, this.gy, this.width, this.height, color);
 	}
 }
 class Sprite extends GameObject{
@@ -194,7 +207,14 @@ class Sprite extends GameObject{
 		this.draw(x, y);
 		return;
 	}
+	/**
+	 * Tests for possible collision between two sprites and if
+	 * that happens, tests for individual colliders;
+	 */
 	testCollision(sprite){
+		if(!TestCollision.RectVsRect(this, sprite)){
+			return false;
+		}
 		for(let collider1 of this.colliders)
 			for(let collider2 of sprite.colliders)
 				if(collider1.test(collider2))
@@ -327,31 +347,36 @@ class TileMap extends Sprite{
 class TestSprite2 extends Sprite{
 	constructor(parent, x, y, width, height){
 		super(parent, x, y, width, height);
-		this.colliders.push(new RectCollider(this, 0, 0, 50, 50));
+		//this.colliders.push(new RectCollider(this, 0, 0, 50, 50));
+		this.colliders.push(new CircleCollider(this, this.width/2, this.height/2, this.width, this.height));
 		this.speed = 1;
 		this.color = "white";
+		this.rotation = 0;
 	}
 	move(){
 		if(!this.colliding){
 			this.color = "white";
 		}
+
 		if(this.input.keyCode("ArrowDown")) this.y += this.speed;
 		if(this.input.keyCode("ArrowUp")) this.y -= this.speed;
 		if(this.input.keyCode("ArrowRight")) this.x += this.speed;
 		if(this.input.keyCode("ArrowLeft")) this.x -= this.speed;
+
 	}
 	draw(){
 		this.colliders[0].debugDraw(this.color);
+		//this.display.rect(this.x+2, this.y+2, this.width-4, this.height-4, 'blue');
 	}
 	collision(sprite){
 		this.color = "red";
+
 	}
 }
 class TestSprite1 extends Sprite{
 	constructor(parent, x, y, width, height){
 		super(parent, x, y, width, height);
-		//this.colliders.push(new RectCollider(this, 0, 0, 50, 50));
-		this.colliders.push(new CircleCollider(this, 25, 25, 50, 50));
+		this.colliders.push(new CircleCollider(this, this.width/2, this.height/2, this.width, this.height));
 		this.speed = 1;
 		this.color = "white";
 	}
@@ -364,6 +389,7 @@ class TestSprite1 extends Sprite{
 		for(let collider of this.colliders){
 			collider.debugDraw(this.color);
 		}
+		//this.display.rect(this.x+2, this.y+2, this.width-4, this.height-4, 'blue');
 	}
 	collision(sprite){
 		this.color = "red";
@@ -372,5 +398,5 @@ class TestSprite1 extends Sprite{
 
 
 let engine = new Engine('canvas');
-engine.add(new TestSprite1(engine, 200, 200, 50, 50));
-engine.add(new TestSprite2(engine, 100, 140, 50, 50));
+engine.add(new TestSprite1(engine, engine.display.width/2-150, engine.display.height/2-150, 300, 300));
+engine.add(new TestSprite2(engine, 100, 140, 25, 25));

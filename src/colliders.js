@@ -5,6 +5,12 @@ class Collider extends GameObject{
 	test(collider){
 		// to do
 	}
+	get gx(){
+		return this.parent.x + this.x;
+	}
+	get gy(){
+		return this.parent.y + this.y;
+	}
 }
 class CircleCollider extends Collider{
 	constructor(parent, x, y, width, height){
@@ -38,5 +44,10 @@ class RectCollider extends Collider{
 			return TestCollision.RectVsRect(this, collider);
 		}
 		return false; //if unknow collider will return false, posible bug
+	}
+	debugDraw(color){
+		color = typeof color === "undefined" ? "red" : color;
+		if(this.parent && this.parent.display)
+			this.parent.display.rect(this.gx, this.gy, this.width, this.height, color);
 	}
 }

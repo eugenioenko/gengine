@@ -32,7 +32,14 @@ class Sprite extends GameObject{
 		this.draw(x, y);
 		return;
 	}
+	/**
+	 * Tests for possible collision between two sprites and if
+	 * that happens, tests for individual colliders;
+	 */
 	testCollision(sprite){
+		if(!TestCollision.RectVsRect(this, sprite)){
+			return false;
+		}
 		for(let collider1 of this.colliders)
 			for(let collider2 of sprite.colliders)
 				if(collider1.test(collider2))

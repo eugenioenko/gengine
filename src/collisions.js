@@ -4,14 +4,10 @@ class TestCollision{
 		let halfRectHeight = rect.height / 2;
 		let halfDistX = Math.abs(circle.gx - rect.gx - halfRectWidth);
 		let halfDistY = Math.abs(circle.gy - rect.gy - halfRectHeight);
-		if (halfDistX > (halfRectWidth + circle.radius))
-			return false;
-		if (halfDistY > (halfRectHeight + circle.radius))
-			return false;
-		if (halfDistX <= (halfRectWidth))
-			return true;
-		if (halfDistY <= (halfRectHeight))
-			return true;
+		if (halfDistX > (halfRectWidth + circle.radius)) return false;
+		if (halfDistY > (halfRectHeight + circle.radius)) return false;
+		if (halfDistX <= (halfRectWidth)) return true;
+		if (halfDistY <= (halfRectHeight)) return true;
 		//corner collision
 		let dx = halfDistX - halfRectWidth;
 		let dy = halfDistY - halfRectHeight;

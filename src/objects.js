@@ -7,15 +7,21 @@ class GameObject {
 		this.height = height;
 	}
 	get gx(){
-		return this.parent ? this.x + this.parent.gx : this.x;
+		return this.x;
 	}
 	get gy(){
-		return this.parent ? this.y + this.parent.gy : this.y;
+		return this.y;
+	}
+	get rx(){
+		return this.parent ? this.parent.x - this.x  : this.x;
+	}
+	get ry(){
+		return this.parent ? this.parent.y - this.y : this.y;
 	}
 
 	debugDraw(color){
 		color = typeof color === "undefined" ? "red" : color;
 		if(this.parent && this.parent.display)
-			this.parent.display.rect(this.gx, this.gy, this.width, this.height, color);
+			this.parent.display.rect(this.x, this.y, this.width, this.height, color);
 	}
 }
