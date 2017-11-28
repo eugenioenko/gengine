@@ -328,17 +328,28 @@ class TileMap extends Sprite{
 		}
 	}
 	getDrawRect(){
+			let x2 = Math.ceil(this.engine.width / this.twidth);
+			let y2 = Math.ceil(this.engine.height / this.theight);
+			let x1 = Math.floor(this.engine.x / this.twidth);
+			let y1 = Math.floor(this.engine.y / this.theight);
+
+			x1 = Maths.clamp(x1, 0, this.width);
+			y1 = Maths.clamp(y1, 0, this.height);
+
+			x2 = Maths.clamp(x2, x1, this.width);
+			y2 = Maths.clamp(y2, y1, this.height);
+
 		return{
-			x1: Math.floor(this.engine.x / this.twidth),
-			y1: Math.floor(this.engine.y / this.theight), 
-			x2: Math.ceil(this.engine.width / this.twidth),
-			y2: Math.ceil(this.engine.height / this.theight)
+			x1: x1,
+			y1: y1, 
+			x2: x2,
+			y2: y2
 		};
 	}
 	draw(){
 		let rect = this.getDrawRect();
-		for(var i = rect.x1; i <= rect.x1+rect.x2; ++i){
-			for(var j = rect.y1; j <= rect.y2+rect.y2; ++j){
+		for(var i = rect.x1; i <= rect.x2; ++i){
+			for(var j = rect.y1; j <= rect.y2; ++j){
 				this.display.fillRect(this.x+(i*this.twidth), this.y+(j*this.theight), this.twidth, this.theight, Tiles[this.read(i,j)]);
 			}
 		}
