@@ -92,6 +92,15 @@ engine.add(new TestSprite1({
 	width: 300,
 	height: 300
 }));*/
+
+engine.add(new TileMap({
+	parent: engine,
+	x: 0,
+	y: 0,
+	width: 20,
+	height: 20
+}));
+
 for (var i = 0; i < 1000; ++i){
 	engine.add(new TestSprite2({
 		x: Maths.rand(200, 480),
