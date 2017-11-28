@@ -33,9 +33,6 @@ class Engine extends GameObject{
 					sprite2.colliding = true;
 					sprite1.collision(sprite2);
 					sprite2.collision(sprite1);
-				} else {
-					sprite1.colliding = false;
-					sprite2.colliding = false;
 				}
 			}
 		}

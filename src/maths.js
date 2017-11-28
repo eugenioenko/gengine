@@ -5,4 +5,7 @@ class Maths{
 	static lerp(min, max, t){
 		return min + (max - min) * t;
 	}
+	static rand(min, max){
+		return Math.floor(Math.random() * (max - min + 1)) + min;
+	}
 }

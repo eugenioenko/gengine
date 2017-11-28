@@ -4,11 +4,19 @@ class Display {
 		this.width = this.canvas.width;
 		this.height = this.canvas.height;
 		this.ctx = this.canvas.getContext('2d');
+		this.scale = 1;
 		this.x = 0;
 		this.y = 0;
 	}
+	set zoom(value){
+		this.scale = value;
+		this.ctx.scale(value, value);
+	}
+	get zoom(){
+		return this.scale;
+	}
 	clear(){
-		this.ctx.clearRect(0,0,this.width,this.height);
+		this.ctx.clearRect(0,0,this.width / this.scale,this.height / this.scale);
 	}
 
 	fillRect(x, y, width, height, color){

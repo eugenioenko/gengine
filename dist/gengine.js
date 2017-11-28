@@ -5,6 +5,9 @@ class Maths{
 	static lerp(min, max, t){
 		return min + (max - min) * t;
 	}
+	static rand(min, max){
+		return Math.floor(Math.random() * (max - min + 1)) + min;
+	}
 }
 class GameObject {
 	/**
@@ -52,11 +55,19 @@ class Display {
 		this.width = this.canvas.width;
 		this.height = this.canvas.height;
 		this.ctx = this.canvas.getContext('2d');
+		this.scale = 1;
 		this.x = 0;
 		this.y = 0;
 	}
+	set zoom(value){
+		this.scale = value;
+		this.ctx.scale(value, value);
+	}
+	get zoom(){
+		return this.scale;
+	}
 	clear(){
-		this.ctx.clearRect(0,0,this.width,this.height);
+		this.ctx.clearRect(0,0,this.width / this.scale,this.height / this.scale);
 	}
 
 	fillRect(x, y, width, height, color){
@@ -240,9 +251,6 @@ class Engine extends GameObject{
 					sprite2.colliding = true;
 					sprite1.collision(sprite2);
 					sprite2.collision(sprite1);
-				} else {
-					sprite1.colliding = false;
-					sprite2.colliding = false;
 				}
 			}
 		}
@@ -339,7 +347,6 @@ class TestSprite2 extends Sprite{
 			width: this.width,
 			height: this.height
 		}));
-		this.speed = 1;
 		this.color = "white";
 		this.rotation = 0;
 	}
@@ -350,16 +357,19 @@ class TestSprite2 extends Sprite{
 
 		if(this.input.keyCode("ArrowDown")) this.y += this.speed;
 		if(this.input.keyCode("ArrowUp")) this.y -= this.speed;
-		if(this.input.keyCode("ArrowRight")) {
-			this.x += this.speed;
-
-		}
+		if(this.input.keyCode("ArrowRight")) this.x += this.speed;
 		if(this.input.keyCode("ArrowLeft")) this.x -= this.speed;
+
+		this.x += Math.cos(this.rotation * Math.PI/180) * this.speed;
+		this.y += Math.sin(this.rotation * Math.PI/180) * this.speed;
+		if(++this.rotation > 360){
+			this.rotation = 0;
+		}
 
 	}
 	draw(){
 		this.colliders[0].debugDraw(this.color);
-		this.display.rect(this.x+2, this.y+2, this.width-4, this.height-4, 'green');
+		//this.display.rect(this.x+2, this.y+2, this.width-4, this.height-4, 'green');
 	}
 	collision(sprite){
 		this.color = "red";
@@ -376,12 +386,18 @@ class TestSprite1 extends Sprite{
 			width: this.width,
 			height: this.height
 		}));
-		this.speed = 1;
+		this.rotation = 0;
+		this.speed = 2;
 		this.color = "white";
 	}
 	move(){
 		if(!this.colliding){
 			this.color = "white";
+		}
+		//this.x += Math.cos(this.rotation * Math.PI/180) * this.speed;
+		//this.y += Math.sin(this.rotation * Math.PI/180) * this.speed;
+		if(++this.rotation > 360){
+			this.rotation = 0;
 		}
 	}
 	draw(){
@@ -389,7 +405,7 @@ class TestSprite1 extends Sprite{
 			collider.debugDraw(this.color);
 		}
 
-		this.display.rect(this.x+2, this.y+2, this.width-4, this.height-4, 'blue');
+		//this.display.rect(this.x+2, this.y+2, this.width-4, this.height-4, 'blue');
 	}
 	collision(sprite){
 		this.color = "red";
@@ -398,23 +414,28 @@ class TestSprite1 extends Sprite{
 
 
 let engine = new Engine('canvas');
-engine.add(new TileMap({
+/*engine.add(new TileMap({
 	parent: engine,
 	x: 0,
 	y: 0
-}));
+}));*/
 engine.add(new TestSprite1({
 	x: engine.display.width/2-150,
 	y: engine.display.height/2-150,
 	width: 300,
 	height: 300
 }));
-engine.add(new TestSprite2({
-	x: 100,
-	y: 140,
-	width: 25,
-	height: 25
-}));
+for (var i = 0; i < 100; ++i){
+	engine.add(new TestSprite2({
+		x: Maths.rand(0, 800),
+		y: Maths.rand(0, 800),
+		width: 20,
+		height: 20,
+		rotation: Maths.rand(0, 359),
+		speed: Maths.rand(-5, 5)
+	}));
+}
+
 
 
 
