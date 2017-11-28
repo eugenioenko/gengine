@@ -7,11 +7,16 @@ class Engine extends GameObject{
 			width: 640,
 			height: 480
 		});
-		this.display = new Display('canvas');
+		this.display = new Display({
+			id: 'canvas',
+			engine: this,
+			parent: null
+		});
 		this.input = new Input();
 		this.x = 0;
 		this.y = 0;
 		this.camera = new Camera({
+			engine: this,
 			parent: this,
 			x: 0,
 			y: 0
@@ -38,6 +43,7 @@ class Engine extends GameObject{
 		}
 	}
 	add(sprite){
+		sprite.engine = engine;
 		sprite.display = this.display;
 		sprite.input = this.input;
 		this.sprites.push(sprite);
@@ -59,7 +65,7 @@ class Engine extends GameObject{
 	}
 	loop(){
 		//if(!this.frameLimit && ++this.frameCount > this.frameSkip){
-			this.collision();
+			//this.collision();
 			this.move();
 			this.draw();
 			this.frameCount = 0;

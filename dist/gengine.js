@@ -9,6 +9,7 @@ class Maths{
 		return Math.floor(Math.random() * (max - min + 1)) + min;
 	}
 }
+
 class GameObject {
 	/**
 	 * params {parent, x, y, width, height}
@@ -49,15 +50,14 @@ class Input {
 		return typeof this.keyCode_[code] !== "undefined" ? this.keyCode_[code] : false;
 	}
 }
-class Display {
-	constructor(canvasId){
-		this.canvas = document.getElementById(canvasId);
+class Display extends GameObject{
+	constructor(params){
+		super(params);
+		this.canvas = document.getElementById(this.id);
 		this.width = this.canvas.width;
 		this.height = this.canvas.height;
 		this.ctx = this.canvas.getContext('2d');
 		this.scale = 1;
-		this.x = 0;
-		this.y = 0;
 	}
 	set zoom(value){
 		this.scale = value;
@@ -73,18 +73,18 @@ class Display {
 	fillRect(x, y, width, height, color){
 		this.ctx.beginPath();
 		this.ctx.fillStyle =  color;
-		this.ctx.rect(this.x + x, this.y + y, width, height);
+		this.ctx.rect(-this.engine.x + x, -this.engine.y + y, width, height);
 		this.ctx.fill();
 	}
 	rect(x, y, width, height, color){
 		this.ctx.beginPath();
 		this.ctx.strokeStyle =  color;
-		this.ctx.rect(this.x + x, this.y + y, width, height);
+		this.ctx.rect(-this.engine.x + x, -this.engine.y + y, width, height);
 		this.ctx.stroke();
 	}
 	circle(x, y, width, color){
 		this.ctx.beginPath();
-		this.ctx.arc(this.x + x, this.y + y, width/2, 0, 2 * Math.PI, false);
+		this.ctx.arc(-this.engine.x + x, -this.engine.y + y, width/2, 0, 2 * Math.PI, false);
 		this.ctx.strokeStyle =  color;
 		this.ctx.stroke();
 	}
@@ -225,11 +225,16 @@ class Engine extends GameObject{
 			width: 640,
 			height: 480
 		});
-		this.display = new Display('canvas');
+		this.display = new Display({
+			id: 'canvas',
+			engine: this,
+			parent: null
+		});
 		this.input = new Input();
 		this.x = 0;
 		this.y = 0;
 		this.camera = new Camera({
+			engine: this,
 			parent: this,
 			x: 0,
 			y: 0
@@ -256,6 +261,7 @@ class Engine extends GameObject{
 		}
 	}
 	add(sprite){
+		sprite.engine = engine;
 		sprite.display = this.display;
 		sprite.input = this.input;
 		this.sprites.push(sprite);
@@ -277,7 +283,7 @@ class Engine extends GameObject{
 	}
 	loop(){
 		//if(!this.frameLimit && ++this.frameCount > this.frameSkip){
-			this.collision();
+			//this.collision();
 			this.move();
 			this.draw();
 			this.frameCount = 0;
@@ -294,10 +300,10 @@ class Camera extends Sprite{
 	follow(object){
 	}
 	move(){
-		if(this.input.keyCode("KeyS")) this.parent.display.y += this.speed;
-		if(this.input.keyCode("KeyW")) this.parent.display.y -= this.speed;
-		if(this.input.keyCode("KeyD")) this.parent.display.x += this.speed;
-		if(this.input.keyCode("KeyA")) this.parent.display.x -= this.speed;
+		if(this.input.keyCode("KeyS")) this.engine.y -= this.speed;
+		if(this.input.keyCode("KeyW")) this.engine.y += this.speed;
+		if(this.input.keyCode("KeyD")) this.engine.x += this.speed;
+		if(this.input.keyCode("KeyA")) this.engine.x -= this.speed;
 	}
 }
 var Tiles = ['black', 'grey', 'blue', 'green'];
@@ -321,18 +327,36 @@ class TileMap extends Sprite{
 			this.map[i] = Maths.rand(0, 3);
 		}
 	}
-
+	getDrawRect(){
+		return{
+			x1: Math.floor(this.engine.x / this.twidth),
+			y1: Math.floor(this.engine.y / this.theight), 
+			x2: Math.ceil(this.engine.width / this.twidth),
+			y2: Math.ceil(this.engine.height / this.theight)
+		};
+	}
 	draw(){
+		let rect = this.getDrawRect();
+		for(var i = rect.x1; i <= rect.x1+rect.x2; ++i){
+			for(var j = rect.y1; j <= rect.y2+rect.y2; ++j){
+				this.display.fillRect(this.x+(i*this.twidth), this.y+(j*this.theight), this.twidth, this.theight, Tiles[this.read(i,j)]);
+			}
+		}
+		return;
+	}
+	/*
+	draw(){
+		let rect = this.getDrawRect();
 		for(var i = 0; i <= this.width; ++i){
 			for(var j = 0; j <= this.height; ++j){
 				this.display.fillRect(this.x+(i*this.twidth), this.y+(j*this.theight), this.twidth, this.theight, Tiles[this.read(i,j)]);
 			}
 		}
 		return;
-	}
+	}*/
 }
 
-class TestSprite2 extends Sprite{
+class TestSprite extends Sprite{
 	constructor(params){
 		super(params);
 		//this.colliders.push(new RectCollider(this, 0, 0, 50, 50));
@@ -375,42 +399,6 @@ class TestSprite2 extends Sprite{
 
 	}
 }
-class TestSprite1 extends Sprite{
-	constructor(params){
-		super(params);
-		this.colliders.push(new CircleCollider({
-			parent: this,
-			x: this.width/2,
-			y: this.height/2,
-			width: this.width,
-			height: this.height
-		}));
-		this.rotation = 0;
-		this.speed = 2;
-		this.color = "white";
-	}
-	move(){
-		if(!this.colliding){
-			this.color = "white";
-		}
-		this.color = 'rgba(111,111,111)';
-		//this.x += Math.cos(this.rotation * Math.PI/180) * this.speed;
-		//this.y += Math.sin(this.rotation * Math.PI/180) * this.speed;
-		if(++this.rotation > 360){
-			this.rotation = 0;
-		}
-	}
-	draw(){
-		for(let collider of this.colliders){
-			collider.debugDraw(this.color);
-		}
-
-		//this.display.rect(this.x+2, this.y+2, this.width-4, this.height-4, 'blue');
-	}
-	collision(sprite){
-
-	}
-}
 
 
 let engine = new Engine('canvas');
@@ -419,24 +407,18 @@ let engine = new Engine('canvas');
 	x: 0,
 	y: 0
 }));*/
-/*
-engine.add(new TestSprite1({
-	x: engine.display.width/2-150,
-	y: engine.display.height/2-150,
-	width: 300,
-	height: 300
-}));*/
+
 
 engine.add(new TileMap({
 	parent: engine,
 	x: 0,
 	y: 0,
-	width: 20,
-	height: 20
+	width: 640/32,
+	height: 480/32
 }));
-
+/*
 for (var i = 0; i < 1000; ++i){
-	engine.add(new TestSprite2({
+	engine.add(new TestSprite({
 		x: Maths.rand(200, 480),
 		y: Maths.rand(150, 330),
 		width: 5,
@@ -444,7 +426,7 @@ for (var i = 0; i < 1000; ++i){
 		rotation: Maths.rand(0, 359),
 		speed: Maths.rand(-3, 3)
 	}));
-}
+}*/
 
 
 

@@ -1,12 +1,11 @@
-class Display {
-	constructor(canvasId){
-		this.canvas = document.getElementById(canvasId);
+class Display extends GameObject{
+	constructor(params){
+		super(params);
+		this.canvas = document.getElementById(this.id);
 		this.width = this.canvas.width;
 		this.height = this.canvas.height;
 		this.ctx = this.canvas.getContext('2d');
 		this.scale = 1;
-		this.x = 0;
-		this.y = 0;
 	}
 	set zoom(value){
 		this.scale = value;
@@ -22,18 +21,18 @@ class Display {
 	fillRect(x, y, width, height, color){
 		this.ctx.beginPath();
 		this.ctx.fillStyle =  color;
-		this.ctx.rect(this.x + x, this.y + y, width, height);
+		this.ctx.rect(-this.engine.x + x, -this.engine.y + y, width, height);
 		this.ctx.fill();
 	}
 	rect(x, y, width, height, color){
 		this.ctx.beginPath();
 		this.ctx.strokeStyle =  color;
-		this.ctx.rect(this.x + x, this.y + y, width, height);
+		this.ctx.rect(-this.engine.x + x, -this.engine.y + y, width, height);
 		this.ctx.stroke();
 	}
 	circle(x, y, width, color){
 		this.ctx.beginPath();
-		this.ctx.arc(this.x + x, this.y + y, width/2, 0, 2 * Math.PI, false);
+		this.ctx.arc(-this.engine.x + x, -this.engine.y + y, width/2, 0, 2 * Math.PI, false);
 		this.ctx.strokeStyle =  color;
 		this.ctx.stroke();
 	}

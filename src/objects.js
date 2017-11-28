@@ -1,3 +1,4 @@
+
 class GameObject {
 	/**
 	 * params {parent, x, y, width, height}

@@ -1,4 +1,4 @@
-class TestSprite2 extends Sprite{
+class TestSprite extends Sprite{
 	constructor(params){
 		super(params);
 		//this.colliders.push(new RectCollider(this, 0, 0, 50, 50));
@@ -41,42 +41,6 @@ class TestSprite2 extends Sprite{
 
 	}
 }
-class TestSprite1 extends Sprite{
-	constructor(params){
-		super(params);
-		this.colliders.push(new CircleCollider({
-			parent: this,
-			x: this.width/2,
-			y: this.height/2,
-			width: this.width,
-			height: this.height
-		}));
-		this.rotation = 0;
-		this.speed = 2;
-		this.color = "white";
-	}
-	move(){
-		if(!this.colliding){
-			this.color = "white";
-		}
-		this.color = 'rgba(111,111,111)';
-		//this.x += Math.cos(this.rotation * Math.PI/180) * this.speed;
-		//this.y += Math.sin(this.rotation * Math.PI/180) * this.speed;
-		if(++this.rotation > 360){
-			this.rotation = 0;
-		}
-	}
-	draw(){
-		for(let collider of this.colliders){
-			collider.debugDraw(this.color);
-		}
-
-		//this.display.rect(this.x+2, this.y+2, this.width-4, this.height-4, 'blue');
-	}
-	collision(sprite){
-
-	}
-}
 
 
 let engine = new Engine('canvas');
@@ -85,24 +49,18 @@ let engine = new Engine('canvas');
 	x: 0,
 	y: 0
 }));*/
-/*
-engine.add(new TestSprite1({
-	x: engine.display.width/2-150,
-	y: engine.display.height/2-150,
-	width: 300,
-	height: 300
-}));*/
+
 
 engine.add(new TileMap({
 	parent: engine,
 	x: 0,
 	y: 0,
-	width: 20,
-	height: 20
+	width: 640/32,
+	height: 480/32
 }));
-
+/*
 for (var i = 0; i < 1000; ++i){
-	engine.add(new TestSprite2({
+	engine.add(new TestSprite({
 		x: Maths.rand(200, 480),
 		y: Maths.rand(150, 330),
 		width: 5,
@@ -110,7 +68,7 @@ for (var i = 0; i < 1000; ++i){
 		rotation: Maths.rand(0, 359),
 		speed: Maths.rand(-3, 3)
 	}));
-}
+}*/
 
 
 
