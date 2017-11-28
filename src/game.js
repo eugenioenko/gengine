@@ -55,8 +55,8 @@ engine.add(new TileMap({
 	parent: engine,
 	x: 0,
 	y: 0,
-	width: 640/32,
-	height: 480/32
+	width: 500,
+	height: 500
 }));
 /*
 for (var i = 0; i < 1000; ++i){

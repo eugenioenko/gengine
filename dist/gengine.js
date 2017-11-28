@@ -62,6 +62,8 @@ class Display extends GameObject{
 	set zoom(value){
 		this.scale = value;
 		this.ctx.scale(value, value);
+		this.engine.width = this.engine.width / value;
+		this.engine.height = this.engine.height / value;
 	}
 	get zoom(){
 		return this.scale;
@@ -328,16 +330,17 @@ class TileMap extends Sprite{
 		}
 	}
 	getDrawRect(){
-			let x2 = Math.ceil(this.engine.width / this.twidth);
-			let y2 = Math.ceil(this.engine.height / this.theight);
 			let x1 = Math.floor(this.engine.x / this.twidth);
 			let y1 = Math.floor(this.engine.y / this.theight);
+			let x2 = Math.ceil(this.engine.width / this.twidth);
+			let y2 = Math.ceil(this.engine.height / this.theight);
+			
 
 			x1 = Maths.clamp(x1, 0, this.width);
 			y1 = Maths.clamp(y1, 0, this.height);
 
-			x2 = Maths.clamp(x2, x1, this.width);
-			y2 = Maths.clamp(y2, y1, this.height);
+			x2 = Maths.clamp(x2+x1, x1, this.width);
+			y2 = Maths.clamp(y2+y1, y1, this.height);
 
 		return{
 			x1: x1,
@@ -424,8 +427,8 @@ engine.add(new TileMap({
 	parent: engine,
 	x: 0,
 	y: 0,
-	width: 640/32,
-	height: 480/32
+	width: 500,
+	height: 500
 }));
 /*
 for (var i = 0; i < 1000; ++i){

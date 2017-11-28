@@ -10,6 +10,8 @@ class Display extends GameObject{
 	set zoom(value){
 		this.scale = value;
 		this.ctx.scale(value, value);
+		this.engine.width = this.engine.width / value;
+		this.engine.height = this.engine.height / value;
 	}
 	get zoom(){
 		return this.scale;

@@ -20,16 +20,17 @@ class TileMap extends Sprite{
 		}
 	}
 	getDrawRect(){
-			let x2 = Math.ceil(this.engine.width / this.twidth);
-			let y2 = Math.ceil(this.engine.height / this.theight);
 			let x1 = Math.floor(this.engine.x / this.twidth);
 			let y1 = Math.floor(this.engine.y / this.theight);
+			let x2 = Math.ceil(this.engine.width / this.twidth);
+			let y2 = Math.ceil(this.engine.height / this.theight);
+			
 
 			x1 = Maths.clamp(x1, 0, this.width);
 			y1 = Maths.clamp(y1, 0, this.height);
 
-			x2 = Maths.clamp(x2, x1, this.width);
-			y2 = Maths.clamp(y2, y1, this.height);
+			x2 = Maths.clamp(x2+x1, x1, this.width);
+			y2 = Maths.clamp(y2+y1, y1, this.height);
 
 		return{
 			x1: x1,
