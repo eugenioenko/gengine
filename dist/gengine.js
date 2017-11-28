@@ -22,12 +22,7 @@ class GameObject {
 	get gy(){
 		return this.y;
 	}
-	get rx(){
-		return this.parent ? this.parent.x - this.x  : this.x;
-	}
-	get ry(){
-		return this.parent ? this.parent.y - this.y : this.y;
-	}
+
 
 	debugDraw(color){
 		color = typeof color === "undefined" ? "red" : color;
@@ -78,7 +73,7 @@ class Display {
 	}
 	circle(x, y, width, color){
 		this.ctx.beginPath();
-		this.ctx.arc(x, y, width/2, 0, 2 * Math.PI, false);
+		this.ctx.arc(this.x + x, this.y + y, width/2, 0, 2 * Math.PI, false);
 		this.ctx.strokeStyle =  color;
 		this.ctx.stroke();
 	}
@@ -179,7 +174,6 @@ class Sprite extends GameObject{
 	constructor(params){
 		super(params);
 		this.colliders = [];
-		this.sprites = [];
 		this.colliding = false;
 		this.display = null;
 		this.input = null;
@@ -190,24 +184,6 @@ class Sprite extends GameObject{
 	}
 	addCollider(x, y, width, height){
 		this.colliders.push(new RectCollider(this, x, y, width, height));
-	}
-	addSprite(sprite){
-		this.sprites.push(sprite);
-		return;
-	}
-	engineMove(x, y){
-		for(let sprite of this.sprites){
-			sprite.engineMove(x, y);
-		}
-		this.move(x, y);
-		return;
-	}
-	engineDraw(x, y){
-		for(let sprite of this.sprites){
-			sprite.engineDraw(x, y);
-		}
-		this.draw(x, y);
-		return;
 	}
 	/**
 	 * Tests for possible collision between two sprites and if
@@ -222,23 +198,6 @@ class Sprite extends GameObject{
 				if(collider1.test(collider2))
 					return true;
 		return false;
-	}
-	engineCheckCollision(sprite){
-		if(this.testCollision(sprite)){
-			this.colliding = true;
-			sprite.colliding = true;
-			this.collision(sprite);
-			sprite.collision(this);
-		} else {
-			this.colliding = false;
-			sprite.colliding = false;
-		}
-	}
-	engineTestCollision(sprite2){
-		for(let sprite of this.sprites){
-			sprite.engineCheckCollision(sprite2);
-		}
-		this.engineCheckCollision(sprite2);
 	}
 	move(){ }
 	draw(){ }
@@ -259,7 +218,11 @@ class Engine extends GameObject{
 		this.input = new Input();
 		this.x = 0;
 		this.y = 0;
-		this.camera = new Camera(this);
+		this.camera = new Camera({
+			parent: this,
+			x: 0,
+			y: 0
+		});
 		this.sprites = [];
 		this.frameLimit = false;
 		this.frameSkip = 20;
@@ -272,25 +235,35 @@ class Engine extends GameObject{
 			for(let j = i +1; j < this.sprites.length; ++j){
 				let sprite1 = this.sprites[i];
 				let sprite2 = this.sprites[j];
-				sprite1.engineTestCollision(sprite2);
+				if(sprite1.testCollision(sprite2)){
+					sprite1.colliding = true;
+					sprite2.colliding = true;
+					sprite1.collision(sprite2);
+					sprite2.collision(sprite1);
+				} else {
+					sprite1.colliding = false;
+					sprite2.colliding = false;
+				}
 			}
 		}
 	}
 	add(sprite){
+		sprite.display = this.display;
+		sprite.input = this.input;
 		this.sprites.push(sprite);
 		return;
 	}
 	move(){
 		for(let sprite of this.sprites){
-			sprite.engineMove();
+			sprite.move();
 		}
-		//this.camera.move();
+		this.camera.move();
 		return;
 	}
 	draw(){
 		this.display.clear();
 		for(let sprite of this.sprites){
-			sprite.engineDraw();
+			sprite.draw();
 		}
 		return;
 	}
@@ -305,9 +278,12 @@ class Engine extends GameObject{
 	}
 }
 class Camera extends Sprite{
-	constructor(parent, x, y){
-		super(parent, x, y);
+	constructor(params){
+		super(params);
+		this.bound = null;
 		this.speed = 3;
+	}
+	follow(object){
 	}
 	move(){
 		if(this.input.keyCode("KeyS")) this.parent.display.y += this.speed;
@@ -316,10 +292,10 @@ class Camera extends Sprite{
 		if(this.input.keyCode("KeyA")) this.parent.display.x -= this.speed;
 	}
 }
-var Tiles = ['black', 'white', 'blue', 'green'];
+var Tiles = ['black', 'grey', 'blue', 'green'];
 class TileMap extends Sprite{
-	constructor(parent, x, y){
-		super(parent, x, y, 0, 0);
+	constructor(params){
+		super(params);
 		this.twidth = 32;
 		this.theight = 32;
 		this.map = [
@@ -374,13 +350,16 @@ class TestSprite2 extends Sprite{
 
 		if(this.input.keyCode("ArrowDown")) this.y += this.speed;
 		if(this.input.keyCode("ArrowUp")) this.y -= this.speed;
-		if(this.input.keyCode("ArrowRight")) this.x += this.speed;
+		if(this.input.keyCode("ArrowRight")) {
+			this.x += this.speed;
+
+		}
 		if(this.input.keyCode("ArrowLeft")) this.x -= this.speed;
 
 	}
 	draw(){
 		this.colliders[0].debugDraw(this.color);
-		//this.display.rect(this.x+2, this.y+2, this.width-4, this.height-4, 'blue');
+		this.display.rect(this.x+2, this.y+2, this.width-4, this.height-4, 'green');
 	}
 	collision(sprite){
 		this.color = "red";
@@ -409,7 +388,8 @@ class TestSprite1 extends Sprite{
 		for(let collider of this.colliders){
 			collider.debugDraw(this.color);
 		}
-		//this.display.rect(this.x+2, this.y+2, this.width-4, this.height-4, 'blue');
+
+		this.display.rect(this.x+2, this.y+2, this.width-4, this.height-4, 'blue');
 	}
 	collision(sprite){
 		this.color = "red";
@@ -418,15 +398,18 @@ class TestSprite1 extends Sprite{
 
 
 let engine = new Engine('canvas');
-engine.add(new TestSprite1({
+engine.add(new TileMap({
 	parent: engine,
+	x: 0,
+	y: 0
+}));
+engine.add(new TestSprite1({
 	x: engine.display.width/2-150,
 	y: engine.display.height/2-150,
 	width: 300,
 	height: 300
 }));
 engine.add(new TestSprite2({
-	parent: engine,
 	x: 100,
 	y: 140,
 	width: 25,

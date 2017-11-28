@@ -1,7 +1,7 @@
-var Tiles = ['black', 'white', 'blue', 'green'];
+var Tiles = ['black', 'grey', 'blue', 'green'];
 class TileMap extends Sprite{
-	constructor(parent, x, y){
-		super(parent, x, y, 0, 0);
+	constructor(params){
+		super(params);
 		this.twidth = 32;
 		this.theight = 32;
 		this.map = [

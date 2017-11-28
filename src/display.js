@@ -25,7 +25,7 @@ class Display {
 	}
 	circle(x, y, width, color){
 		this.ctx.beginPath();
-		this.ctx.arc(x, y, width/2, 0, 2 * Math.PI, false);
+		this.ctx.arc(this.x + x, this.y + y, width/2, 0, 2 * Math.PI, false);
 		this.ctx.strokeStyle =  color;
 		this.ctx.stroke();
 	}

@@ -14,12 +14,7 @@ class GameObject {
 	get gy(){
 		return this.y;
 	}
-	get rx(){
-		return this.parent ? this.parent.x - this.x  : this.x;
-	}
-	get ry(){
-		return this.parent ? this.parent.y - this.y : this.y;
-	}
+
 
 	debugDraw(color){
 		color = typeof color === "undefined" ? "red" : color;

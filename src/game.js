@@ -20,13 +20,16 @@ class TestSprite2 extends Sprite{
 
 		if(this.input.keyCode("ArrowDown")) this.y += this.speed;
 		if(this.input.keyCode("ArrowUp")) this.y -= this.speed;
-		if(this.input.keyCode("ArrowRight")) this.x += this.speed;
+		if(this.input.keyCode("ArrowRight")) {
+			this.x += this.speed;
+
+		}
 		if(this.input.keyCode("ArrowLeft")) this.x -= this.speed;
 
 	}
 	draw(){
 		this.colliders[0].debugDraw(this.color);
-		//this.display.rect(this.x+2, this.y+2, this.width-4, this.height-4, 'blue');
+		this.display.rect(this.x+2, this.y+2, this.width-4, this.height-4, 'green');
 	}
 	collision(sprite){
 		this.color = "red";
@@ -55,7 +58,8 @@ class TestSprite1 extends Sprite{
 		for(let collider of this.colliders){
 			collider.debugDraw(this.color);
 		}
-		//this.display.rect(this.x+2, this.y+2, this.width-4, this.height-4, 'blue');
+
+		this.display.rect(this.x+2, this.y+2, this.width-4, this.height-4, 'blue');
 	}
 	collision(sprite){
 		this.color = "red";
@@ -64,15 +68,18 @@ class TestSprite1 extends Sprite{
 
 
 let engine = new Engine('canvas');
-engine.add(new TestSprite1({
+engine.add(new TileMap({
 	parent: engine,
+	x: 0,
+	y: 0
+}));
+engine.add(new TestSprite1({
 	x: engine.display.width/2-150,
 	y: engine.display.height/2-150,
 	width: 300,
 	height: 300
 }));
 engine.add(new TestSprite2({
-	parent: engine,
 	x: 100,
 	y: 140,
 	width: 25,
