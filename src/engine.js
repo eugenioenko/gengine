@@ -1,6 +1,12 @@
 class Engine extends GameObject{
 	constructor(canvas){
-		super(null, 0, 0, 640,480);
+		super({
+			parent: null,
+			x: 0,
+			y: 0,
+			width: 640,
+			height: 480
+		});
 		this.display = new Display('canvas');
 		this.input = new Input();
 		this.x = 0;

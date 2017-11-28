@@ -7,12 +7,14 @@ class Maths{
 	}
 }
 class GameObject {
-	constructor(parent, x, y, width, height){
-		this.parent = parent;
-		this.x = x;
-		this.y = y;
-		this.width = width;
-		this.height = height;
+	/**
+	 * params {parent, x, y, width, height}
+	 */
+	constructor(params){
+		if(!arguments.length) {
+			throw new Error("GameObject constructor requires an object literal as argument");
+		}
+		Object.assign(this, params);
 	}
 	get gx(){
 		return this.x;
@@ -121,8 +123,8 @@ class TestCollision{
 	}
 }
 class Collider extends GameObject{
-	constructor(parent, x, y, width, height){
-		super(parent, x, y, width, height);
+	constructor(params){
+		super(params);
 	}
 	test(collider){
 		// to do
@@ -135,8 +137,8 @@ class Collider extends GameObject{
 	}
 }
 class CircleCollider extends Collider{
-	constructor(parent, x, y, width, height){
-		super(parent, x, y, width, height);
+	constructor(params){
+		super(params);
 		this.radius = this.width / 2;
 	}
 	test(collider){
@@ -155,8 +157,8 @@ class CircleCollider extends Collider{
 	}
 }
 class RectCollider extends Collider{
-	constructor(parent, x, y, width, height){
-		super(parent, x, y, width, height);
+	constructor(params){
+		super(params);
 	}
 	test(collider){
 		if(collider instanceof CircleCollider){
@@ -174,16 +176,16 @@ class RectCollider extends Collider{
 	}
 }
 class Sprite extends GameObject{
-	constructor(parent, x, y, width, height){
-		super(parent, x, y, width, height);
+	constructor(params){
+		super(params);
 		this.colliders = [];
 		this.sprites = [];
 		this.colliding = false;
 		this.display = null;
 		this.input = null;
 		if(this.parent){
-			this.display = parent.display;
-			this.input = parent.input;
+			this.display = this.parent.display;
+			this.input = this.parent.input;
 		}
 	}
 	addCollider(x, y, width, height){
@@ -246,7 +248,13 @@ class Sprite extends GameObject{
 
 class Engine extends GameObject{
 	constructor(canvas){
-		super(null, 0, 0, 640,480);
+		super({
+			parent: null,
+			x: 0,
+			y: 0,
+			width: 640,
+			height: 480
+		});
 		this.display = new Display('canvas');
 		this.input = new Input();
 		this.x = 0;
@@ -345,10 +353,16 @@ class TileMap extends Sprite{
 }
 
 class TestSprite2 extends Sprite{
-	constructor(parent, x, y, width, height){
-		super(parent, x, y, width, height);
+	constructor(params){
+		super(params);
 		//this.colliders.push(new RectCollider(this, 0, 0, 50, 50));
-		this.colliders.push(new CircleCollider(this, this.width/2, this.height/2, this.width, this.height));
+		this.colliders.push(new CircleCollider({
+			parent: this,
+			x: this.width/2,
+			y: this.height/2,
+			width: this.width,
+			height: this.height
+		}));
 		this.speed = 1;
 		this.color = "white";
 		this.rotation = 0;
@@ -374,9 +388,15 @@ class TestSprite2 extends Sprite{
 	}
 }
 class TestSprite1 extends Sprite{
-	constructor(parent, x, y, width, height){
-		super(parent, x, y, width, height);
-		this.colliders.push(new CircleCollider(this, this.width/2, this.height/2, this.width, this.height));
+	constructor(params){
+		super(params);
+		this.colliders.push(new CircleCollider({
+			parent: this,
+			x: this.width/2,
+			y: this.height/2,
+			width: this.width,
+			height: this.height
+		}));
 		this.speed = 1;
 		this.color = "white";
 	}
@@ -398,5 +418,29 @@ class TestSprite1 extends Sprite{
 
 
 let engine = new Engine('canvas');
-engine.add(new TestSprite1(engine, engine.display.width/2-150, engine.display.height/2-150, 300, 300));
-engine.add(new TestSprite2(engine, 100, 140, 25, 25));
+engine.add(new TestSprite1({
+	parent: engine,
+	x: engine.display.width/2-150,
+	y: engine.display.height/2-150,
+	width: 300,
+	height: 300
+}));
+engine.add(new TestSprite2({
+	parent: engine,
+	x: 100,
+	y: 140,
+	width: 25,
+	height: 25
+}));
+
+
+
+
+
+
+
+
+
+
+
+

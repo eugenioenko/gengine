@@ -1,10 +1,12 @@
 class GameObject {
-	constructor(parent, x, y, width, height){
-		this.parent = parent;
-		this.x = x;
-		this.y = y;
-		this.width = width;
-		this.height = height;
+	/**
+	 * params {parent, x, y, width, height}
+	 */
+	constructor(params){
+		if(!arguments.length) {
+			throw new Error("GameObject constructor requires an object literal as argument");
+		}
+		Object.assign(this, params);
 	}
 	get gx(){
 		return this.x;

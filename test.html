@@ -1,0 +1,23 @@
+<script>
+
+class GameObject {
+	constructor(params){
+		Object.assign(this, params);
+	}
+	get gx(){
+		return this.x;
+	}
+	get gy(){
+		return this.y;
+	}
+	get rx(){
+		return this.parent ? this.parent.x - this.x  : this.x;
+	}
+	get ry(){
+		return this.parent ? this.parent.y - this.y : this.y;
+	}
+
+}
+var g = new GameObject({parent: null, x: 1, y: 2, width: 10, height: 11});
+console.log(g);
+</script>

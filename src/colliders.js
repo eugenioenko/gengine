@@ -1,6 +1,6 @@
 class Collider extends GameObject{
-	constructor(parent, x, y, width, height){
-		super(parent, x, y, width, height);
+	constructor(params){
+		super(params);
 	}
 	test(collider){
 		// to do
@@ -13,8 +13,8 @@ class Collider extends GameObject{
 	}
 }
 class CircleCollider extends Collider{
-	constructor(parent, x, y, width, height){
-		super(parent, x, y, width, height);
+	constructor(params){
+		super(params);
 		this.radius = this.width / 2;
 	}
 	test(collider){
@@ -33,8 +33,8 @@ class CircleCollider extends Collider{
 	}
 }
 class RectCollider extends Collider{
-	constructor(parent, x, y, width, height){
-		super(parent, x, y, width, height);
+	constructor(params){
+		super(params);
 	}
 	test(collider){
 		if(collider instanceof CircleCollider){

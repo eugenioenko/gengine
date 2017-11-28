@@ -1,14 +1,14 @@
 class Sprite extends GameObject{
-	constructor(parent, x, y, width, height){
-		super(parent, x, y, width, height);
+	constructor(params){
+		super(params);
 		this.colliders = [];
 		this.sprites = [];
 		this.colliding = false;
 		this.display = null;
 		this.input = null;
 		if(this.parent){
-			this.display = parent.display;
-			this.input = parent.input;
+			this.display = this.parent.display;
+			this.input = this.parent.input;
 		}
 	}
 	addCollider(x, y, width, height){
