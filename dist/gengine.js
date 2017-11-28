@@ -365,6 +365,9 @@ class TestSprite2 extends Sprite{
 		if(++this.rotation > 360){
 			this.rotation = 0;
 		}
+		var m = Maths.clamp(Math.abs(this.speed+3) * 70, 0, 250);
+		this.color = `rgb(${m},${m},${m})`;
+
 
 	}
 	draw(){
@@ -372,7 +375,7 @@ class TestSprite2 extends Sprite{
 		//this.display.rect(this.x+2, this.y+2, this.width-4, this.height-4, 'green');
 	}
 	collision(sprite){
-		this.color = "red";
+
 
 	}
 }
@@ -394,6 +397,7 @@ class TestSprite1 extends Sprite{
 		if(!this.colliding){
 			this.color = "white";
 		}
+		this.color = 'rgba(111,111,111)';
 		//this.x += Math.cos(this.rotation * Math.PI/180) * this.speed;
 		//this.y += Math.sin(this.rotation * Math.PI/180) * this.speed;
 		if(++this.rotation > 360){
@@ -408,7 +412,7 @@ class TestSprite1 extends Sprite{
 		//this.display.rect(this.x+2, this.y+2, this.width-4, this.height-4, 'blue');
 	}
 	collision(sprite){
-		this.color = "red";
+
 	}
 }
 
@@ -419,22 +423,24 @@ let engine = new Engine('canvas');
 	x: 0,
 	y: 0
 }));*/
+/*
 engine.add(new TestSprite1({
 	x: engine.display.width/2-150,
 	y: engine.display.height/2-150,
 	width: 300,
 	height: 300
-}));
-for (var i = 0; i < 100; ++i){
+}));*/
+for (var i = 0; i < 1000; ++i){
 	engine.add(new TestSprite2({
-		x: Maths.rand(0, 800),
-		y: Maths.rand(0, 800),
-		width: 20,
-		height: 20,
+		x: Maths.rand(200, 480),
+		y: Maths.rand(150, 330),
+		width: 5,
+		height: 5,
 		rotation: Maths.rand(0, 359),
-		speed: Maths.rand(-5, 5)
+		speed: Maths.rand(-3, 3)
 	}));
 }
+
 
 
 
