@@ -1,8 +1,8 @@
 
 
 var Tiles = [
-	{color: '#ffb3ba', solid: true}, 
-	{color: '#ffdfba', solid: true},
+	{color: '#ffb3ba', solid: false}, 
+	{color: '#ffdfba', solid: false},
 	{color: '#ffffba', solid: true},
 	{color: '#baffc9', solid: true},
 	{color: '#bae1ff', solid: true}
@@ -19,6 +19,9 @@ class Matrix {
 	}
 	write(x, y, value){
 		this.array[y * this.width + x] = value;
+	}
+	load(array){
+		this.array = new Uint16Array(array);
 	}
 	randomize(){
 		for(let i = 0; i < this.array.length; ++i){
@@ -39,9 +42,12 @@ class TileMap extends Sprite{
 	write(x, y, value){
 		this.map.write(x, y, value);
 	}
+	load(array){
+		this.map.load(array);
+	}
 	init(){
 		this.display = this.getComponent("display");
-		this.map.randomize();
+		//this.map.randomize();
 	}
 	randomize(){
 		this.map.randomize();
@@ -49,9 +55,11 @@ class TileMap extends Sprite{
 	getTileX(x){
 		return Math.floor(x / this.twidth);
 	}
-	
 	getTileY(y){
 		return Math.floor(y / this.theight);
+	}
+	getTile(x, y){
+		return Tiles[this.read(this.getTileX(x), this.getTileY(y))];
 	}
 	getDrawRect(){
 		let x1 = this.getTileX(this.engine.x);

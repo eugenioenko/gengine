@@ -49,6 +49,7 @@ class Engine extends GameObject{
 			engine.gameLoop();	
 		});
 	}
+
 	add(sprite){
 		sprite.engine = this;
 		sprite.init();
@@ -70,12 +71,10 @@ class Engine extends GameObject{
 		return;
 	}
 	loop(){
-		//if(!this.frameLimit && ++this.frameCount > this.frameSkip){
-			//this.collision();
-			this.move();
-			this.draw();
-			this.frameCount = 0;
-		//}
+		this.collision();
+		this.move();
+		this.draw();
+		this.frameCount = 0;
 		window.requestAnimationFrame(this.gameLoop);
 	}
 }
