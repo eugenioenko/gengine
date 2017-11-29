@@ -37,9 +37,15 @@ class TileMap extends Sprite{
 	randomize(){
 		this.map.randomize();
 	}
+	getTileX(x){
+		return Math.floor(x / this.twidth)
+	
+	getTileY(y){
+		return Math.floor(y / this.theight)
+	}
 	getDrawRect(){
-		let x1 = Math.floor(this.engine.x / this.twidth);
-		let y1 = Math.floor(this.engine.y / this.theight);
+		let x1 = getTileX(this.engine.x / this.twidth);
+		let y1 = getTileY(this.engine.y / this.theight);
 		let x2 = Math.ceil(this.engine.width / this.twidth);
 		let y2 = Math.ceil(this.engine.height / this.theight);
 		x1 = Maths.clamp(x1, 0, this.width);
@@ -61,5 +67,16 @@ class TileMap extends Sprite{
 			}
 		}
 		return;
+	}
+	getCorners(x, y, sprite){
+		sprite.downY = Math.floor((y+sprite.height-1)/game.tileH);
+		sprite.upY = Math.floor((y-sprite.height)/game.tileH);
+		sprite.leftX = Math.floor((x-sprite.width)/game.tileW);
+		sprite.rightX = Math.floor((x+sprite.width-1)/game.tileW);
+		//check if they are walls
+		sprite.upleft = game["t_"+sprite.upY+"_"+sprite.leftX].walkable;
+		sprite.downleft = game["t_"+sprite.downY+"_"+sprite.leftX].walkable;
+		sprite.upright = game["t_"+sprite.upY+"_"+sprite.rightX].walkable;
+		sprite.downright = game["t_"+sprite.downY+"_"+sprite.rightX].walkable;
 	}
 }
