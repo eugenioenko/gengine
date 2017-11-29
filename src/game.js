@@ -45,11 +45,11 @@ class TestSprite extends Sprite{
 
 
 function Game(engine){
-	engine.add(new TileMap({
+	engine.add(new TileMap({ 
 		x: 0,
 		y: 0,
-		width: 50,
-		height: 50
+		width: 100,
+		height: 100
 	}));
 	for (var i = 0; i < 100; ++i){
 		engine.add(new TestSprite({
