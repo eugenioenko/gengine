@@ -12,6 +12,10 @@ class TestSprite extends Sprite{
 		this.color = "white";
 		this.rotation = 0;
 	}
+	init(){
+		this.input = this.getComponent("input");
+		this.display = this.getComponent("display");
+	}
 	move(){
 		if(!this.colliding){
 			this.color = "white";
@@ -29,37 +33,26 @@ class TestSprite extends Sprite{
 		}
 		var m = Maths.clamp(Math.abs(this.speed+3) * 70, 0, 250);
 		this.color = `rgb(${m},${m},${m})`;
-
-
 	}
 	draw(){
 		this.colliders[0].debugDraw(this.color);
-		//this.display.rect(this.x+2, this.y+2, this.width-4, this.height-4, 'green');
 	}
 	collision(sprite){
-
 
 	}
 }
 
 
 let engine = new Engine('canvas');
-/*engine.add(new TileMap({
-	parent: engine,
-	x: 0,
-	y: 0
-}));*/
-
 
 engine.add(new TileMap({
-	parent: engine,
 	x: 0,
 	y: 0,
 	width: 50,
 	height: 50
 }));
-/*
-for (var i = 0; i < 1000; ++i){
+
+for (var i = 0; i < 100; ++i){
 	engine.add(new TestSprite({
 		x: Maths.rand(200, 480),
 		y: Maths.rand(150, 330),
@@ -68,7 +61,7 @@ for (var i = 0; i < 1000; ++i){
 		rotation: Maths.rand(0, 359),
 		speed: Maths.rand(-3, 3)
 	}));
-}*/
+}
 
 
 

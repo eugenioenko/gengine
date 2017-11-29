@@ -56,6 +56,32 @@ class Display extends GameObject{
 		this.canvas = document.getElementById(this.id);
 		this.width = this.canvas.width;
 		this.height = this.canvas.height;
+		this.scale = 1;
+	}
+	set zoom(value){
+		// to do: sets zoom scale
+	}
+	get zoom(){
+		return this.scale;
+	}
+	clear(){
+		// to do: clears the canvas
+	}
+
+	fillRect(x, y, width, height, color){
+		// to do: fills a rect
+	}
+	rect(x, y, width, height, color){
+		// to do: draws a rectangle
+	}
+	circle(x, y, width, color){
+		// to do: draws a circle
+	}
+}
+class CanvasDisplay extends Display{
+	constructor(params){
+		super(params);
+		this.canvas = document.getElementById(this.id);
 		this.ctx = this.canvas.getContext('2d');
 		this.scale = 1;
 	}
@@ -89,6 +115,23 @@ class Display extends GameObject{
 		this.ctx.arc(-this.engine.x + x, -this.engine.y + y, width/2, 0, 2 * Math.PI, false);
 		this.ctx.strokeStyle =  color;
 		this.ctx.stroke();
+	}
+}
+
+class WebGLDisplay extends Display{
+	constructor(params){
+		super(params);
+		this.canvas = document.getElementById(this.id);
+		this.gl = this.canvas.getContext('webgl');
+		this.scale = 1;
+		if (!this.gl) {
+			new Error("Unable to initialize WebGL. Your browser or machine may not support it.");
+		}
+
+		  // Set clear color to black, fully opaque
+		this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
+		  // Clear the color buffer with specified clear color
+		this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 	}
 }
 
@@ -188,12 +231,9 @@ class Sprite extends GameObject{
 		super(params);
 		this.colliders = [];
 		this.colliding = false;
-		this.display = null;
-		this.input = null;
-		if(this.parent){
-			this.display = this.parent.display;
-			this.input = this.parent.input;
-		}
+	}
+	getComponent(name){
+		return this.engine[name];
 	}
 	addCollider(x, y, width, height){
 		this.colliders.push(new RectCollider(this, x, y, width, height));
@@ -212,6 +252,7 @@ class Sprite extends GameObject{
 					return true;
 		return false;
 	}
+	init(){ }
 	move(){ }
 	draw(){ }
 	collision(sprite){ }
@@ -227,19 +268,17 @@ class Engine extends GameObject{
 			width: 640,
 			height: 480
 		});
-		this.display = new Display({
+		this.display = new CanvasDisplay({
 			id: 'canvas',
-			engine: this,
-			parent: null
+			engine: this
 		});
 		this.input = new Input();
 		this.x = 0;
 		this.y = 0;
 		this.camera = new Camera({
-			engine: this,
-			parent: this,
 			x: 0,
-			y: 0
+			y: 0,
+			engine: this
 		});
 		this.sprites = [];
 		this.frameLimit = false;
@@ -262,10 +301,12 @@ class Engine extends GameObject{
 			}
 		}
 	}
+	getComponent(name){
+		return this[name];
+	}
 	add(sprite){
-		sprite.engine = engine;
-		sprite.display = this.display;
-		sprite.input = this.input;
+		sprite.engine = this;
+		sprite.init();
 		this.sprites.push(sprite);
 		return;
 	}
@@ -297,9 +338,13 @@ class Camera extends Sprite{
 	constructor(params){
 		super(params);
 		this.bound = null;
-		this.speed = 3;
+		this.speed = 10;
+		this.input = this.getComponent("input");
 	}
 	follow(object){
+	}
+	init(){
+
 	}
 	move(){
 		if(this.input.keyCode("KeyS")) this.engine.y -= this.speed;
@@ -333,14 +378,16 @@ class TileMap extends Sprite{
 		this.twidth = 64;
 		this.theight = 64;
 		this.map = new Matrix(this.width, this.height);
-		this.map.randomize();
-
 	}
 	read(x, y){
 		return this.map.read(x, y);
 	}
 	write(x, y, value){
 		this.map.write(x, y, value);
+	}
+	init(){
+		this.display = this.getComponent("display");
+		this.map.randomize();
 	}
 	randomize(){
 		this.map.randomize();
@@ -386,6 +433,10 @@ class TestSprite extends Sprite{
 		this.color = "white";
 		this.rotation = 0;
 	}
+	init(){
+		this.input = this.getComponent("input");
+		this.display = this.getComponent("display");
+	}
 	move(){
 		if(!this.colliding){
 			this.color = "white";
@@ -403,37 +454,26 @@ class TestSprite extends Sprite{
 		}
 		var m = Maths.clamp(Math.abs(this.speed+3) * 70, 0, 250);
 		this.color = `rgb(${m},${m},${m})`;
-
-
 	}
 	draw(){
 		this.colliders[0].debugDraw(this.color);
-		//this.display.rect(this.x+2, this.y+2, this.width-4, this.height-4, 'green');
 	}
 	collision(sprite){
-
 
 	}
 }
 
 
 let engine = new Engine('canvas');
-/*engine.add(new TileMap({
-	parent: engine,
-	x: 0,
-	y: 0
-}));*/
-
 
 engine.add(new TileMap({
-	parent: engine,
 	x: 0,
 	y: 0,
 	width: 50,
 	height: 50
 }));
-/*
-for (var i = 0; i < 1000; ++i){
+
+for (var i = 0; i < 100; ++i){
 	engine.add(new TestSprite({
 		x: Maths.rand(200, 480),
 		y: Maths.rand(150, 330),
@@ -442,7 +482,7 @@ for (var i = 0; i < 1000; ++i){
 		rotation: Maths.rand(0, 359),
 		speed: Maths.rand(-3, 3)
 	}));
-}*/
+}
 
 
 

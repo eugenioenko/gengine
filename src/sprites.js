@@ -3,12 +3,9 @@ class Sprite extends GameObject{
 		super(params);
 		this.colliders = [];
 		this.colliding = false;
-		this.display = null;
-		this.input = null;
-		if(this.parent){
-			this.display = this.parent.display;
-			this.input = this.parent.input;
-		}
+	}
+	getComponent(name){
+		return this.engine[name];
 	}
 	addCollider(x, y, width, height){
 		this.colliders.push(new RectCollider(this, x, y, width, height));
@@ -27,6 +24,7 @@ class Sprite extends GameObject{
 					return true;
 		return false;
 	}
+	init(){ }
 	move(){ }
 	draw(){ }
 	collision(sprite){ }

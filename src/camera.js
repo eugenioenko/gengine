@@ -2,9 +2,13 @@ class Camera extends Sprite{
 	constructor(params){
 		super(params);
 		this.bound = null;
-		this.speed = 3;
+		this.speed = 10;
+		this.input = this.getComponent("input");
 	}
 	follow(object){
+	}
+	init(){
+
 	}
 	move(){
 		if(this.input.keyCode("KeyS")) this.engine.y -= this.speed;

@@ -7,19 +7,17 @@ class Engine extends GameObject{
 			width: 640,
 			height: 480
 		});
-		this.display = new Display({
+		this.display = new CanvasDisplay({
 			id: 'canvas',
-			engine: this,
-			parent: null
+			engine: this
 		});
 		this.input = new Input();
 		this.x = 0;
 		this.y = 0;
 		this.camera = new Camera({
-			engine: this,
-			parent: this,
 			x: 0,
-			y: 0
+			y: 0,
+			engine: this
 		});
 		this.sprites = [];
 		this.frameLimit = false;
@@ -42,10 +40,12 @@ class Engine extends GameObject{
 			}
 		}
 	}
+	getComponent(name){
+		return this[name];
+	}
 	add(sprite){
-		sprite.engine = engine;
-		sprite.display = this.display;
-		sprite.input = this.input;
+		sprite.engine = this;
+		sprite.init();
 		this.sprites.push(sprite);
 		return;
 	}

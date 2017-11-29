@@ -23,14 +23,16 @@ class TileMap extends Sprite{
 		this.twidth = 64;
 		this.theight = 64;
 		this.map = new Matrix(this.width, this.height);
-		this.map.randomize();
-
 	}
 	read(x, y){
 		return this.map.read(x, y);
 	}
 	write(x, y, value){
 		this.map.write(x, y, value);
+	}
+	init(){
+		this.display = this.getComponent("display");
+		this.map.randomize();
 	}
 	randomize(){
 		this.map.randomize();
