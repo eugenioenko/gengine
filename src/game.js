@@ -43,25 +43,28 @@ class TestSprite extends Sprite{
 }
 
 
-let engine = new Engine('canvas');
 
-engine.add(new TileMap({
-	x: 0,
-	y: 0,
-	width: 50,
-	height: 50
-}));
-
-for (var i = 0; i < 100; ++i){
-	engine.add(new TestSprite({
-		x: Maths.rand(200, 480),
-		y: Maths.rand(150, 330),
-		width: 5,
-		height: 5,
-		rotation: Maths.rand(0, 359),
-		speed: Maths.rand(-3, 3)
+function Game(engine){
+	engine.add(new TileMap({
+		x: 0,
+		y: 0,
+		width: 50,
+		height: 50
 	}));
+	for (var i = 0; i < 100; ++i){
+		engine.add(new TestSprite({
+			x: Maths.rand(200, 480),
+			y: Maths.rand(150, 330),
+			width: 5,
+			height: 5,
+			rotation: Maths.rand(0, 359),
+			speed: Maths.rand(-3, 3)
+		}));
+	}
 }
+Engine.init(new Engine('canvas'), Game);
+
+
 
 
 

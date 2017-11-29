@@ -7,10 +7,7 @@ class Engine extends GameObject{
 			width: 640,
 			height: 480
 		});
-		this.display = new CanvasDisplay({
-			id: 'canvas',
-			engine: this
-		});
+		
 		this.input = new Input();
 		this.x = 0;
 		this.y = 0;
@@ -24,7 +21,6 @@ class Engine extends GameObject{
 		this.frameSkip = 20;
 		this.frameCount = 0;
 		this.gameLoop = this.loop.bind(this);
-		this.gameLoop();
 	}
 	collision(){
 		for(let i = 0; i < this.sprites.length; ++i){
@@ -42,6 +38,16 @@ class Engine extends GameObject{
 	}
 	getComponent(name){
 		return this[name];
+	}
+	static init(engine, callback){
+		window.addEventListener('load', function(){
+			engine.display = new CanvasDisplay({
+				id: 'canvas',
+				engine: engine
+			});
+			callback(engine);
+			engine.gameLoop();	
+		});
 	}
 	add(sprite){
 		sprite.engine = this;

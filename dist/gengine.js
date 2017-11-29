@@ -268,10 +268,7 @@ class Engine extends GameObject{
 			width: 640,
 			height: 480
 		});
-		this.display = new CanvasDisplay({
-			id: 'canvas',
-			engine: this
-		});
+		
 		this.input = new Input();
 		this.x = 0;
 		this.y = 0;
@@ -285,7 +282,6 @@ class Engine extends GameObject{
 		this.frameSkip = 20;
 		this.frameCount = 0;
 		this.gameLoop = this.loop.bind(this);
-		this.gameLoop();
 	}
 	collision(){
 		for(let i = 0; i < this.sprites.length; ++i){
@@ -303,6 +299,16 @@ class Engine extends GameObject{
 	}
 	getComponent(name){
 		return this[name];
+	}
+	static init(engine, callback){
+		window.addEventListener('load', function(){
+			engine.display = new CanvasDisplay({
+				id: 'canvas',
+				engine: engine
+			});
+			callback(engine);
+			engine.gameLoop();	
+		});
 	}
 	add(sprite){
 		sprite.engine = this;
@@ -464,25 +470,28 @@ class TestSprite extends Sprite{
 }
 
 
-let engine = new Engine('canvas');
 
-engine.add(new TileMap({
-	x: 0,
-	y: 0,
-	width: 50,
-	height: 50
-}));
-
-for (var i = 0; i < 100; ++i){
-	engine.add(new TestSprite({
-		x: Maths.rand(200, 480),
-		y: Maths.rand(150, 330),
-		width: 5,
-		height: 5,
-		rotation: Maths.rand(0, 359),
-		speed: Maths.rand(-3, 3)
+function Game(engine){
+	engine.add(new TileMap({
+		x: 0,
+		y: 0,
+		width: 50,
+		height: 50
 	}));
+	for (var i = 0; i < 100; ++i){
+		engine.add(new TestSprite({
+			x: Maths.rand(200, 480),
+			y: Maths.rand(150, 330),
+			width: 5,
+			height: 5,
+			rotation: Maths.rand(0, 359),
+			speed: Maths.rand(-3, 3)
+		}));
+	}
 }
+Engine.init(new Engine('canvas'), Game);
+
+
 
 
 
