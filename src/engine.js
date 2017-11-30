@@ -8,15 +8,7 @@ class Engine extends GameObject{
 			height: 480
 		});
 		this.debugMode = true;
-		this.input = new Input();
-		this.time = new Time();
-		this.x = 0;
-		this.y = 0;
-		this.camera = new Camera({
-			x: 0,
-			y: 0,
-			engine: this
-		});
+		this.components = {};
 		this.sprites = [];
 		this.frameLimit = false;
 		this.frameSkip = 20;
@@ -37,18 +29,25 @@ class Engine extends GameObject{
 			}
 		}
 	}
-	getComponent(name){
-		return this[name];
+	addComponent(name, component, params){
+		this.components[name] = new component(params, this);
+		this.components[name].init();
 	}
-	static init(engine, callback){
+	getComponent(name){
+		return this.components[name];
+	}
+	init(){
+		this.addComponent("Input", Input);
+		this.addComponent("Camera", Camera);
+		this.addComponent("Time", Time);
+		this.addComponent("Display", CanvasDisplay, { id: 'canvas'});
+		this.display = this.components.Display;
+		this.gameLoop();
+	}
+	static ready(engine, callback){
 		window.addEventListener('load', function(){
-			engine.display = new CanvasDisplay({
-				id: 'canvas',
-				engine: engine
-			});
+			engine.init();
 			callback(engine);
-			engine.time.start();
-			engine.gameLoop();
 		});
 	}
 
@@ -62,7 +61,10 @@ class Engine extends GameObject{
 		for(let sprite of this.sprites){
 			sprite.move();
 		}
-		this.camera.move();
+		let components = Object.keys(this.components);
+		for(let componentName of components){
+			this.components[componentName].move();
+		}
 		return;
 	}
 	draw(){
@@ -70,13 +72,17 @@ class Engine extends GameObject{
 		for(let sprite of this.sprites){
 			sprite.draw();
 		}
+		let components = Object.keys(this.components);
+		for(let componentName of components){
+			this.components[componentName].draw();
+		}
 		return;
 	}
 	debugInfo(){
-		if(!this.debugMode) return;
+		/*if(!this.debugMode) return;
 		this.display.fillText((this.time.time).toFixed(2), 20, 20);
 		this.display.fillText((this.time.deltaTime).toFixed(4), 20, 40);
-		this.display.fillText(this.time.fps.toFixed(2), 20, 60);
+		this.display.fillText(this.time.fps.toFixed(2), 20, 60);*/
 	}
 	loop(){
 		this.collision();
@@ -84,7 +90,6 @@ class Engine extends GameObject{
 		this.draw();
 		this.frameCount = 0;
 		this.debugInfo();
-		this.time.calcTime();
 		window.requestAnimationFrame(this.gameLoop);
 	}
 }

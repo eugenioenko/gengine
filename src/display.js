@@ -1,9 +1,6 @@
-class Display extends GameObject{
-	constructor(params){
-		super(params);
-		this.canvas = document.getElementById(this.id);
-		this.width = this.canvas.width;
-		this.height = this.canvas.height;
+class Display extends Component{
+	constructor(params, engine){
+		super(params, engine);
 		this.scale = 1;
 	}
 	set zoom(value){
@@ -11,6 +8,11 @@ class Display extends GameObject{
 	}
 	get zoom(){
 		return this.scale;
+	}
+	init() {
+		this.canvas = document.getElementById(this.id);
+		this.width = this.canvas.width;
+		this.height = this.canvas.height;
 	}
 	clear(){
 		// to do: clears the canvas
@@ -27,11 +29,13 @@ class Display extends GameObject{
 	}
 }
 class CanvasDisplay extends Display{
-	constructor(params){
-		super(params);
+	constructor(params, engine){
+		super(params, engine);
+		this.scale = 1;
+	}
+	init () {
 		this.canvas = document.getElementById(this.id);
 		this.ctx = this.canvas.getContext('2d');
-		this.scale = 1;
 		this.ctx.font = "16px Helvetica";
 	}
 	set zoom(value){

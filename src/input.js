@@ -1,6 +1,9 @@
-class Input {
-	constructor(){
+class Input extends Component{
+	constructor(params){
+		super(params);
 		this.keyCode_ = {};
+	}
+	init(){
 		window.addEventListener("keydown", this.keyDown.bind(this), false);
 		window.addEventListener("keyup", this.keyUp.bind(this), false);
 	}

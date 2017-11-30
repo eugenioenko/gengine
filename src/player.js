@@ -8,18 +8,30 @@ class Player extends Sprite{
 		this.vars.cv = 0;
 		this.speed = 6;
 		this.speedY = 0;
-		this.maxSpeedY = 10;
+		this.moveDistanceY = 0;
+		this.accelerationY = 0;
+		this.velocityY = 0;
 		this.gravity = 3;
-		this.jumping = false;
+		this.maxSpeedY = 10;
+		/*this.gravity = 3;
+		this.jumpSpeed = 0;
+		this.jumpForce = 1.5;
+		this.maxJumpSpeed = 20;
+		this.jumpCount = 0;
+		this.jumping = false;*/
+
+
 	}
 	getCoorners(x, y){
 		tilemap.getCoorners(x, y, this.width, this.height, this.coorners);
 	}
 	init(){
-		this.input = this.getComponent("input");
-		this.display = this.getComponent("display");
-		this.tilemap = this.getComponent("tilemap");
-		this.time = this.getComponent("time");
+		this.input = this.getComponent("Input");
+		this.display = this.getComponent("Display");
+		this.tilemap = this.getComponent("Tilemap");
+		this.time = this.getComponent("Time");
+
+		
 	}
 	move(){
 		// left right movement
@@ -31,26 +43,46 @@ class Player extends Sprite{
 			(inputX == -1 && !this.coorners.downLeft.solid && !this.coorners.upLeft.solid)
 		){
 			this.x += moveDistanceX;
+			this.engine.x += moveDistanceX;
 		}
+
+		
+	
 
 		// gravity
-		this.speedY += this.gravity * this.time.deltaTime;
-		this.speedY = Maths.clamp(this.speedY, -this.maxSpeedY, this.maxSpeedY);
-		this.getCoorners(this.x, this.y + this.speedY);
+		// 
+		this.moveDistanceY = this.velocityY;
+		this.velocityY += this.accelerationY;
+		this.accelerationY = this.gravity;
+		
+		this.moveDistanceY = Maths.clamp(this.moveDistanceY, -this.maxSpeedY, this.maxSpeedY);
+		this.getCoorners(this.x, this.y + this.moveDistanceY);
 
-		if(this.speedY > 0){
+		if(this.moveDistanceY > 0){
 			if(this.coorners.downRight.solid || this.coorners.downLeft.solid){
-				this.speedY = 0;
+				this.moveDistanceY = 0;
+				this.velocityY = 0;
 			}
 		}
+		/*
 		// making jump
 		if(this.speedY == 0){
 			if(this.input.keyCode("ArrowUp") ){
-				this.speedY = -this.maxSpeedY*5;
+				this.jumping = true;
+				this.jumpSpeed = 0;
 			}
 		}
+		//jumping
+		if(this.jumpSpeed >= this.maxJumpSpeed){
+			this.jumping = false;
+			this.jumpSpeed = 0;
+		}*/
 
-		this.y += this.speedY;
+		this.y += this.moveDistanceY;
+		this.engine.y += this.moveDistanceY;
+
+
+
 
 	}
 	draw(){

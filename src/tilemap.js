@@ -46,7 +46,7 @@ class TileMap extends Sprite{
 		this.map.load(array);
 	}
 	init(){
-		this.display = this.getComponent("display");
+		this.display = this.getComponent("Display");
 		//this.map.randomize();
 	}
 	randomize(){

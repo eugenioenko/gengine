@@ -1,5 +1,6 @@
-class Time {
-	constructor(){
+class Time extends Component{
+	constructor(params, engine){
+		super(params, engine);
 		this.deltaTime = 0;
 		this.time = 0;
 		this.frameTime = 0;
@@ -8,10 +9,10 @@ class Time {
 		this.startTime = performance.now() / 1000;
 		this.lastTime = this.startTime;
 	}
-	start(){
+	init(){
 		this.lastTime = performance.now() / 1000;
 	}
-	calcTime(){
+	move(){
 		let current = performance.now() / 1000;
 		this.deltaTimeFS = current - this.lastTime;
 		this.deltaTime = this.deltaTimeFS / (1/60);

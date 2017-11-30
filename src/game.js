@@ -1,7 +1,6 @@
 class TestSprite extends Sprite{
 	constructor(params){
 		super(params);
-		//this.colliders.push(new RectCollider(this, 0, 0, 50, 50));
 		this.colliders.push(new CircleCollider({
 			parent: this,
 			x: this.width/2,
@@ -13,9 +12,9 @@ class TestSprite extends Sprite{
 		this.rotation = 0;
 	}
 	init(){
-		this.input = this.getComponent("input");
-		this.display = this.getComponent("display");
-		this.tilemap = this.getComponent("tilemap");
+		this.input = this.getComponent("Input");
+		this.display = this.getComponent("Display");
+		this.tilemap = this.getComponent("Tilemap");
 	}
 	move(){
 		if(!this.colliding){
@@ -48,17 +47,17 @@ function Game(engine){
 	e = engine;
 	var map = [
 		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-		1,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,1,
-		1,0,0,0,0,1,0,0,0,1,1,0,0,0,0,1,0,0,0,1,
-		1,0,0,1,1,1,1,0,0,1,1,0,0,1,1,1,1,0,0,1,
+		1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,
+		1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,0,1,
+		1,0,0,1,1,1,1,0,0,0,1,0,0,1,1,1,1,0,0,1,
 		1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,
-		1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
 		1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,
-		1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,
+		1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
 		1,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,1,
 		1,0,0,0,0,1,0,0,0,1,1,0,0,0,0,1,0,0,0,1,
 		1,0,0,1,1,1,1,0,0,1,1,0,0,1,1,1,1,0,0,1,
-		1,0,0,0,0,1,0,0,0,1,1,0,0,0,0,1,0,0,0,1,
+		1,0,0,0,0,1,0,0,0,1,1,0,0,0,0,1,0,1,0,1,
 		1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
 
@@ -79,7 +78,7 @@ function Game(engine){
 		x: 100,
 		y: 100,
 		width: 32,
-		height: 64
+		height: 32
 	}));
 
 
@@ -95,6 +94,6 @@ function Game(engine){
 	}
 
 }
-Engine.init(new Engine('canvas'), Game);
+Engine.ready(new Engine('canvas'), Game);
 
 

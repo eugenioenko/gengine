@@ -28,30 +28,6 @@ class Maths{
 		return num8;
 	}
 }
-class Time {
-	constructor(){
-		this.deltaTime = 0;
-		this.time = 0;
-		this.frameTime = 0;
-		this.frameCount = 0;
-		this.fps = 0;
-		this.startTime = performance.now() / 1000;
-		this.lastTime = this.startTime;
-	}
-	start(){
-		this.lastTime = performance.now() / 1000;
-	}
-	calcTime(){
-		let current = performance.now() / 1000;
-		this.deltaTimeFS = current - this.lastTime;
-		this.deltaTime = this.deltaTimeFS / (1/60);
-		this.frameTime += this.deltaTime;
-		this.time = current - this.startTime;
-		this.lastTime = current;
-		this.fps = 1000 / (this.deltaTimeFS * 1000);
-	}
-}
-
 
 class GameObject {
 	/**
@@ -63,23 +39,48 @@ class GameObject {
 		}
 		Object.assign(this, params);
 	}
-	get gx(){
-		return this.x;
-	}
-	get gy(){
-		return this.y;
-	}
-
-
-	debugDraw(color){
-		color = typeof color === "undefined" ? "red" : color;
-		if(this.parent && this.parent.display)
-			this.parent.display.rect(this.x, this.y, this.width, this.height, color);
+	
+	init() { }
+	move() { }
+	draw() { }
+}
+class Component extends GameObject{
+	constructor(params, engine){ 
+		super(params);
+		this.engine = engine;
 	}
 }
-class Input {
-	constructor(){
+class Time extends Component{
+	constructor(params, engine){
+		super(params, engine);
+		this.deltaTime = 0;
+		this.time = 0;
+		this.frameTime = 0;
+		this.frameCount = 0;
+		this.fps = 0;
+		this.startTime = performance.now() / 1000;
+		this.lastTime = this.startTime;
+	}
+	init(){
+		this.lastTime = performance.now() / 1000;
+	}
+	move(){
+		let current = performance.now() / 1000;
+		this.deltaTimeFS = current - this.lastTime;
+		this.deltaTime = this.deltaTimeFS / (1/60);
+		this.frameTime += this.deltaTime;
+		this.time = current - this.startTime;
+		this.lastTime = current;
+		this.fps = 1000 / (this.deltaTimeFS * 1000);
+	}
+}
+
+class Input extends Component{
+	constructor(params){
+		super(params);
 		this.keyCode_ = {};
+	}
+	init(){
 		window.addEventListener("keydown", this.keyDown.bind(this), false);
 		window.addEventListener("keyup", this.keyUp.bind(this), false);
 	}
@@ -99,12 +100,9 @@ class Input {
 		return result;
 	}
 }
-class Display extends GameObject{
-	constructor(params){
-		super(params);
-		this.canvas = document.getElementById(this.id);
-		this.width = this.canvas.width;
-		this.height = this.canvas.height;
+class Display extends Component{
+	constructor(params, engine){
+		super(params, engine);
 		this.scale = 1;
 	}
 	set zoom(value){
@@ -112,6 +110,11 @@ class Display extends GameObject{
 	}
 	get zoom(){
 		return this.scale;
+	}
+	init() {
+		this.canvas = document.getElementById(this.id);
+		this.width = this.canvas.width;
+		this.height = this.canvas.height;
 	}
 	clear(){
 		// to do: clears the canvas
@@ -128,11 +131,13 @@ class Display extends GameObject{
 	}
 }
 class CanvasDisplay extends Display{
-	constructor(params){
-		super(params);
+	constructor(params, engine){
+		super(params, engine);
+		this.scale = 1;
+	}
+	init () {
 		this.canvas = document.getElementById(this.id);
 		this.ctx = this.canvas.getContext('2d');
-		this.scale = 1;
 		this.ctx.font = "16px Helvetica";
 	}
 	set zoom(value){
@@ -239,6 +244,11 @@ class Collider extends GameObject{
 	get gy(){
 		return this.parent.y + this.y;
 	}
+	debugDraw(color){
+		color = typeof color === "undefined" ? "red" : color;
+		if(this.parent && this.parent.display)
+			this.parent.display.rect(this.x, this.y, this.width, this.height, color);
+	}
 }
 class CircleCollider extends Collider{
 	constructor(params){
@@ -286,11 +296,17 @@ class Sprite extends GameObject{
 		this.colliding = false;
 	}
 	getComponent(name){
-		return this.engine[name];
+		return this.engine.getComponent(name);
 	}
 	addCollider(x, y, width, height){
 		this.colliders.push(new RectCollider(this, x, y, width, height));
 	}
+	debugDraw(color){
+		color = typeof color === "undefined" ? "red" : color;
+		if(this.parent && this.parent.display)
+			this.parent.display.rect(this.x, this.y, this.width, this.height, color);
+	}
+
 	/**
 	 * Tests for possible collision between two sprites and if
 	 * that happens, tests for individual colliders;
@@ -304,6 +320,12 @@ class Sprite extends GameObject{
 				if(collider1.test(collider2))
 					return true;
 		return false;
+	}
+	get gx(){
+		return this.x;
+	}
+	get gy(){
+		return this.y;
 	}
 	init(){ }
 	move(){ }
@@ -322,15 +344,7 @@ class Engine extends GameObject{
 			height: 480
 		});
 		this.debugMode = true;
-		this.input = new Input();
-		this.time = new Time();
-		this.x = 0;
-		this.y = 0;
-		this.camera = new Camera({
-			x: 0,
-			y: 0,
-			engine: this
-		});
+		this.components = {};
 		this.sprites = [];
 		this.frameLimit = false;
 		this.frameSkip = 20;
@@ -351,18 +365,25 @@ class Engine extends GameObject{
 			}
 		}
 	}
-	getComponent(name){
-		return this[name];
+	addComponent(name, component, params){
+		this.components[name] = new component(params, this);
+		this.components[name].init();
 	}
-	static init(engine, callback){
+	getComponent(name){
+		return this.components[name];
+	}
+	init(){
+		this.addComponent("Input", Input);
+		this.addComponent("Camera", Camera);
+		this.addComponent("Time", Time);
+		this.addComponent("Display", CanvasDisplay, { id: 'canvas'});
+		this.display = this.components.Display;
+		this.gameLoop();
+	}
+	static ready(engine, callback){
 		window.addEventListener('load', function(){
-			engine.display = new CanvasDisplay({
-				id: 'canvas',
-				engine: engine
-			});
+			engine.init();
 			callback(engine);
-			engine.time.start();
-			engine.gameLoop();
 		});
 	}
 
@@ -376,7 +397,10 @@ class Engine extends GameObject{
 		for(let sprite of this.sprites){
 			sprite.move();
 		}
-		this.camera.move();
+		let components = Object.keys(this.components);
+		for(let componentName of components){
+			this.components[componentName].move();
+		}
 		return;
 	}
 	draw(){
@@ -384,13 +408,17 @@ class Engine extends GameObject{
 		for(let sprite of this.sprites){
 			sprite.draw();
 		}
+		let components = Object.keys(this.components);
+		for(let componentName of components){
+			this.components[componentName].draw();
+		}
 		return;
 	}
 	debugInfo(){
-		if(!this.debugMode) return;
+		/*if(!this.debugMode) return;
 		this.display.fillText((this.time.time).toFixed(2), 20, 20);
 		this.display.fillText((this.time.deltaTime).toFixed(4), 20, 40);
-		this.display.fillText(this.time.fps.toFixed(2), 20, 60);
+		this.display.fillText(this.time.fps.toFixed(2), 20, 60);*/
 	}
 	loop(){
 		this.collision();
@@ -398,7 +426,6 @@ class Engine extends GameObject{
 		this.draw();
 		this.frameCount = 0;
 		this.debugInfo();
-		this.time.calcTime();
 		window.requestAnimationFrame(this.gameLoop);
 	}
 }
@@ -412,18 +439,30 @@ class Player extends Sprite{
 		this.vars.cv = 0;
 		this.speed = 6;
 		this.speedY = 0;
-		this.maxSpeedY = 10;
+		this.moveDistanceY = 0;
+		this.accelerationY = 0;
+		this.velocityY = 0;
 		this.gravity = 3;
-		this.jumping = false;
+		this.maxSpeedY = 10;
+		/*this.gravity = 3;
+		this.jumpSpeed = 0;
+		this.jumpForce = 1.5;
+		this.maxJumpSpeed = 20;
+		this.jumpCount = 0;
+		this.jumping = false;*/
+
+
 	}
 	getCoorners(x, y){
 		tilemap.getCoorners(x, y, this.width, this.height, this.coorners);
 	}
 	init(){
-		this.input = this.getComponent("input");
-		this.display = this.getComponent("display");
-		this.tilemap = this.getComponent("tilemap");
-		this.time = this.getComponent("time");
+		this.input = this.getComponent("Input");
+		this.display = this.getComponent("Display");
+		this.tilemap = this.getComponent("Tilemap");
+		this.time = this.getComponent("Time");
+
+		
 	}
 	move(){
 		// left right movement
@@ -435,26 +474,46 @@ class Player extends Sprite{
 			(inputX == -1 && !this.coorners.downLeft.solid && !this.coorners.upLeft.solid)
 		){
 			this.x += moveDistanceX;
+			this.engine.x += moveDistanceX;
 		}
+
+		
+	
 
 		// gravity
-		this.speedY += this.gravity * this.time.deltaTime;
-		this.speedY = Maths.clamp(this.speedY, -this.maxSpeedY, this.maxSpeedY);
-		this.getCoorners(this.x, this.y + this.speedY);
+		// 
+		this.moveDistanceY = this.velocityY;
+		this.velocityY += this.accelerationY;
+		this.accelerationY = this.gravity;
+		
+		this.moveDistanceY = Maths.clamp(this.moveDistanceY, -this.maxSpeedY, this.maxSpeedY);
+		this.getCoorners(this.x, this.y + this.moveDistanceY);
 
-		if(this.speedY > 0){
+		if(this.moveDistanceY > 0){
 			if(this.coorners.downRight.solid || this.coorners.downLeft.solid){
-				this.speedY = 0;
+				this.moveDistanceY = 0;
+				this.velocityY = 0;
 			}
 		}
+		/*
 		// making jump
 		if(this.speedY == 0){
 			if(this.input.keyCode("ArrowUp") ){
-				this.speedY = -this.maxSpeedY*5;
+				this.jumping = true;
+				this.jumpSpeed = 0;
 			}
 		}
+		//jumping
+		if(this.jumpSpeed >= this.maxJumpSpeed){
+			this.jumping = false;
+			this.jumpSpeed = 0;
+		}*/
 
-		this.y += this.speedY;
+		this.y += this.moveDistanceY;
+		this.engine.y += this.moveDistanceY;
+
+
+
 
 	}
 	draw(){
@@ -464,17 +523,13 @@ class Player extends Sprite{
 
 	}
 }
-class Camera extends Sprite{
-	constructor(params){
-		super(params);
-		this.bound = null;
+class Camera extends Component{
+	constructor(params, engine){
+		super(params, engine);
 		this.speed = 10;
-		this.input = this.getComponent("input");
-	}
-	follow(object){
 	}
 	init(){
-
+		this.input = this.engine.getComponent("Input");
 	}
 	move(){
 		if(this.input.keyCode("KeyS")) this.engine.y -= this.speed;
@@ -531,7 +586,7 @@ class TileMap extends Sprite{
 		this.map.load(array);
 	}
 	init(){
-		this.display = this.getComponent("display");
+		this.display = this.getComponent("Display");
 		//this.map.randomize();
 	}
 	randomize(){
@@ -593,7 +648,6 @@ class TileMap extends Sprite{
 class TestSprite extends Sprite{
 	constructor(params){
 		super(params);
-		//this.colliders.push(new RectCollider(this, 0, 0, 50, 50));
 		this.colliders.push(new CircleCollider({
 			parent: this,
 			x: this.width/2,
@@ -605,9 +659,9 @@ class TestSprite extends Sprite{
 		this.rotation = 0;
 	}
 	init(){
-		this.input = this.getComponent("input");
-		this.display = this.getComponent("display");
-		this.tilemap = this.getComponent("tilemap");
+		this.input = this.getComponent("Input");
+		this.display = this.getComponent("Display");
+		this.tilemap = this.getComponent("Tilemap");
 	}
 	move(){
 		if(!this.colliding){
@@ -640,17 +694,17 @@ function Game(engine){
 	e = engine;
 	var map = [
 		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-		1,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,1,
-		1,0,0,0,0,1,0,0,0,1,1,0,0,0,0,1,0,0,0,1,
-		1,0,0,1,1,1,1,0,0,1,1,0,0,1,1,1,1,0,0,1,
+		1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,
+		1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,0,1,
+		1,0,0,1,1,1,1,0,0,0,1,0,0,1,1,1,1,0,0,1,
 		1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,
-		1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
 		1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,
-		1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,
+		1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
 		1,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,1,
 		1,0,0,0,0,1,0,0,0,1,1,0,0,0,0,1,0,0,0,1,
 		1,0,0,1,1,1,1,0,0,1,1,0,0,1,1,1,1,0,0,1,
-		1,0,0,0,0,1,0,0,0,1,1,0,0,0,0,1,0,0,0,1,
+		1,0,0,0,0,1,0,0,0,1,1,0,0,0,0,1,0,1,0,1,
 		1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
 
@@ -671,7 +725,7 @@ function Game(engine){
 		x: 100,
 		y: 100,
 		width: 32,
-		height: 64
+		height: 32
 	}));
 
 
@@ -687,6 +741,6 @@ function Game(engine){
 	}
 
 }
-Engine.init(new Engine('canvas'), Game);
+Engine.ready(new Engine('canvas'), Game);
 
 

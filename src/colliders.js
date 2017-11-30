@@ -11,6 +11,11 @@ class Collider extends GameObject{
 	get gy(){
 		return this.parent.y + this.y;
 	}
+	debugDraw(color){
+		color = typeof color === "undefined" ? "red" : color;
+		if(this.parent && this.parent.display)
+			this.parent.display.rect(this.x, this.y, this.width, this.height, color);
+	}
 }
 class CircleCollider extends Collider{
 	constructor(params){
