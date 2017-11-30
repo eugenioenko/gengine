@@ -1,10 +1,10 @@
 
 
 var Tiles = [
-	{color: '#ffb3ba', solid: false}, 
-	{color: '#ffdfba', solid: false},
-	{color: '#ffffba', solid: true},
-	{color: '#baffc9', solid: true},
+	{color: '#000', solid: false},
+	{color: '#500', solid: true},
+	{color: '#0f0', solid: true},
+	{color: '#00f', solid: true},
 	{color: '#bae1ff', solid: true}
 ];
 
@@ -32,8 +32,8 @@ class Matrix {
 class TileMap extends Sprite{
 	constructor(params){
 		super(params);
-		this.twidth = 64;
-		this.theight = 64;
+		//this.twidth = 64;
+		//this.theight = 64;
 		this.map = new Matrix(this.width, this.height);
 	}
 	read(x, y){
@@ -61,6 +61,12 @@ class TileMap extends Sprite{
 	getTile(x, y){
 		return Tiles[this.read(this.getTileX(x), this.getTileY(y))];
 	}
+	getCoorners(x, y, width, height, coorners){
+		coorners.upLeft = this.getTile(x, y);
+		coorners.upRight = this.getTile(x+width, y);
+		coorners.downLeft = this.getTile(x, y+height);
+		coorners.downRight = this.getTile(x+width, y+height);
+	}
 	getDrawRect(){
 		let x1 = this.getTileX(this.engine.x);
 		let y1 = this.getTileY(this.engine.y);
@@ -86,7 +92,7 @@ class TileMap extends Sprite{
 		}
 		return;
 	}
-	getCorners(x, y, sprite){ 
+	getCorners(x, y, sprite){
 		/*sprite.downY = Math.floor((y+sprite.height-1)/game.tileH);
 		sprite.upY = Math.floor((y-sprite.height)/game.tileH);
 		sprite.leftX = Math.floor((x-sprite.width)/game.tileW);

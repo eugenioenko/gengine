@@ -8,6 +8,25 @@ class Maths{
 	static rand(min, max){
 		return Math.floor(Math.random() * (max - min + 1)) + min;
 	}
+	static smoothDamp(current, target, $currentVelocity, smoothTime, maxSpeed, deltaTime){
+		smoothTime = Math.max(0.0001, smoothTime);
+		let num = 2.0 / smoothTime;
+		let num2 = num * deltaTime;
+		let num3 = 1.0 / (1.0 + num2 + 0.48 * num2 * num2 + 0.235 * num2 * num2 * num2);
+		let num4 = current - target;
+		let num5 = target;
+		let num6 = maxSpeed * smoothTime;
+		num4 = Maths.clamp(num4, -num6, num6);
+		target = current - num4;
+		let num7 = ($currentVelocity.cv + num * num4) * deltaTime;
+		$currentVelocity.cv = ($currentVelocity.cv - num * num7) * num3;
+		let num8 = target + (num4 + num7) * num3;
+		if ((num5 - current > 0.0) == (num8 > num5)){
+			num8 = num5;
+			$currentVelocity.cv = (num8 - num5) / deltaTime;
+		}
+		return num8;
+	}
 }
 class Time {
 	constructor(){
@@ -16,21 +35,23 @@ class Time {
 		this.frameTime = 0;
 		this.frameCount = 0;
 		this.fps = 0;
-		this.startTime = performance.now();
+		this.startTime = performance.now() / 1000;
 		this.lastTime = this.startTime;
 	}
 	start(){
-		this.lastTime = performance.now();
+		this.lastTime = performance.now() / 1000;
 	}
 	calcTime(){
-		let current = performance.now();
-		this.deltaTime = current - this.lastTime;
+		let current = performance.now() / 1000;
+		this.deltaTimeFS = current - this.lastTime;
+		this.deltaTime = this.deltaTimeFS / (1/60);
 		this.frameTime += this.deltaTime;
 		this.time = current - this.startTime;
 		this.lastTime = current;
-		this.fps = 1000 / this.deltaTime;
+		this.fps = 1000 / (this.deltaTimeFS * 1000);
 	}
 }
+
 
 class GameObject {
 	/**
@@ -70,6 +91,12 @@ class Input {
 	}
 	keyCode(code){
 		return typeof this.keyCode_[code] !== "undefined" ? this.keyCode_[code] : false;
+	}
+	getAxisRaw(type){
+		let result = 0;
+		result =  this.keyCode("ArrowLeft") ? -1 : 0;
+		result += this.keyCode("ArrowRight") ? 1 : 0;
+		return result;
 	}
 }
 class Display extends GameObject{
@@ -361,8 +388,8 @@ class Engine extends GameObject{
 	}
 	debugInfo(){
 		if(!this.debugMode) return;
-		this.display.fillText((this.time.time / 1000).toFixed(2), 20, 20);
-		this.display.fillText((this.time.frameTime / 1000).toFixed(2), 20, 40);
+		this.display.fillText((this.time.time).toFixed(2), 20, 20);
+		this.display.fillText((this.time.deltaTime).toFixed(4), 20, 40);
 		this.display.fillText(this.time.fps.toFixed(2), 20, 60);
 	}
 	loop(){
@@ -373,6 +400,68 @@ class Engine extends GameObject{
 		this.debugInfo();
 		this.time.calcTime();
 		window.requestAnimationFrame(this.gameLoop);
+	}
+}
+class Player extends Sprite{
+	constructor(params){
+		super(params);
+		this.color = "blue";
+		this.coorners = {};
+		this.vars = {};
+		this.smoothTime = 1.3;
+		this.vars.cv = 0;
+		this.speed = 6;
+		this.speedY = 0;
+		this.maxSpeedY = 10;
+		this.gravity = 3;
+		this.jumping = false;
+	}
+	getCoorners(x, y){
+		tilemap.getCoorners(x, y, this.width, this.height, this.coorners);
+	}
+	init(){
+		this.input = this.getComponent("input");
+		this.display = this.getComponent("display");
+		this.tilemap = this.getComponent("tilemap");
+		this.time = this.getComponent("time");
+	}
+	move(){
+		// left right movement
+		let inputX = this.input.getAxisRaw("Horizontal");
+		let moveDistanceX = inputX * this.speed * this.time.deltaTime;
+		this.getCoorners(this.x + moveDistanceX, this.y);
+		if(
+			(inputX == 1 && !this.coorners.downRight.solid && !this.coorners.upRight.solid) ||
+			(inputX == -1 && !this.coorners.downLeft.solid && !this.coorners.upLeft.solid)
+		){
+			this.x += moveDistanceX;
+		}
+
+		// gravity
+		this.speedY += this.gravity * this.time.deltaTime;
+		this.speedY = Maths.clamp(this.speedY, -this.maxSpeedY, this.maxSpeedY);
+		this.getCoorners(this.x, this.y + this.speedY);
+
+		if(this.speedY > 0){
+			if(this.coorners.downRight.solid || this.coorners.downLeft.solid){
+				this.speedY = 0;
+			}
+		}
+		// making jump
+		if(this.speedY == 0){
+			if(this.input.keyCode("ArrowUp") ){
+				this.speedY = -this.maxSpeedY*5;
+			}
+		}
+
+		this.y += this.speedY;
+
+	}
+	draw(){
+		this.display.fillRect(this.x, this.y, this.width, this.height, this.color);
+	}
+	collision(sprite){
+
 	}
 }
 class Camera extends Sprite{
@@ -397,10 +486,10 @@ class Camera extends Sprite{
 
 
 var Tiles = [
-	{color: '#ffb3ba', solid: false}, 
-	{color: '#ffdfba', solid: false},
-	{color: '#ffffba', solid: true},
-	{color: '#baffc9', solid: true},
+	{color: '#000', solid: false},
+	{color: '#500', solid: true},
+	{color: '#0f0', solid: true},
+	{color: '#00f', solid: true},
 	{color: '#bae1ff', solid: true}
 ];
 
@@ -428,8 +517,8 @@ class Matrix {
 class TileMap extends Sprite{
 	constructor(params){
 		super(params);
-		this.twidth = 64;
-		this.theight = 64;
+		//this.twidth = 64;
+		//this.theight = 64;
 		this.map = new Matrix(this.width, this.height);
 	}
 	read(x, y){
@@ -457,6 +546,12 @@ class TileMap extends Sprite{
 	getTile(x, y){
 		return Tiles[this.read(this.getTileX(x), this.getTileY(y))];
 	}
+	getCoorners(x, y, width, height, coorners){
+		coorners.upLeft = this.getTile(x, y);
+		coorners.upRight = this.getTile(x+width, y);
+		coorners.downLeft = this.getTile(x, y+height);
+		coorners.downRight = this.getTile(x+width, y+height);
+	}
 	getDrawRect(){
 		let x1 = this.getTileX(this.engine.x);
 		let y1 = this.getTileY(this.engine.y);
@@ -482,7 +577,7 @@ class TileMap extends Sprite{
 		}
 		return;
 	}
-	getCorners(x, y, sprite){ 
+	getCorners(x, y, sprite){
 		/*sprite.downY = Math.floor((y+sprite.height-1)/game.tileH);
 		sprite.upY = Math.floor((y-sprite.height)/game.tileH);
 		sprite.leftX = Math.floor((x-sprite.width)/game.tileW);
@@ -539,56 +634,34 @@ class TestSprite extends Sprite{
 
 	}
 }
-class Player extends Sprite{
-	constructor(params){
-		super(params);
-		this.color = "blue";
-		this.coorners = {};
-	}
-	getCoorners(){
-		this.coorners.tl = this.tilemap.getTile(this.x, this.y);
-		this.coorners.tr = this.tilemap.getTile(this.x+this.width, this.y);
-		this.coorners.dl = this.tilemap.getTile(this.x, this.y+this.height);
-		this.coorners.dr = this.tilemap.getTile(this.x+this.width, this.y+this.height);
-	}
-	init(){
-		this.input = this.getComponent("input");
-		this.display = this.getComponent("display");
-		this.tilemap = this.getComponent("tilemap");
-	}
-	move(){
-		this.getCoorners();
-		if(this.input.keyCode("ArrowDown")) this.y += this.speed;
-		if(this.input.keyCode("ArrowUp")) this.y -= this.speed;
-		if(this.input.keyCode("ArrowRight")) this.x += this.speed;
-		if(this.input.keyCode("ArrowLeft")) this.x -= this.speed;
-	}
-	draw(){
-		this.display.fillRect(this.x, this.y, this.width, this.height, this.color);
-	}
-	collision(sprite){
-
-	}
-}
-
 
 var e = {};
 function Game(engine){
 	e = engine;
 	var map = [
-		1,1,1,1,1,1,1,1,1,1,
-		1,0,0,0,0,0,0,0,0,1,
-		1,0,0,0,0,1,0,0,0,1,
-		1,0,0,1,1,1,1,0,0,1,
-		1,0,0,0,0,1,0,0,0,1,
-		1,0,0,0,0,0,0,0,0,1,
-		1,1,1,1,1,1,1,1,1,1,
+		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+		1,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,1,
+		1,0,0,0,0,1,0,0,0,1,1,0,0,0,0,1,0,0,0,1,
+		1,0,0,1,1,1,1,0,0,1,1,0,0,1,1,1,1,0,0,1,
+		1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,
+		1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,
+		1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,
+		1,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,1,
+		1,0,0,0,0,1,0,0,0,1,1,0,0,0,0,1,0,0,0,1,
+		1,0,0,1,1,1,1,0,0,1,1,0,0,1,1,1,1,0,0,1,
+		1,0,0,0,0,1,0,0,0,1,1,0,0,0,0,1,0,0,0,1,
+		1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+
 	];
 	tilemap = new TileMap({
 		x: 0,
 		y: 0,
-		width: 10,
-		height: 7
+		width: 20,
+		height: 14,
+		twidth: 48,
+		theight: 48
 	});
 	tilemap.load(map);
 	engine.tilemap = tilemap;
@@ -597,13 +670,12 @@ function Game(engine){
 	engine.add(new Player({
 		x: 100,
 		y: 100,
-		width: 48,
-		height: 48,
-		speed: 4
+		width: 32,
+		height: 64
 	}));
 
 
-	for (var i = 0; i < 10; ++i){
+	for (var i = 0; i < 1; ++i){
 		engine.add(new TestSprite({
 			x: Maths.rand(200, 480),
 			y: Maths.rand(150, 330),
@@ -613,21 +685,8 @@ function Game(engine){
 			speed: Maths.rand(-3, 3)
 		}));
 	}
+
 }
 Engine.init(new Engine('canvas'), Game);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

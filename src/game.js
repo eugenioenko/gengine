@@ -42,56 +42,34 @@ class TestSprite extends Sprite{
 
 	}
 }
-class Player extends Sprite{
-	constructor(params){
-		super(params);
-		this.color = "blue";
-		this.coorners = {};
-	}
-	getCoorners(){
-		this.coorners.tl = this.tilemap.getTile(this.x, this.y);
-		this.coorners.tr = this.tilemap.getTile(this.x+this.width, this.y);
-		this.coorners.dl = this.tilemap.getTile(this.x, this.y+this.height);
-		this.coorners.dr = this.tilemap.getTile(this.x+this.width, this.y+this.height);
-	}
-	init(){
-		this.input = this.getComponent("input");
-		this.display = this.getComponent("display");
-		this.tilemap = this.getComponent("tilemap");
-	}
-	move(){
-		this.getCoorners();
-		if(this.input.keyCode("ArrowDown")) this.y += this.speed;
-		if(this.input.keyCode("ArrowUp")) this.y -= this.speed;
-		if(this.input.keyCode("ArrowRight")) this.x += this.speed;
-		if(this.input.keyCode("ArrowLeft")) this.x -= this.speed;
-	}
-	draw(){
-		this.display.fillRect(this.x, this.y, this.width, this.height, this.color);
-	}
-	collision(sprite){
-
-	}
-}
-
 
 var e = {};
 function Game(engine){
 	e = engine;
 	var map = [
-		1,1,1,1,1,1,1,1,1,1,
-		1,0,0,0,0,0,0,0,0,1,
-		1,0,0,0,0,1,0,0,0,1,
-		1,0,0,1,1,1,1,0,0,1,
-		1,0,0,0,0,1,0,0,0,1,
-		1,0,0,0,0,0,0,0,0,1,
-		1,1,1,1,1,1,1,1,1,1,
+		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+		1,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,1,
+		1,0,0,0,0,1,0,0,0,1,1,0,0,0,0,1,0,0,0,1,
+		1,0,0,1,1,1,1,0,0,1,1,0,0,1,1,1,1,0,0,1,
+		1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,
+		1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,
+		1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,
+		1,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,1,
+		1,0,0,0,0,1,0,0,0,1,1,0,0,0,0,1,0,0,0,1,
+		1,0,0,1,1,1,1,0,0,1,1,0,0,1,1,1,1,0,0,1,
+		1,0,0,0,0,1,0,0,0,1,1,0,0,0,0,1,0,0,0,1,
+		1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+
 	];
 	tilemap = new TileMap({
 		x: 0,
 		y: 0,
-		width: 10,
-		height: 7
+		width: 20,
+		height: 14,
+		twidth: 48,
+		theight: 48
 	});
 	tilemap.load(map);
 	engine.tilemap = tilemap;
@@ -100,13 +78,12 @@ function Game(engine){
 	engine.add(new Player({
 		x: 100,
 		y: 100,
-		width: 48,
-		height: 48,
-		speed: 4
+		width: 32,
+		height: 64
 	}));
 
 
-	for (var i = 0; i < 10; ++i){
+	for (var i = 0; i < 1; ++i){
 		engine.add(new TestSprite({
 			x: Maths.rand(200, 480),
 			y: Maths.rand(150, 330),
@@ -116,21 +93,8 @@ function Game(engine){
 			speed: Maths.rand(-3, 3)
 		}));
 	}
+
 }
 Engine.init(new Engine('canvas'), Game);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

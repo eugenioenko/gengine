@@ -74,8 +74,8 @@ class Engine extends GameObject{
 	}
 	debugInfo(){
 		if(!this.debugMode) return;
-		this.display.fillText((this.time.time / 1000).toFixed(2), 20, 20);
-		this.display.fillText((this.time.frameTime / 1000).toFixed(2), 20, 40);
+		this.display.fillText((this.time.time).toFixed(2), 20, 20);
+		this.display.fillText((this.time.deltaTime).toFixed(4), 20, 40);
 		this.display.fillText(this.time.fps.toFixed(2), 20, 60);
 	}
 	loop(){
