@@ -32,6 +32,7 @@ class CanvasDisplay extends Display{
 		this.canvas = document.getElementById(this.id);
 		this.ctx = this.canvas.getContext('2d');
 		this.scale = 1;
+		this.ctx.font = "16px Helvetica";
 	}
 	set zoom(value){
 		this.scale = value;
@@ -63,6 +64,9 @@ class CanvasDisplay extends Display{
 		this.ctx.arc(-this.engine.x + x, -this.engine.y + y, width/2, 0, 2 * Math.PI, false);
 		this.ctx.strokeStyle =  color;
 		this.ctx.stroke();
+	}
+	fillText(text, x, y){
+		this.ctx.fillText(text, x, y);
 	}
 }
 

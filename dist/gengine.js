@@ -9,6 +9,28 @@ class Maths{
 		return Math.floor(Math.random() * (max - min + 1)) + min;
 	}
 }
+class Time {
+	constructor(){
+		this.deltaTime = 0;
+		this.time = 0;
+		this.frameTime = 0;
+		this.frameCount = 0;
+		this.fps = 0;
+		this.startTime = performance.now();
+		this.lastTime = this.startTime;
+	}
+	start(){
+		this.lastTime = performance.now();
+	}
+	calcTime(){
+		let current = performance.now();
+		this.deltaTime = current - this.lastTime;
+		this.frameTime += this.deltaTime;
+		this.time = current - this.startTime;
+		this.lastTime = current;
+		this.fps = 1000 / this.deltaTime;
+	}
+}
 
 class GameObject {
 	/**
@@ -84,6 +106,7 @@ class CanvasDisplay extends Display{
 		this.canvas = document.getElementById(this.id);
 		this.ctx = this.canvas.getContext('2d');
 		this.scale = 1;
+		this.ctx.font = "16px Helvetica";
 	}
 	set zoom(value){
 		this.scale = value;
@@ -115,6 +138,9 @@ class CanvasDisplay extends Display{
 		this.ctx.arc(-this.engine.x + x, -this.engine.y + y, width/2, 0, 2 * Math.PI, false);
 		this.ctx.strokeStyle =  color;
 		this.ctx.stroke();
+	}
+	fillText(text, x, y){
+		this.ctx.fillText(text, x, y);
 	}
 }
 
@@ -268,8 +294,9 @@ class Engine extends GameObject{
 			width: 640,
 			height: 480
 		});
-		
+		this.debugMode = true;
 		this.input = new Input();
+		this.time = new Time();
 		this.x = 0;
 		this.y = 0;
 		this.camera = new Camera({
@@ -307,7 +334,8 @@ class Engine extends GameObject{
 				engine: engine
 			});
 			callback(engine);
-			engine.gameLoop();	
+			engine.time.start();
+			engine.gameLoop();
 		});
 	}
 
@@ -331,11 +359,19 @@ class Engine extends GameObject{
 		}
 		return;
 	}
+	debugInfo(){
+		if(!this.debugMode) return;
+		this.display.fillText((this.time.time / 1000).toFixed(2), 20, 20);
+		this.display.fillText((this.time.frameTime / 1000).toFixed(2), 20, 40);
+		this.display.fillText(this.time.fps.toFixed(2), 20, 60);
+	}
 	loop(){
 		this.collision();
 		this.move();
 		this.draw();
 		this.frameCount = 0;
+		this.debugInfo();
+		this.time.calcTime();
 		window.requestAnimationFrame(this.gameLoop);
 	}
 }
@@ -547,8 +583,8 @@ function Game(engine){
 		1,0,0,0,0,1,0,0,0,1,
 		1,0,0,0,0,0,0,0,0,1,
 		1,1,1,1,1,1,1,1,1,1,
-	]
-	tilemap = new TileMap({ 
+	];
+	tilemap = new TileMap({
 		x: 0,
 		y: 0,
 		width: 10,
@@ -566,8 +602,8 @@ function Game(engine){
 		speed: 4
 	}));
 
-	/*
-	for (var i = 0; i < 100; ++i){
+
+	for (var i = 0; i < 10; ++i){
 		engine.add(new TestSprite({
 			x: Maths.rand(200, 480),
 			y: Maths.rand(150, 330),
@@ -576,7 +612,7 @@ function Game(engine){
 			rotation: Maths.rand(0, 359),
 			speed: Maths.rand(-3, 3)
 		}));
-	}*/
+	}
 }
 Engine.init(new Engine('canvas'), Game);
 

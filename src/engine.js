@@ -7,8 +7,9 @@ class Engine extends GameObject{
 			width: 640,
 			height: 480
 		});
-		
+		this.debugMode = true;
 		this.input = new Input();
+		this.time = new Time();
 		this.x = 0;
 		this.y = 0;
 		this.camera = new Camera({
@@ -46,7 +47,8 @@ class Engine extends GameObject{
 				engine: engine
 			});
 			callback(engine);
-			engine.gameLoop();	
+			engine.time.start();
+			engine.gameLoop();
 		});
 	}
 
@@ -70,11 +72,19 @@ class Engine extends GameObject{
 		}
 		return;
 	}
+	debugInfo(){
+		if(!this.debugMode) return;
+		this.display.fillText((this.time.time / 1000).toFixed(2), 20, 20);
+		this.display.fillText((this.time.frameTime / 1000).toFixed(2), 20, 40);
+		this.display.fillText(this.time.fps.toFixed(2), 20, 60);
+	}
 	loop(){
 		this.collision();
 		this.move();
 		this.draw();
 		this.frameCount = 0;
+		this.debugInfo();
+		this.time.calcTime();
 		window.requestAnimationFrame(this.gameLoop);
 	}
 }

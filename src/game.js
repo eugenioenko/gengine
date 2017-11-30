@@ -86,8 +86,8 @@ function Game(engine){
 		1,0,0,0,0,1,0,0,0,1,
 		1,0,0,0,0,0,0,0,0,1,
 		1,1,1,1,1,1,1,1,1,1,
-	]
-	tilemap = new TileMap({ 
+	];
+	tilemap = new TileMap({
 		x: 0,
 		y: 0,
 		width: 10,
@@ -105,8 +105,8 @@ function Game(engine){
 		speed: 4
 	}));
 
-	/*
-	for (var i = 0; i < 100; ++i){
+
+	for (var i = 0; i < 10; ++i){
 		engine.add(new TestSprite({
 			x: Maths.rand(200, 480),
 			y: Maths.rand(150, 330),
@@ -115,7 +115,7 @@ function Game(engine){
 			rotation: Maths.rand(0, 359),
 			speed: Maths.rand(-3, 3)
 		}));
-	}*/
+	}
 }
 Engine.init(new Engine('canvas'), Game);
 
