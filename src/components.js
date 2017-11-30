@@ -3,4 +3,7 @@ class Component extends GameObject{
 		super(params);
 		this.engine = engine;
 	}
+	getComponent(name){
+		return this.engine.getComponent(name);
+	}
 }

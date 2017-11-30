@@ -4,7 +4,7 @@ class Camera extends Component{
 		this.speed = 10;
 	}
 	init(){
-		this.input = this.engine.getComponent("Input");
+		this.input = this.getComponent("Input");
 	}
 	move(){
 		if(this.input.keyCode("KeyS")) this.engine.y -= this.speed;

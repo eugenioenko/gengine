@@ -27,6 +27,9 @@ class Display extends Component{
 	circle(x, y, width, color){
 		// to do: draws a circle
 	}
+	move(){
+	
+	}
 }
 class CanvasDisplay extends Display{
 	constructor(params, engine){
@@ -48,7 +51,7 @@ class CanvasDisplay extends Display{
 		return this.scale;
 	}
 	clear(){
-		this.ctx.clearRect(0,0,this.width / this.scale,this.height / this.scale);
+		this.ctx.clearRect(0, 0, this.width / this.scale, this.height / this.scale);
 	}
 
 	fillRect(x, y, width, height, color){

@@ -30,16 +30,12 @@ class Maths{
 }
 
 class GameObject {
-	/**
-	 * params {parent, x, y, width, height}
-	 */
 	constructor(params){
 		if(!arguments.length) {
 			throw new Error("GameObject constructor requires an object literal as argument");
 		}
 		Object.assign(this, params);
 	}
-	
 	init() { }
 	move() { }
 	draw() { }
@@ -48,6 +44,9 @@ class Component extends GameObject{
 	constructor(params, engine){ 
 		super(params);
 		this.engine = engine;
+	}
+	getComponent(name){
+		return this.engine.getComponent(name);
 	}
 }
 class Time extends Component{
@@ -129,6 +128,9 @@ class Display extends Component{
 	circle(x, y, width, color){
 		// to do: draws a circle
 	}
+	move(){
+	
+	}
 }
 class CanvasDisplay extends Display{
 	constructor(params, engine){
@@ -150,7 +152,7 @@ class CanvasDisplay extends Display{
 		return this.scale;
 	}
 	clear(){
-		this.ctx.clearRect(0,0,this.width / this.scale,this.height / this.scale);
+		this.ctx.clearRect(0, 0, this.width / this.scale, this.height / this.scale);
 	}
 
 	fillRect(x, y, width, height, color){
@@ -351,6 +353,25 @@ class Engine extends GameObject{
 		this.frameCount = 0;
 		this.gameLoop = this.loop.bind(this);
 	}
+
+	init(){
+		this.addComponent("Input", Input);
+		this.addComponent("Camera", Camera);
+		this.addComponent("Time", Time);
+		this.addComponent("Display", CanvasDisplay, { id: 'canvas'});
+
+		this.display = this.components.Display;
+		this.time = this.components.Time;
+		this.input = this.components.time;
+		this.gameLoop();
+	}
+
+	static ready(engine, callback){
+		window.addEventListener('load', function(){
+			engine.init();
+			callback(engine);
+		});
+	}
 	collision(){
 		for(let i = 0; i < this.sprites.length; ++i){
 			for(let j = i +1; j < this.sprites.length; ++j){
@@ -366,32 +387,32 @@ class Engine extends GameObject{
 		}
 	}
 	addComponent(name, component, params){
+		if(typeof this.components[name] !== "undefined"){
+			throw new Error(`Component ${name} is already defined`);
+		}
+		params = typeof params == "undefined" ? {} : params;
+		params.name = name;
 		this.components[name] = new component(params, this);
 		this.components[name].init();
 	}
 	getComponent(name){
+		if(typeof this.components[name] === "undefined"){
+			throw new Error(`Component ${name} is not registred`);
+		}
 		return this.components[name];
 	}
-	init(){
-		this.addComponent("Input", Input);
-		this.addComponent("Camera", Camera);
-		this.addComponent("Time", Time);
-		this.addComponent("Display", CanvasDisplay, { id: 'canvas'});
-		this.display = this.components.Display;
-		this.gameLoop();
-	}
-	static ready(engine, callback){
-		window.addEventListener('load', function(){
-			engine.init();
-			callback(engine);
-		});
-	}
-
-	add(sprite){
+	addSprite(sprite){
 		sprite.engine = this;
 		sprite.init();
 		this.sprites.push(sprite);
 		return;
+	}
+	removeSprite(sprite){
+		sprite.destroy();
+		let index = this.sprites.indexOf(sprite);
+		if(index != -1){
+			this.sprites.splice(index, 1);
+		}
 	}
 	move(){
 		for(let sprite of this.sprites){
@@ -408,18 +429,13 @@ class Engine extends GameObject{
 		for(let sprite of this.sprites){
 			sprite.draw();
 		}
-		let components = Object.keys(this.components);
+		/*let components = Object.keys(this.components);
 		for(let componentName of components){
 			this.components[componentName].draw();
-		}
+		}*/
 		return;
 	}
-	debugInfo(){
-		/*if(!this.debugMode) return;
-		this.display.fillText((this.time.time).toFixed(2), 20, 20);
-		this.display.fillText((this.time.deltaTime).toFixed(4), 20, 40);
-		this.display.fillText(this.time.fps.toFixed(2), 20, 60);*/
-	}
+	
 	loop(){
 		this.collision();
 		this.move();
@@ -427,6 +443,13 @@ class Engine extends GameObject{
 		this.frameCount = 0;
 		this.debugInfo();
 		window.requestAnimationFrame(this.gameLoop);
+	}
+
+	debugInfo(){
+		if(!this.debugMode) return;
+		this.display.fillText((this.time.time).toFixed(2), 20, 20);
+		this.display.fillText((this.time.deltaTime).toFixed(4), 20, 40);
+		this.display.fillText(this.time.fps.toFixed(2), 20, 60);
 	}
 }
 class Player extends Sprite{
@@ -459,10 +482,10 @@ class Player extends Sprite{
 	init(){
 		this.input = this.getComponent("Input");
 		this.display = this.getComponent("Display");
-		this.tilemap = this.getComponent("Tilemap");
+		this.tilemap = this.engine.tilemap;
 		this.time = this.getComponent("Time");
 
-		
+
 	}
 	move(){
 		// left right movement
@@ -529,7 +552,7 @@ class Camera extends Component{
 		this.speed = 10;
 	}
 	init(){
-		this.input = this.engine.getComponent("Input");
+		this.input = this.getComponent("Input");
 	}
 	move(){
 		if(this.input.keyCode("KeyS")) this.engine.y -= this.speed;
@@ -627,7 +650,7 @@ class TileMap extends Sprite{
 		let rect = this.getDrawRect();
 		for(var i = rect.x1; i < rect.x2; ++i){
 			for(var j = rect.y1; j < rect.y2; ++j){
-				this.display.fillRect(this.x+(i*this.twidth), this.y+(j*this.theight), this.twidth, this.theight, Tiles[this.read(i,j)].color);
+				//this.display.fillRect(this.x+(i*this.twidth), this.y+(j*this.theight), this.twidth, this.theight, Tiles[this.read(i,j)].color);
 			}
 		}
 		return;
@@ -661,7 +684,7 @@ class TestSprite extends Sprite{
 	init(){
 		this.input = this.getComponent("Input");
 		this.display = this.getComponent("Display");
-		this.tilemap = this.getComponent("Tilemap");
+		this.tilemap = this.engine.tilemap;
 	}
 	move(){
 		if(!this.colliding){
@@ -719,9 +742,9 @@ function Game(engine){
 	});
 	tilemap.load(map);
 	engine.tilemap = tilemap;
-	engine.add(tilemap);
+	engine.addSprite(tilemap);
 
-	engine.add(new Player({
+	engine.addSprite(new Player({
 		x: 100,
 		y: 100,
 		width: 32,
@@ -730,7 +753,7 @@ function Game(engine){
 
 
 	for (var i = 0; i < 1; ++i){
-		engine.add(new TestSprite({
+		engine.addSprite(new TestSprite({
 			x: Maths.rand(200, 480),
 			y: Maths.rand(150, 330),
 			width: 5,

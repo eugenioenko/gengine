@@ -14,7 +14,7 @@ class TestSprite extends Sprite{
 	init(){
 		this.input = this.getComponent("Input");
 		this.display = this.getComponent("Display");
-		this.tilemap = this.getComponent("Tilemap");
+		this.tilemap = this.engine.tilemap;
 	}
 	move(){
 		if(!this.colliding){
@@ -72,9 +72,9 @@ function Game(engine){
 	});
 	tilemap.load(map);
 	engine.tilemap = tilemap;
-	engine.add(tilemap);
+	engine.addSprite(tilemap);
 
-	engine.add(new Player({
+	engine.addSprite(new Player({
 		x: 100,
 		y: 100,
 		width: 32,
@@ -83,7 +83,7 @@ function Game(engine){
 
 
 	for (var i = 0; i < 1; ++i){
-		engine.add(new TestSprite({
+		engine.addSprite(new TestSprite({
 			x: Maths.rand(200, 480),
 			y: Maths.rand(150, 330),
 			width: 5,

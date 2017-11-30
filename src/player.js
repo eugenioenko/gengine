@@ -28,10 +28,10 @@ class Player extends Sprite{
 	init(){
 		this.input = this.getComponent("Input");
 		this.display = this.getComponent("Display");
-		this.tilemap = this.getComponent("Tilemap");
+		this.tilemap = this.engine.tilemap;
 		this.time = this.getComponent("Time");
 
-		
+
 	}
 	move(){
 		// left right movement
