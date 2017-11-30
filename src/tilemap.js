@@ -87,7 +87,7 @@ class TileMap extends Sprite{
 		let rect = this.getDrawRect();
 		for(var i = rect.x1; i < rect.x2; ++i){
 			for(var j = rect.y1; j < rect.y2; ++j){
-				//this.display.fillRect(this.x+(i*this.twidth), this.y+(j*this.theight), this.twidth, this.theight, Tiles[this.read(i,j)].color);
+				this.display.fillRect(this.x+(i*this.twidth), this.y+(j*this.theight), this.twidth, this.theight, Tiles[this.read(i,j)].color);
 			}
 		}
 		return;

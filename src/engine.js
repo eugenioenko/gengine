@@ -91,10 +91,10 @@ class Engine extends GameObject{
 		for(let sprite of this.sprites){
 			sprite.draw();
 		}
-		/*let components = Object.keys(this.components);
+		let components = Object.keys(this.components);
 		for(let componentName of components){
 			this.components[componentName].draw();
-		}*/
+		}
 		return;
 	}
 	
@@ -108,7 +108,7 @@ class Engine extends GameObject{
 	}
 
 	debugInfo(){
-		if(!this.debugMode) return;
+		if(!this.debugMode) return; 
 		this.display.fillText((this.time.time).toFixed(2), 20, 20);
 		this.display.fillText((this.time.deltaTime).toFixed(4), 20, 40);
 		this.display.fillText(this.time.fps.toFixed(2), 20, 60);
