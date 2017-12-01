@@ -88,3 +88,12 @@ Se usta usando ECMA 2016/2017... lo ultimo que soporte chrome, para cuando avanc
 
 # [Ideas, Dudas, Sugerencias y Conversasion](https://github.com/eugenioenko/gengine/issues/1)
 [aqui](https://github.com/eugenioenko/gengine/issues/1) o en algun otro lugar que sugieran.
+
+## Referencias
+
+Algunas illustraciones con el modelo de sprites y colliders
+
+![sprites y colliders ](https://eugenioenko.github.io/gengine/images/sprites-colliders.png)
+
+Position relativa de colliders respecto a sprites
+![sprites y colliders ](https://eugenioenko.github.io/gengine/images/colliders-relative.png)
