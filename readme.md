@@ -1,4 +1,9 @@
 
+##  Objetivo Incial del proyecto 
+Crear un motor de juegos modular basado en micro componentes. (como un lego)
+Como objetivo final, estaria bueno hacer una interface que permita generar juegos sencillos programando lo menos possible. Algo entre Unity* y GameMaker. (Unity entre comillas muuuuuuuy gordas.) 
+
+
 #### Sorry
 No hay nada comentado de momento, apenas una estructura.
 
@@ -16,6 +21,8 @@ Son todos aquellos que se genera una instancia nueva cada vez que se agregan. No
 Son micromodulos de unica instancia que se inyectan en el motor.
 La idea es tener como componentes Display, Sound, Diversos controladores de Jugadores y enemigos.
 Cada componente que se agrega al motor, el motor crea la instancia, inicializa el componente y lo deja visible a todos los otros componentes y sprites mediante getComponent(name);
+
+El golazo seria: ir creando distintos componentes y luego agregar los escenciales al motoro. El resto a gusto del usuario.
 
 
 
@@ -44,7 +51,7 @@ Una clase con metodos estaticos que chequea colisiones entre colliders.
 * El Tilemap contiene una clase Matrix adentro qu es un Uint16Array. Con un par de pruebas anda aprox 20% mas rapido que un array comun.
 * El Tilemap solo dibuja los tiles que son visibles en la pantalla. Si el mapa es de 1000x1000 y  en la pantalla entran 20x20 tiles, dibujara 20x20.
 * Tiene un par de metodos para facilitar saber a que tile corresponde una posicion X e Y.
-# Falta componente pathfind.
+* Falta componente pathfind.
 
 #### Sprites
 * Cada sprites tiene "infinito" numero de colliders.
