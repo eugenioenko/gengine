@@ -84,3 +84,7 @@ Si se agrega un script archivo de script nuevo, hay que agregarlo manualmente en
 # Importante
 Nada esta escrito en piedra, todo es cambiable y la idea es divertirse y aprender en el camino. Ya se ha hecho 3 reescrituras estructuras clave. 
 Se usta usando ECMA 2016/2017... lo ultimo que soporte chrome, para cuando avance bastante tal vez IE lo soporte tambien.
+
+
+#[Ideas, Dudas, Sugerencias y Conversasion]: https://github.com/eugenioenko/gengine/projects/1
+[aqui]: https://github.com/eugenioenko/gengine/projects/1
