@@ -1,8 +1,8 @@
 
 
 var Tiles = [
-	{color: '#000', solid: false},
-	{color: '#500', solid: true},
+	{color: '#fff', solid: false},
+	{color: '#333', solid: true},
 	{color: '#0f0', solid: true},
 	{color: '#00f', solid: true},
 	{color: '#bae1ff', solid: true}
@@ -88,19 +88,12 @@ class TileMap extends Sprite{
 		for(var i = rect.x1; i < rect.x2; ++i){
 			for(var j = rect.y1; j < rect.y2; ++j){
 				this.display.fillRect(this.x+(i*this.twidth), this.y+(j*this.theight), this.twidth, this.theight, Tiles[this.read(i,j)].color);
+				this.display.rect(this.x+(i*this.twidth), this.y+(j*this.theight), this.twidth, this.theight, Tiles[0].color);
 			}
 		}
 		return;
 	}
 	getCorners(x, y, sprite){
-		/*sprite.downY = Math.floor((y+sprite.height-1)/game.tileH);
-		sprite.upY = Math.floor((y-sprite.height)/game.tileH);
-		sprite.leftX = Math.floor((x-sprite.width)/game.tileW);
-		sprite.rightX = Math.floor((x+sprite.width-1)/game.tileW);
-		//check if they are walls
-		sprite.upleft = game["t_"+sprite.upY+"_"+sprite.leftX].walkable;
-		sprite.downleft = game["t_"+sprite.downY+"_"+sprite.leftX].walkable;
-		sprite.upright = game["t_"+sprite.upY+"_"+sprite.rightX].walkable;
-		sprite.downright = game["t_"+sprite.downY+"_"+sprite.rightX].walkable;*/
+
 	}
 }

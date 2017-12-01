@@ -3,9 +3,7 @@ class Display extends Component{
 		super(params, engine);
 		this.scale = 1;
 	}
-	set zoom(value){
-		// to do: sets zoom scale
-	}
+	set zoom(value){ }
 	get zoom(){
 		return this.scale;
 	}
@@ -14,21 +12,15 @@ class Display extends Component{
 		this.width = this.canvas.width;
 		this.height = this.canvas.height;
 	}
-	clear(){
-		// to do: clears the canvas
-	}
+	clear(){ }
 
-	fillRect(x, y, width, height, color){
-		// to do: fills a rect
-	}
+	fillRect(x, y, width, height, color){ }
 	rect(x, y, width, height, color){
 		// to do: draws a rectangle
 	}
-	circle(x, y, width, color){
-		// to do: draws a circle
-	}
-	move(){
-	
+	circle(x, y, width, color){ }
+	move() {
+		this.clear();
 	}
 }
 class CanvasDisplay extends Display{
@@ -53,7 +45,6 @@ class CanvasDisplay extends Display{
 	clear(){
 		this.ctx.clearRect(0, 0, this.width / this.scale, this.height / this.scale);
 	}
-
 	fillRect(x, y, width, height, color){
 		this.ctx.beginPath();
 		this.ctx.fillStyle =  color;
@@ -86,10 +77,9 @@ class WebGLDisplay extends Display{
 		if (!this.gl) {
 			new Error("Unable to initialize WebGL. Your browser or machine may not support it.");
 		}
-
-		  // Set clear color to black, fully opaque
+		// Set clear color to black, fully opaque
 		this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
-		  // Clear the color buffer with specified clear color
+		// Clear the color buffer with specified clear color
 		this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 	}
 }

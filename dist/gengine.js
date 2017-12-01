@@ -104,9 +104,7 @@ class Display extends Component{
 		super(params, engine);
 		this.scale = 1;
 	}
-	set zoom(value){
-		// to do: sets zoom scale
-	}
+	set zoom(value){ }
 	get zoom(){
 		return this.scale;
 	}
@@ -115,21 +113,15 @@ class Display extends Component{
 		this.width = this.canvas.width;
 		this.height = this.canvas.height;
 	}
-	clear(){
-		// to do: clears the canvas
-	}
+	clear(){ }
 
-	fillRect(x, y, width, height, color){
-		// to do: fills a rect
-	}
+	fillRect(x, y, width, height, color){ }
 	rect(x, y, width, height, color){
 		// to do: draws a rectangle
 	}
-	circle(x, y, width, color){
-		// to do: draws a circle
-	}
-	move(){
-	
+	circle(x, y, width, color){ }
+	move() {
+		this.clear();
 	}
 }
 class CanvasDisplay extends Display{
@@ -154,7 +146,6 @@ class CanvasDisplay extends Display{
 	clear(){
 		this.ctx.clearRect(0, 0, this.width / this.scale, this.height / this.scale);
 	}
-
 	fillRect(x, y, width, height, color){
 		this.ctx.beginPath();
 		this.ctx.fillStyle =  color;
@@ -187,10 +178,9 @@ class WebGLDisplay extends Display{
 		if (!this.gl) {
 			new Error("Unable to initialize WebGL. Your browser or machine may not support it.");
 		}
-
-		  // Set clear color to black, fully opaque
+		// Set clear color to black, fully opaque
 		this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
-		  // Clear the color buffer with specified clear color
+		// Clear the color buffer with specified clear color
 		this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 	}
 }
@@ -308,7 +298,6 @@ class Sprite extends GameObject{
 		if(this.parent && this.parent.display)
 			this.parent.display.rect(this.x, this.y, this.width, this.height, color);
 	}
-
 	/**
 	 * Tests for possible collision between two sprites and if
 	 * that happens, tests for individual colliders;
@@ -348,24 +337,24 @@ class Engine extends GameObject{
 		this.debugMode = true;
 		this.components = {};
 		this.sprites = [];
-		this.frameLimit = false;
-		this.frameSkip = 20;
-		this.frameCount = 0;
 		this.gameLoop = this.loop.bind(this);
 	}
-
 	init(){
 		this.addComponent("Input", Input);
 		this.addComponent("Camera", Camera);
 		this.addComponent("Time", Time);
-		this.addComponent("Display", CanvasDisplay, { id: 'canvas'});
-
-		this.display = this.components.Display;
+		this.addComponent("Display", CanvasDisplay, {
+			id: 'canvas',
+			x: 0,
+			y: 0,
+			width: this.width,
+			height: this.height
+		});
 		this.time = this.components.Time;
-		this.input = this.components.time;
+		this.display = this.components.Display;
+
 		this.gameLoop();
 	}
-
 	static ready(engine, callback){
 		window.addEventListener('load', function(){
 			engine.init();
@@ -425,7 +414,6 @@ class Engine extends GameObject{
 		return;
 	}
 	draw(){
-		this.display.clear();
 		for(let sprite of this.sprites){
 			sprite.draw();
 		}
@@ -435,18 +423,15 @@ class Engine extends GameObject{
 		}
 		return;
 	}
-	
 	loop(){
 		this.collision();
 		this.move();
 		this.draw();
-		this.frameCount = 0;
 		this.debugInfo();
 		window.requestAnimationFrame(this.gameLoop);
 	}
-
 	debugInfo(){
-		if(!this.debugMode) return; 
+		if(!this.debugMode) return;
 		this.display.fillText((this.time.time).toFixed(2), 20, 20);
 		this.display.fillText((this.time.deltaTime).toFixed(4), 20, 40);
 		this.display.fillText(this.time.fps.toFixed(2), 20, 60);
@@ -463,17 +448,18 @@ class Player extends Sprite{
 		this.speed = 6;
 		this.speedY = 0;
 		this.moveDistanceY = 0;
-		this.accelerationY = 0;
+		this.moveDistanceX = 0;
 		this.velocityY = 0;
-		this.gravity = 3;
+		this.gravity = 0.5;
 		this.maxSpeedY = 10;
-		/*this.gravity = 3;
-		this.jumpSpeed = 0;
-		this.jumpForce = 1.5;
-		this.maxJumpSpeed = 20;
-		this.jumpCount = 0;
-		this.jumping = false;*/
-
+		this.jumpForce = 12;
+		this.jumping = false;
+		this.args = {
+			cv: 0
+		};
+		this.argsx = {
+			cv: 0
+		};
 
 	}
 	getCoorners(x, y){
@@ -484,31 +470,25 @@ class Player extends Sprite{
 		this.display = this.getComponent("Display");
 		this.tilemap = this.engine.tilemap;
 		this.time = this.getComponent("Time");
-
-
 	}
 	move(){
 		// left right movement
 		let inputX = this.input.getAxisRaw("Horizontal");
-		let moveDistanceX = inputX * this.speed * this.time.deltaTime;
-		this.getCoorners(this.x + moveDistanceX, this.y);
+		this.moveDistanceX = inputX * this.speed * this.time.deltaTime;
+		this.getCoorners(this.x + this.moveDistanceX, this.y);
+		this.moveDistanceX = Math.floor(this.moveDistanceX);
 		if(
 			(inputX == 1 && !this.coorners.downRight.solid && !this.coorners.upRight.solid) ||
 			(inputX == -1 && !this.coorners.downLeft.solid && !this.coorners.upLeft.solid)
 		){
-			this.x += moveDistanceX;
-			this.engine.x += moveDistanceX;
+			this.x += this.moveDistanceX;
+			this.engine.x = Maths.smoothDamp(this.engine.x, this.engine.x + this.moveDistanceX, this.argsx, 0.1, 30, 10);
+			//this.engine.x += moveDistanceX;
 		}
-
-		
-	
-
 		// gravity
-		// 
 		this.moveDistanceY = this.velocityY;
-		this.velocityY += this.accelerationY;
-		this.accelerationY = this.gravity;
-		
+		this.velocityY += this.gravity;
+
 		this.moveDistanceY = Maths.clamp(this.moveDistanceY, -this.maxSpeedY, this.maxSpeedY);
 		this.getCoorners(this.x, this.y + this.moveDistanceY);
 
@@ -516,26 +496,30 @@ class Player extends Sprite{
 			if(this.coorners.downRight.solid || this.coorners.downLeft.solid){
 				this.moveDistanceY = 0;
 				this.velocityY = 0;
+				this.jumping = false;
+			}
+		} else {
+			if(this.coorners.upRight.solid || this.coorners.upLeft.solid){
+				this.moveDistanceY = 0;
+				this.velocityY = 0;
 			}
 		}
-		/*
-		// making jump
-		if(this.speedY == 0){
-			if(this.input.keyCode("ArrowUp") ){
-				this.jumping = true;
-				this.jumpSpeed = 0;
-			}
-		}
-		//jumping
-		if(this.jumpSpeed >= this.maxJumpSpeed){
-			this.jumping = false;
-			this.jumpSpeed = 0;
-		}*/
 
 		this.y += this.moveDistanceY;
-		this.engine.y += this.moveDistanceY;
+		//this.engine.y += this.moveDistanceY;
+		this.engine.y = Maths.smoothDamp(this.engine.y, this.engine.y + this.moveDistanceY, this.args, 0.3, 13, 1);
 
-
+		// jump pressed and not jumping
+		if(this.input.keyCode("ArrowUp") && !this.jumping){
+			this.jumping = true;
+			this.velocityY = -this.jumpForce;
+		}
+		// jump released and jumping
+		if(!this.input.keyCode("ArrowUp") && this.jumping){
+			if(this.velocityY < -this.jumpForce/2){
+				this.velocityY = -this.jumpForce/2;
+			}
+		}
 
 
 	}
@@ -564,8 +548,8 @@ class Camera extends Component{
 
 
 var Tiles = [
-	{color: '#000', solid: false},
-	{color: '#500', solid: true},
+	{color: '#fff', solid: false},
+	{color: '#333', solid: true},
 	{color: '#0f0', solid: true},
 	{color: '#00f', solid: true},
 	{color: '#bae1ff', solid: true}
@@ -651,20 +635,13 @@ class TileMap extends Sprite{
 		for(var i = rect.x1; i < rect.x2; ++i){
 			for(var j = rect.y1; j < rect.y2; ++j){
 				this.display.fillRect(this.x+(i*this.twidth), this.y+(j*this.theight), this.twidth, this.theight, Tiles[this.read(i,j)].color);
+				this.display.rect(this.x+(i*this.twidth), this.y+(j*this.theight), this.twidth, this.theight, Tiles[0].color);
 			}
 		}
 		return;
 	}
 	getCorners(x, y, sprite){
-		/*sprite.downY = Math.floor((y+sprite.height-1)/game.tileH);
-		sprite.upY = Math.floor((y-sprite.height)/game.tileH);
-		sprite.leftX = Math.floor((x-sprite.width)/game.tileW);
-		sprite.rightX = Math.floor((x+sprite.width-1)/game.tileW);
-		//check if they are walls
-		sprite.upleft = game["t_"+sprite.upY+"_"+sprite.leftX].walkable;
-		sprite.downleft = game["t_"+sprite.downY+"_"+sprite.leftX].walkable;
-		sprite.upright = game["t_"+sprite.upY+"_"+sprite.rightX].walkable;
-		sprite.downright = game["t_"+sprite.downY+"_"+sprite.rightX].walkable;*/
+
 	}
 }
 
@@ -678,7 +655,17 @@ class TestSprite extends Sprite{
 			width: this.width,
 			height: this.height
 		}));
-		this.color = "white";
+		this.args = {
+			cv: 0
+		};
+		if(!this.speed){
+			this.speed = 1;
+		}
+		this.rx = this.x;
+		this.ry = this.y;
+		this.x = 0;
+		this.y = 0;
+		this.color = "red";
 		this.rotation = 0;
 	}
 	init(){
@@ -688,21 +675,28 @@ class TestSprite extends Sprite{
 	}
 	move(){
 		if(!this.colliding){
-			this.color = "white";
+			this.color = "red";
 		}
-
-		if(this.input.keyCode("ArrowDown")) this.y += this.speed;
-		if(this.input.keyCode("ArrowUp")) this.y -= this.speed;
-		if(this.input.keyCode("ArrowRight")) this.x += this.speed;
-		if(this.input.keyCode("ArrowLeft")) this.x -= this.speed;
-
-		this.x += Math.cos(this.rotation * Math.PI/180) * this.speed;
-		this.y += Math.sin(this.rotation * Math.PI/180) * this.speed;
-		if(++this.rotation > 360){
+		//if(this.input.keyCode("ArrowDown")) this.y += this.speed;
+		if(this.input.keyCode("ArrowUp")) {
+			this.rotation += 30;
+			this.rotationSpeed++;
+		}
+		//if(this.input.keyCode("ArrowRight")) this.x += this.speed;
+		//if(this.input.keyCode("ArrowLeft")) this.x -= this.speed;
+		this.rx += Math.cos(this.rotation * Math.PI/180) * this.speed;
+		this.ry += Math.sin(this.rotation * Math.PI/180) * this.speed;
+		this.x = Maths.smoothDamp(this.x, this.parent.x + this.rx - 320, this.args, 0.3, 13, 1);
+		this.y = Maths.smoothDamp(this.y, this.parent.y + this.ry - 220, this.args, 0.3, 13, 1);
+		//smoothDamp(current, target, $currentVelocity, smoothTime, maxSpeed, deltaTime)
+		//this.x = this.parent.x + this.rx -320;
+		//this.y = this.parent.y + this.ry - 220;
+		this.rotation += this.rotationSpeed;
+		if(this.rotation > 360){
 			this.rotation = 0;
 		}
 		var m = Maths.clamp(Math.abs(this.speed+3) * 70, 0, 250);
-		this.color = `rgb(${m},${m},${m})`;
+		this.color = `rgb(${255},${122},${m})`;
 	}
 	draw(){
 		this.colliders[0].debugDraw(this.color);
@@ -716,26 +710,26 @@ var e = {};
 function Game(engine){
 	e = engine;
 	var map = [
-		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-		1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,
-		1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,0,1,
-		1,0,0,1,1,1,1,0,0,0,1,0,0,1,1,1,1,0,0,1,
-		1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,
-		1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-		1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,
-		1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-		1,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,1,
-		1,0,0,0,0,1,0,0,0,1,1,0,0,0,0,1,0,0,0,1,
-		1,0,0,1,1,1,1,0,0,1,1,0,0,1,1,1,1,0,0,1,
-		1,0,0,0,0,1,0,0,0,1,1,0,0,0,0,1,0,1,0,1,
-		1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+		1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,
+		1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,0,1,1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,0,1,1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,0,1,
+		1,0,0,1,1,1,1,0,0,0,1,0,0,1,1,1,1,0,0,0,1,0,0,1,1,1,1,0,0,0,1,0,0,1,1,1,1,0,0,1,1,0,0,1,1,1,1,0,0,0,1,0,0,1,1,1,1,0,0,1,
+		1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,
+		1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+		1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,
+		1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+		1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,
+		1,0,0,0,0,1,0,0,0,1,0,0,0,0,0,1,0,0,0,1,1,0,0,0,0,1,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,1,0,0,0,1,
+		1,0,0,1,1,1,1,0,0,1,1,0,0,1,1,1,1,0,0,1,1,0,0,1,1,1,1,0,0,1,1,0,0,1,1,1,1,0,0,0,0,0,0,1,1,1,1,0,0,1,1,0,0,1,1,1,1,0,0,1,
+		1,0,0,0,0,1,0,0,0,1,1,0,0,0,0,1,0,1,0,1,1,0,0,0,0,1,0,0,0,1,1,0,0,0,0,1,0,1,0,0,0,0,0,0,0,1,0,0,0,1,1,0,0,0,0,1,0,1,0,1,
+		1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
 
 	];
 	tilemap = new TileMap({
 		x: 0,
 		y: 0,
-		width: 20,
+		width: 60,
 		height: 14,
 		twidth: 48,
 		theight: 48
@@ -743,27 +737,27 @@ function Game(engine){
 	tilemap.load(map);
 	engine.tilemap = tilemap;
 	engine.addSprite(tilemap);
-
-	engine.addSprite(new Player({
-		x: 100,
-		y: 100,
+	let player = new Player({
+		x: 320,
+		y: 220,
 		width: 32,
 		height: 32
-	}));
-
-
-	for (var i = 0; i < 1; ++i){
+	});
+	engine.addSprite(player);
+	for (var i = 0; i < 100; ++i){
 		engine.addSprite(new TestSprite({
 			x: Maths.rand(200, 480),
 			y: Maths.rand(150, 330),
-			width: 5,
-			height: 5,
+			width: 4,
+			height: 4,
 			rotation: Maths.rand(0, 359),
-			speed: Maths.rand(-3, 3)
+			speed: Math.random() * 3,
+			rotationSpeed: Maths.rand(1, 10),
+			parent: player
 		}));
 	}
-
 }
+
 Engine.ready(new Engine('canvas'), Game);
 
 

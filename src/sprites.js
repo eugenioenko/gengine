@@ -15,7 +15,6 @@ class Sprite extends GameObject{
 		if(this.parent && this.parent.display)
 			this.parent.display.rect(this.x, this.y, this.width, this.height, color);
 	}
-
 	/**
 	 * Tests for possible collision between two sprites and if
 	 * that happens, tests for individual colliders;

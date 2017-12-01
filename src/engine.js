@@ -10,24 +10,24 @@ class Engine extends GameObject{
 		this.debugMode = true;
 		this.components = {};
 		this.sprites = [];
-		this.frameLimit = false;
-		this.frameSkip = 20;
-		this.frameCount = 0;
 		this.gameLoop = this.loop.bind(this);
 	}
-
 	init(){
 		this.addComponent("Input", Input);
 		this.addComponent("Camera", Camera);
 		this.addComponent("Time", Time);
-		this.addComponent("Display", CanvasDisplay, { id: 'canvas'});
-
-		this.display = this.components.Display;
+		this.addComponent("Display", CanvasDisplay, {
+			id: 'canvas',
+			x: 0,
+			y: 0,
+			width: this.width,
+			height: this.height
+		});
 		this.time = this.components.Time;
-		this.input = this.components.time;
+		this.display = this.components.Display;
+
 		this.gameLoop();
 	}
-
 	static ready(engine, callback){
 		window.addEventListener('load', function(){
 			engine.init();
@@ -87,7 +87,6 @@ class Engine extends GameObject{
 		return;
 	}
 	draw(){
-		this.display.clear();
 		for(let sprite of this.sprites){
 			sprite.draw();
 		}
@@ -97,18 +96,15 @@ class Engine extends GameObject{
 		}
 		return;
 	}
-	
 	loop(){
 		this.collision();
 		this.move();
 		this.draw();
-		this.frameCount = 0;
 		this.debugInfo();
 		window.requestAnimationFrame(this.gameLoop);
 	}
-
 	debugInfo(){
-		if(!this.debugMode) return; 
+		if(!this.debugMode) return;
 		this.display.fillText((this.time.time).toFixed(2), 20, 20);
 		this.display.fillText((this.time.deltaTime).toFixed(4), 20, 40);
 		this.display.fillText(this.time.fps.toFixed(2), 20, 60);
