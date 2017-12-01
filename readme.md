@@ -101,3 +101,13 @@ Position relativa de colliders respecto a sprites
 
 ## game.js y player.js
 Son dos modulos que se usan mas que nada para tests del resto de funcionalidades.
+
+
+## Algunos tests y ejemplos
+en index.html hay una mapa de tiles con un sprite player. Flechas para mover, WASD para mover la camera.
+Si se mueve el personaje solo, la camara se pierde un toque, se estaban haciendo pruebas de hacer un smoothing a la camara.
+
+
+Aqui test de collision de 700 sprites con posicion random y movimiento circular. El motor como extra solo dibujo lineas entre el sprite actual y el siguiente en la lista de sprites.
+
+[test collision](https://codepen.io/eugenioenko/full/zPJaKR/)
