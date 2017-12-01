@@ -40,7 +40,7 @@ Una clase con metodos estaticos que chequea colisiones entre colliders.
 
 
 #### Collision Tree
-* Actualmente chequea las colisiones entre Todos los Sprites N^2.
+* Actualmente chequea las colisiones entre Todos los Sprites N^2 (estaria buenisimo pasar eso a quadtrees or spacial hashmaps o alguno de esos).
 * Cada Sprite puede tener varios Colliders adentro.
 * Actualmente se revise colision entre los rectangulos de 2 sprites y si hay colision, revisa a fondo cada collider del sprite contra cada collider del otro sprite.
 * Si hay colision, ejecuta los metodos Sprite.collision(sprite2). Le pasa como parametro el sprite con el que se colisiono.
@@ -70,4 +70,15 @@ El display es actualmente solo es Canvas, pero se podria extender luego a un dis
 * Pathfind
 
 
+# Instalacion
 
+>npm install
+>gulp
+
+Gulp va a combinar todos los js en uno solo y de paso corre jshint por si se olvidan algun ";".
+Si se agrega un script archivo de script nuevo, hay que agregarlo manualmente en el gulpfile.js.
+
+
+# Importante
+Nada esta escrito en piedra, todo es cambiable y la idea es divertirse y aprender en el camino. Ya se ha hecho 3 reescrituras estructuras clave. 
+Se usta usando ECMA 2016/2017... lo ultimo que soporte chrome, para cuando avance bastante tal vez IE lo soporte tambien.
