@@ -97,3 +97,7 @@ Algunas illustraciones con el modelo de sprites y colliders
 
 Position relativa de colliders respecto a sprites
 ![sprites y colliders ](https://eugenioenko.github.io/gengine/images/colliders-relative.png)
+
+
+## game.js y player.js
+Son dos modulos que se usan mas que nada para tests del resto de funcionalidades.
