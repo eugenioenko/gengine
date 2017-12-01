@@ -73,6 +73,8 @@ El display es actualmente solo es Canvas, pero se podria extender luego a un dis
 # Instalacion
 
 >npm install
+
+luego 
 >gulp
 
 Gulp va a combinar todos los js en uno solo y de paso corre jshint por si se olvidan algun ";".
