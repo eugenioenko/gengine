@@ -1,10 +1,11 @@
 
 class GameObject {
 	constructor(params){
-		if(!arguments.length) {
-			throw new Error("GameObject constructor requires an object literal as argument");
-		}
+		Debug.validateParams(this.constructor.name, params, this.__args__());
 		Object.assign(this, params);
+	}
+	__args__() {
+		return [];
 	}
 	init() { }
 	move() { }

@@ -28,25 +28,90 @@ class Maths{
 		return num8;
 	}
 }
+class Debug{
+
+	static active(){
+		return window.GENGINE_DEBUG_MODE;
+	}
+
+	static log(message){
+		if(!this.active()) return;
+		console.trace();
+		console.log(message);
+	}
+
+	static info(message){
+		if(!this.active()) return;
+		console.info(`%c${message}`, 'color: blue');
+	}
+	static success(message){
+		if(!this.active) return;
+		console.info(`%c${message}`, 'color: green');
+	}
+
+	static warn(message){
+		if(!this.active()) return;
+		console.trace();
+		console.warn(message);
+	}
+
+	static error(message){
+		if(!this.active()) return;
+		console.groupEnd();
+		throw new Error(message);
+	}
+
+	static group(name){
+		if(!this.active()) return;
+		console.groupCollapsed(name);
+	}
+
+	static groupEnd(){
+		if(!this.active()) return;
+		console.groupEnd();
+	}
+	/**
+	 * Validates that the object literal of the constructor
+	 * has the elements of the required array
+	 * @param  {object} params   The constructor argument
+	 * @param  {array} required The list of required keys
+	 */
+	static validateParams(name, params, required){
+		if(!this.active()) return;
+		for(let key of required){
+			if(typeof params[key] === "undefined"){
+				Debug.error(`${name} requires of "${key}" in the constructor`);
+			}
+		}
+	}
+
+}
+
 
 class GameObject {
 	constructor(params){
-		if(!arguments.length) {
-			throw new Error("GameObject constructor requires an object literal as argument");
-		}
+		Debug.validateParams(this.constructor.name, params, this.__args__());
 		Object.assign(this, params);
+	}
+	__args__() {
+		return [];
 	}
 	init() { }
 	move() { }
 	draw() { }
 }
 class Component extends GameObject{
-	constructor(params, engine){ 
+	constructor(params, engine){
 		super(params);
 		this.engine = engine;
 	}
+
 	getComponent(name){
 		return this.engine.getComponent(name);
+	}
+
+	init(){
+		Debug.success(`${this.constructor.name} initialized`);
 	}
 }
 class Time extends Component{
@@ -60,8 +125,12 @@ class Time extends Component{
 		this.startTime = performance.now() / 1000;
 		this.lastTime = this.startTime;
 	}
+	__args__(){
+		return [];
+	}
 	init(){
 		this.lastTime = performance.now() / 1000;
+		super.init();
 	}
 	move(){
 		let current = performance.now() / 1000;
@@ -82,6 +151,10 @@ class Input extends Component{
 	init(){
 		window.addEventListener("keydown", this.keyDown.bind(this), false);
 		window.addEventListener("keyup", this.keyUp.bind(this), false);
+		super.init();
+	}
+	__args__(){
+		return [];
 	}
 	keyDown(e){
 		this.keyCode_[e.code] = true;
@@ -112,6 +185,7 @@ class Display extends Component{
 		this.canvas = document.getElementById(this.id);
 		this.width = this.canvas.width;
 		this.height = this.canvas.height;
+		super.init();
 	}
 	clear(){ }
 
@@ -124,15 +198,19 @@ class Display extends Component{
 		this.clear();
 	}
 }
-class CanvasDisplay extends Display{
+class CanvasDisplay extends Component{
 	constructor(params, engine){
 		super(params, engine);
 		this.scale = 1;
+	}
+	__args__(){
+		return ["x", "y", "width", "height"];
 	}
 	init () {
 		this.canvas = document.getElementById(this.id);
 		this.ctx = this.canvas.getContext('2d');
 		this.ctx.font = "16px Helvetica";
+		super.init();
 	}
 	set zoom(value){
 		this.scale = value;
@@ -273,6 +351,8 @@ class RectCollider extends Collider{
 		if(collider instanceof RectCollider){
 			return TestCollision.RectVsRect(this, collider);
 		}
+
+		Debug.error("Unknown collider " + typeof collider);
 		return false; //if unknow collider will return false, posible bug
 	}
 	debugDraw(color){
@@ -286,6 +366,9 @@ class Sprite extends GameObject{
 		super(params);
 		this.colliders = [];
 		this.colliding = false;
+	}
+	__args__(){
+		return ["x", "y", "width", "height"];
 	}
 	getComponent(name){
 		return this.engine.getComponent(name);
@@ -326,6 +409,7 @@ class Sprite extends GameObject{
 }
 
 class Engine extends GameObject{
+
 	constructor(canvas){
 		super({
 			parent: null,
@@ -339,9 +423,11 @@ class Engine extends GameObject{
 		this.sprites = [];
 		this.gameLoop = this.loop.bind(this);
 	}
+
 	init(){
+		Debug.group('Engine loaded components');
 		this.addComponent("Input", Input);
-		this.addComponent("Camera", Camera);
+		this.addComponent("Camera", Camera, {x: 0, y: 0});
 		this.addComponent("Time", Time);
 		this.addComponent("Display", CanvasDisplay, {
 			id: 'canvas',
@@ -350,17 +436,20 @@ class Engine extends GameObject{
 			width: this.width,
 			height: this.height
 		});
+		Debug.groupEnd();
 		this.time = this.components.Time;
 		this.display = this.components.Display;
 
 		this.gameLoop();
 	}
+
 	static ready(engine, callback){
 		window.addEventListener('load', function(){
 			engine.init();
 			callback(engine);
 		});
 	}
+
 	collision(){
 		for(let i = 0; i < this.sprites.length; ++i){
 			for(let j = i +1; j < this.sprites.length; ++j){
@@ -375,6 +464,7 @@ class Engine extends GameObject{
 			}
 		}
 	}
+
 	addComponent(name, component, params){
 		if(typeof this.components[name] !== "undefined"){
 			throw new Error(`Component ${name} is already defined`);
@@ -384,18 +474,21 @@ class Engine extends GameObject{
 		this.components[name] = new component(params, this);
 		this.components[name].init();
 	}
+
 	getComponent(name){
 		if(typeof this.components[name] === "undefined"){
 			throw new Error(`Component ${name} is not registred`);
 		}
 		return this.components[name];
 	}
+
 	addSprite(sprite){
 		sprite.engine = this;
 		sprite.init();
 		this.sprites.push(sprite);
 		return;
 	}
+
 	removeSprite(sprite){
 		sprite.destroy();
 		let index = this.sprites.indexOf(sprite);
@@ -403,6 +496,7 @@ class Engine extends GameObject{
 			this.sprites.splice(index, 1);
 		}
 	}
+
 	move(){
 		for(let sprite of this.sprites){
 			sprite.move();
@@ -413,7 +507,9 @@ class Engine extends GameObject{
 		}
 		return;
 	}
+
 	draw(){
+		this.display.clear();
 		for(let sprite of this.sprites){
 			sprite.draw();
 		}
@@ -423,6 +519,7 @@ class Engine extends GameObject{
 		}
 		return;
 	}
+
 	loop(){
 		this.collision();
 		this.move();
@@ -430,8 +527,9 @@ class Engine extends GameObject{
 		this.debugInfo();
 		window.requestAnimationFrame(this.gameLoop);
 	}
+
 	debugInfo(){
-		if(!this.debugMode) return;
+		if(!Debug.active()) return;
 		this.display.fillText((this.time.time).toFixed(2), 20, 20);
 		this.display.fillText((this.time.deltaTime).toFixed(4), 20, 40);
 		this.display.fillText(this.time.fps.toFixed(2), 20, 60);
@@ -482,7 +580,7 @@ class Player extends Sprite{
 			(inputX == -1 && !this.coorners.downLeft.solid && !this.coorners.upLeft.solid)
 		){
 			this.x += this.moveDistanceX;
-			this.engine.x = Maths.smoothDamp(this.engine.x, this.engine.x + this.moveDistanceX, this.argsx, 0.1, 30, 10);
+			this.engine.x += this.moveDistanceX; //Maths.smoothDamp(this.engine.x, this.engine.x + this.moveDistanceX, this.argsx, 0.1, 30, 10);
 			//this.engine.x += moveDistanceX;
 		}
 		// gravity
@@ -535,8 +633,12 @@ class Camera extends Component{
 		super(params, engine);
 		this.speed = 10;
 	}
+	__args__(){
+		return ["x", "y"];
+	}
 	init(){
 		this.input = this.getComponent("Input");
+		super.init();
 	}
 	move(){
 		if(this.input.keyCode("KeyS")) this.engine.y -= this.speed;
@@ -582,6 +684,9 @@ class TileMap extends Sprite{
 		//this.twidth = 64;
 		//this.theight = 64;
 		this.map = new Matrix(this.width, this.height);
+	}
+	__args__(){
+		return ["x", "y", "width", "height", "twidth", "theight"];
 	}
 	read(x, y){
 		return this.map.read(x, y);
@@ -667,6 +772,9 @@ class TestSprite extends Sprite{
 		this.y = 0;
 		this.color = "red";
 		this.rotation = 0;
+	}
+	__args__(){
+		return ["x", "y", "width", "height", "speed", "rotation", "rotationSpeed"];
 	}
 	init(){
 		this.input = this.getComponent("Input");

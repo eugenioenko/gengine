@@ -11,6 +11,7 @@ class Display extends Component{
 		this.canvas = document.getElementById(this.id);
 		this.width = this.canvas.width;
 		this.height = this.canvas.height;
+		super.init();
 	}
 	clear(){ }
 
@@ -23,15 +24,19 @@ class Display extends Component{
 		this.clear();
 	}
 }
-class CanvasDisplay extends Display{
+class CanvasDisplay extends Component{
 	constructor(params, engine){
 		super(params, engine);
 		this.scale = 1;
+	}
+	__args__(){
+		return ["x", "y", "width", "height"];
 	}
 	init () {
 		this.canvas = document.getElementById(this.id);
 		this.ctx = this.canvas.getContext('2d');
 		this.ctx.font = "16px Helvetica";
+		super.init();
 	}
 	set zoom(value){
 		this.scale = value;

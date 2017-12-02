@@ -1,4 +1,5 @@
 class Engine extends GameObject{
+
 	constructor(canvas){
 		super({
 			parent: null,
@@ -12,9 +13,11 @@ class Engine extends GameObject{
 		this.sprites = [];
 		this.gameLoop = this.loop.bind(this);
 	}
+
 	init(){
+		Debug.group('Engine loaded components');
 		this.addComponent("Input", Input);
-		this.addComponent("Camera", Camera);
+		this.addComponent("Camera", Camera, {x: 0, y: 0});
 		this.addComponent("Time", Time);
 		this.addComponent("Display", CanvasDisplay, {
 			id: 'canvas',
@@ -23,17 +26,20 @@ class Engine extends GameObject{
 			width: this.width,
 			height: this.height
 		});
+		Debug.groupEnd();
 		this.time = this.components.Time;
 		this.display = this.components.Display;
 
 		this.gameLoop();
 	}
+
 	static ready(engine, callback){
 		window.addEventListener('load', function(){
 			engine.init();
 			callback(engine);
 		});
 	}
+
 	collision(){
 		for(let i = 0; i < this.sprites.length; ++i){
 			for(let j = i +1; j < this.sprites.length; ++j){
@@ -48,6 +54,7 @@ class Engine extends GameObject{
 			}
 		}
 	}
+
 	addComponent(name, component, params){
 		if(typeof this.components[name] !== "undefined"){
 			throw new Error(`Component ${name} is already defined`);
@@ -57,18 +64,21 @@ class Engine extends GameObject{
 		this.components[name] = new component(params, this);
 		this.components[name].init();
 	}
+
 	getComponent(name){
 		if(typeof this.components[name] === "undefined"){
 			throw new Error(`Component ${name} is not registred`);
 		}
 		return this.components[name];
 	}
+
 	addSprite(sprite){
 		sprite.engine = this;
 		sprite.init();
 		this.sprites.push(sprite);
 		return;
 	}
+
 	removeSprite(sprite){
 		sprite.destroy();
 		let index = this.sprites.indexOf(sprite);
@@ -76,6 +86,7 @@ class Engine extends GameObject{
 			this.sprites.splice(index, 1);
 		}
 	}
+
 	move(){
 		for(let sprite of this.sprites){
 			sprite.move();
@@ -86,7 +97,9 @@ class Engine extends GameObject{
 		}
 		return;
 	}
+
 	draw(){
+		this.display.clear();
 		for(let sprite of this.sprites){
 			sprite.draw();
 		}
@@ -96,6 +109,7 @@ class Engine extends GameObject{
 		}
 		return;
 	}
+
 	loop(){
 		this.collision();
 		this.move();
@@ -103,8 +117,9 @@ class Engine extends GameObject{
 		this.debugInfo();
 		window.requestAnimationFrame(this.gameLoop);
 	}
+
 	debugInfo(){
-		if(!this.debugMode) return;
+		if(!Debug.active()) return;
 		this.display.fillText((this.time.time).toFixed(2), 20, 20);
 		this.display.fillText((this.time.deltaTime).toFixed(4), 20, 40);
 		this.display.fillText(this.time.fps.toFixed(2), 20, 60);

@@ -3,8 +3,12 @@ class Camera extends Component{
 		super(params, engine);
 		this.speed = 10;
 	}
+	__args__(){
+		return ["x", "y"];
+	}
 	init(){
 		this.input = this.getComponent("Input");
+		super.init();
 	}
 	move(){
 		if(this.input.keyCode("KeyS")) this.engine.y -= this.speed;

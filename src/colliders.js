@@ -48,6 +48,8 @@ class RectCollider extends Collider{
 		if(collider instanceof RectCollider){
 			return TestCollision.RectVsRect(this, collider);
 		}
+
+		Debug.error("Unknown collider " + typeof collider);
 		return false; //if unknow collider will return false, posible bug
 	}
 	debugDraw(color){

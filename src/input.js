@@ -6,6 +6,10 @@ class Input extends Component{
 	init(){
 		window.addEventListener("keydown", this.keyDown.bind(this), false);
 		window.addEventListener("keyup", this.keyUp.bind(this), false);
+		super.init();
+	}
+	__args__(){
+		return [];
 	}
 	keyDown(e){
 		this.keyCode_[e.code] = true;

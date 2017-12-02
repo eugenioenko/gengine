@@ -9,8 +9,12 @@ class Time extends Component{
 		this.startTime = performance.now() / 1000;
 		this.lastTime = this.startTime;
 	}
+	__args__(){
+		return [];
+	}
 	init(){
 		this.lastTime = performance.now() / 1000;
+		super.init();
 	}
 	move(){
 		let current = performance.now() / 1000;

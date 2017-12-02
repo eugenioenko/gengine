@@ -19,6 +19,7 @@ gulp.task('lint', function() {
 gulp.task('combine', function() {
   return gulp.src([
       "src/maths.js",
+      "src/debug.js",
       "src/objects.js",
       "src/components.js",
       "src/time.js",

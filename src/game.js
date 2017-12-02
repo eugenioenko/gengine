@@ -21,6 +21,9 @@ class TestSprite extends Sprite{
 		this.color = "red";
 		this.rotation = 0;
 	}
+	__args__(){
+		return ["x", "y", "width", "height", "speed", "rotation", "rotationSpeed"];
+	}
 	init(){
 		this.input = this.getComponent("Input");
 		this.display = this.getComponent("Display");
