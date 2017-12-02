@@ -80,13 +80,21 @@ function Game(engine){
 	tilemap.load(map);
 	engine.tilemap = tilemap;
 	engine.addSprite(tilemap);
+
 	let player = new Player({
 		x: 320,
 		y: 220,
 		width: 32,
 		height: 32
 	});
+
+	engine.addComponent("Network", Network, {
+		url: 'http://enko.duckdns.org:3331',
+		player: player,
+		dummy: NetworkPlayer
+	});
 	engine.addSprite(player);
+
 	for (var i = 0; i < 10; ++i){
 		engine.addSprite(new TestSprite({
 			x: Maths.rand(0, 5),

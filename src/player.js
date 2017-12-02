@@ -1,3 +1,25 @@
+class NetworkPlayer extends Sprite{
+	constructor(params){
+		super(params);
+		this.color = "red";
+		this.width = 32;
+		this.height = 32;
+	}
+	__args__(){
+		return ["x", "y"];
+	}
+	init(){
+		this.display = this.getComponent("Display");
+	}
+	move(){ }
+	draw(){
+		this.display.fillRect(this.x, this.y, this.width, this.height, this.color);
+	}
+	collision(sprite){
+
+	}
+}
+
 class Player extends Sprite{
 	constructor(params){
 		super(params);
@@ -30,6 +52,7 @@ class Player extends Sprite{
 		this.input = this.getComponent("Input");
 		this.display = this.getComponent("Display");
 		this.tilemap = this.engine.tilemap;
+		this.network = this.getComponent("Network");
 		this.time = this.getComponent("Time");
 	}
 	move(){
@@ -82,6 +105,10 @@ class Player extends Sprite{
 			}
 		}
 
+		this.network.move({
+			x: this.x,
+			y: this.y
+		});
 
 	}
 	draw(){

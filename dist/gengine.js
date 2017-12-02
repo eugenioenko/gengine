@@ -51,7 +51,6 @@ class Debug{
 
 	static warn(message){
 		if(!this.active()) return;
-		console.trace();
 		console.warn(message);
 	}
 
@@ -261,6 +260,103 @@ class WebGLDisplay extends Display{
 		// Clear the color buffer with specified clear color
 		this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 	}
+}
+
+class Network extends Component{
+	constructor(params, engine){
+		super(params, engine);
+		this.sprites = {};
+		if(typeof io === "undefined"){
+			Debug.error('Network requires socketio.js');
+		}
+		this.socket = io(this.url, {
+  			autoConnect: false
+		});
+		this.socket.on('connect', this.onConnect.bind(this));
+		this.socket.on('connect_error', this.onConnectionError.bind(this));
+		this.socket.on('disconnect', this.onDisconnect.bind(this));
+
+		this.socket.on('enter_player', this.onEnterNetworkPlayer.bind(this));
+		this.socket.on('leave_player', this.onLeaveNetworkPlayer.bind(this));
+		this.socket.on('update_player', this.onUpdateNetworkPlayer.bind(this));
+	}
+
+	__args__(){
+		return ["url", "player", "dummy"];
+	}
+
+	init(){
+		this.socket.connect();
+		super.init();
+	}
+
+	move(){
+		this.socket.emit('move_player', {
+			x: this.player.x,
+			y: this.player.y,
+			id: this.socket.id
+		});
+	}
+
+	draw(){
+
+	}
+
+	connect(){
+		Debug.info(`Connecting to the server ${this.url}`);
+		this.socket.connect();
+	}
+
+	disconnect(){
+		Debug.warn(`Disonected from server`);
+		this.socket.disconnect();
+	}
+
+	onConnect(data){
+		Debug.info(`Connected to the server`);
+	}
+
+	onDisconnect(data){
+		this.socket.disconnect();
+	}
+
+	onConnectionError(data){
+		Debug.warn(`Server connection error`);
+		this.socket.disconnect();
+	}
+
+	createNetworkPlayer(data){
+		this.sprites[data.id] = new this.dummy({
+			x: data.x,
+			y: data.y,
+			parent: this
+		});
+		this.engine.addSprite(this.sprites[data.id]);
+	}
+
+	onEnterNetworkPlayer(data){
+		this.createNetworkPlayer(data);
+	}
+
+	onLeaveNetworkPlayer(data){
+		if(typeof this.sprites[data.id] !== "undefined"){
+			this.engine.removeSprite(this.sprites[data.id]);
+			delete this.sprites[data.id];
+		}
+	}
+
+	onUpdateNetworkPlayer(data){
+		if(typeof this.sprites[data.id] === "undefined"){
+			this.createNetworkPlayer(data);
+		}
+		this.sprites[data.id].x = data.x;
+		this.sprites[data.id].y = data.y;
+	}
+
+	/**
+	 * todo: cualquier cosa que se ocurra, sonidos podrian loopear, otros no.
+	 * Musica de fondo seria un sonido?
+	 */
 }
 
 class TestCollision{
@@ -535,6 +631,28 @@ class Engine extends GameObject{
 		this.display.fillText(this.time.fps.toFixed(2), 20, 60);
 	}
 }
+class NetworkPlayer extends Sprite{
+	constructor(params){
+		super(params);
+		this.color = "red";
+		this.width = 32;
+		this.height = 32;
+	}
+	__args__(){
+		return ["x", "y"];
+	}
+	init(){
+		this.display = this.getComponent("Display");
+	}
+	move(){ }
+	draw(){
+		this.display.fillRect(this.x, this.y, this.width, this.height, this.color);
+	}
+	collision(sprite){
+
+	}
+}
+
 class Player extends Sprite{
 	constructor(params){
 		super(params);
@@ -567,6 +685,7 @@ class Player extends Sprite{
 		this.input = this.getComponent("Input");
 		this.display = this.getComponent("Display");
 		this.tilemap = this.engine.tilemap;
+		this.network = this.getComponent("Network");
 		this.time = this.getComponent("Time");
 	}
 	move(){
@@ -619,6 +738,10 @@ class Player extends Sprite{
 			}
 		}
 
+		this.network.move({
+			x: this.x,
+			y: this.y
+		});
 
 	}
 	draw(){
@@ -832,13 +955,21 @@ function Game(engine){
 	tilemap.load(map);
 	engine.tilemap = tilemap;
 	engine.addSprite(tilemap);
+
 	let player = new Player({
 		x: 320,
 		y: 220,
 		width: 32,
 		height: 32
 	});
+
+	engine.addComponent("Network", Network, {
+		url: 'http://enko.duckdns.org:3331',
+		player: player,
+		dummy: NetworkPlayer
+	});
 	engine.addSprite(player);
+
 	for (var i = 0; i < 10; ++i){
 		engine.addSprite(new TestSprite({
 			x: Maths.rand(0, 5),

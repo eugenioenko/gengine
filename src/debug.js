@@ -21,7 +21,6 @@ class Debug{
 
 	static warn(message){
 		if(!this.active()) return;
-		console.trace();
 		console.warn(message);
 	}
 

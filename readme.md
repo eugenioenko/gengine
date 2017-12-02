@@ -25,6 +25,9 @@ Cada componente que se agrega al motor, el motor crea la instancia, inicializa e
 El golazo seria: ir creando distintos componentes y luego agregar los escenciales al motoro. El resto a gusto del usuario.
 
 
+#### Network
+contiene un modulo basico de multiplayer.
+En el constructor del componente hay que pasar como parametro la instancia del sprite del jugador y el nombre de la classe para construir "dummy" sprites.
 
 #### Time
 Es un componente de tiempo, contiene:
