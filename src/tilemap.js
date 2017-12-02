@@ -1,10 +1,10 @@
 
 
 var Tiles = [
-	{color: '#fff', solid: false},
+	{color: '#eee', solid: false},
 	{color: '#333', solid: true},
-	{color: '#0f0', solid: true},
-	{color: '#00f', solid: true},
+	{color: '#037', solid: true},
+	{color: '#730', solid: true},
 	{color: '#bae1ff', solid: true}
 ];
 

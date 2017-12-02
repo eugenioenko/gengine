@@ -67,8 +67,8 @@ class Player extends Sprite{
 		}
 
 		this.y += this.moveDistanceY;
-		//this.engine.y += this.moveDistanceY;
-		this.engine.y = Maths.smoothDamp(this.engine.y, this.engine.y + this.moveDistanceY, this.args, 0.3, 13, 1);
+		this.engine.y += this.moveDistanceY;
+		//this.engine.y = Maths.smoothDamp(this.engine.y, this.engine.y + this.moveDistanceY, this.args, 0.3, 13, 1);
 
 		// jump pressed and not jumping
 		if(this.input.keyCode("ArrowUp") && !this.jumping){
