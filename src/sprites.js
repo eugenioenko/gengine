@@ -13,8 +13,7 @@ class Sprite extends GameObject{
 	addCollider(x, y, width, height){
 		this.colliders.push(new RectCollider(this, x, y, width, height));
 	}
-	debugDraw(color){
-		color = typeof color === "undefined" ? "red" : color;
+	debugDraw(color = "red"){
 		if(this.parent && this.parent.display)
 			this.parent.display.rect(this.x, this.y, this.width, this.height, color);
 	}

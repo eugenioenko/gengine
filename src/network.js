@@ -94,8 +94,4 @@ class Network extends Component{
 		this.sprites[data.id].y = data.y;
 	}
 
-	/**
-	 * todo: cualquier cosa que se ocurra, sonidos podrian loopear, otros no.
-	 * Musica de fondo seria un sonido?
-	 */
 }

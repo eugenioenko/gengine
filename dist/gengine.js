@@ -362,10 +362,6 @@ class Network extends Component{
 		this.sprites[data.id].y = data.y;
 	}
 
-	/**
-	 * todo: cualquier cosa que se ocurra, sonidos podrian loopear, otros no.
-	 * Musica de fondo seria un sonido?
-	 */
 }
 
 class TestCollision{
@@ -481,8 +477,7 @@ class Sprite extends GameObject{
 	addCollider(x, y, width, height){
 		this.colliders.push(new RectCollider(this, x, y, width, height));
 	}
-	debugDraw(color){
-		color = typeof color === "undefined" ? "red" : color;
+	debugDraw(color = "red"){
 		if(this.parent && this.parent.display)
 			this.parent.display.rect(this.x, this.y, this.width, this.height, color);
 	}
@@ -615,11 +610,12 @@ class Engine extends GameObject{
 	}
 
 
-	addComponent(name, component, params){
-		if(typeof this.component[name] !== "undefined"){
-			throw new Error(`Component ${name} is already defined`);
+	addComponent(name, component, params = {}){
+		if(Debug.active()){
+			if(typeof this.component[name] !== "undefined"){
+				Debug.error(`Component ${name} is already defined`);
+			}
 		}
-		params = typeof params == "undefined" ? {} : params;
 		params.name = name;
 		this.component[name] = new component(params, this);
 		this.component[name].init();
@@ -627,8 +623,10 @@ class Engine extends GameObject{
 	}
 
 	getComponent(name){
-		if(typeof this.component[name] === "undefined"){
-			throw new Error(`Component ${name} is not registred`);
+		if(Debug.active()){
+			if(typeof this.component[name] === "undefined"){
+				Debug.error(`Component ${name} is not registred`);
+			}
 		}
 		return this.component[name];
 	}

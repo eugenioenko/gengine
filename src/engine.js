@@ -48,11 +48,12 @@ class Engine extends GameObject{
 	}
 
 
-	addComponent(name, component, params){
-		if(typeof this.component[name] !== "undefined"){
-			throw new Error(`Component ${name} is already defined`);
+	addComponent(name, component, params = {}){
+		if(Debug.active()){
+			if(typeof this.component[name] !== "undefined"){
+				Debug.error(`Component ${name} is already defined`);
+			}
 		}
-		params = typeof params == "undefined" ? {} : params;
 		params.name = name;
 		this.component[name] = new component(params, this);
 		this.component[name].init();
@@ -60,8 +61,10 @@ class Engine extends GameObject{
 	}
 
 	getComponent(name){
-		if(typeof this.component[name] === "undefined"){
-			throw new Error(`Component ${name} is not registred`);
+		if(Debug.active()){
+			if(typeof this.component[name] === "undefined"){
+				Debug.error(`Component ${name} is not registred`);
+			}
 		}
 		return this.component[name];
 	}
