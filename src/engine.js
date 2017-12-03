@@ -8,7 +8,7 @@ class Engine extends GameObject{
 		this.components = [];
 		this.gameLoop = this.loop.bind(this);
 	}
-	__args__(){
+	__params__(){
 		return ["canvas", "width", "height", "create", "preload"];
 	}
 

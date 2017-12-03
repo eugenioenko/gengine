@@ -91,10 +91,10 @@ class Debug{
 
 class GameObject {
 	constructor(params){
-		Debug.validateParams(this.constructor.name, params, this.__args__());
+		Debug.validateParams(this.constructor.name, params, this.__params__());
 		Object.assign(this, params);
 	}
-	__args__() {
+	__params__() {
 		return [];
 	}
 	init() { }
@@ -126,7 +126,7 @@ class Time extends Component{
 		this.startTime = performance.now() / 1000;
 		this.lastTime = this.startTime;
 	}
-	__args__(){
+	__params__(){
 		return [];
 	}
 	init(){
@@ -154,7 +154,7 @@ class Input extends Component{
 		window.addEventListener("keyup", this.keyUp.bind(this), false);
 		super.init();
 	}
-	__args__(){
+	__params__(){
 		return [];
 	}
 	keyDown(e){
@@ -204,7 +204,7 @@ class CanvasDisplay extends Component{
 		super(params, engine);
 		this.scale = 1;
 	}
-	__args__(){
+	__params__(){
 		return ["x", "y", "width", "height"];
 	}
 	init () {
@@ -285,7 +285,7 @@ class Network extends Component{
 		this.socket.on('update_network_player', this.onUpdateNetworkPlayer.bind(this));
 	}
 
-	__args__(){
+	__params__(){
 		return ["url", "player", "dummy"];
 	}
 
@@ -472,7 +472,7 @@ class Sprite extends GameObject{
 		this.colliders = [];
 		this.colliding = false;
 	}
-	__args__(){
+	__params__(){
 		return ["x", "y", "width", "height"];
 	}
 	getComponent(name){
@@ -575,7 +575,7 @@ class Engine extends GameObject{
 		this.components = [];
 		this.gameLoop = this.loop.bind(this);
 	}
-	__args__(){
+	__params__(){
 		return ["canvas", "width", "height", "create", "preload"];
 	}
 
@@ -674,7 +674,7 @@ class Camera extends Component{
 		super(params, engine);
 		this.speed = 10;
 	}
-	__args__(){
+	__params__(){
 		return ["x", "y"];
 	}
 	init(){
@@ -726,7 +726,7 @@ class TileMap extends Sprite{
 		//this.theight = 64;
 		this.map = new Matrix(this.width, this.height);
 	}
-	__args__(){
+	__params__(){
 		return ["x", "y", "width", "height", "twidth", "theight"];
 	}
 	read(x, y){
@@ -865,7 +865,7 @@ class NetworkPlayer extends Sprite{
 		this.width = 32;
 		this.height = 32;
 	}
-	__args__(){
+	__params__(){
 		return ["x", "y"];
 	}
 	init(){
@@ -999,7 +999,7 @@ class TestSprite extends Sprite{
 		this.color = "red";
 		this.rotation = 0;
 	}
-	__args__(){
+	__params__(){
 		return ["x", "y", "width", "height", "speed", "rotation", "rotationSpeed"];
 	}
 	init(){

@@ -4,7 +4,7 @@ class Sprite extends GameObject{
 		this.colliders = [];
 		this.colliding = false;
 	}
-	__args__(){
+	__params__(){
 		return ["x", "y", "width", "height"];
 	}
 	getComponent(name){

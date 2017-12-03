@@ -9,7 +9,7 @@ class Time extends Component{
 		this.startTime = performance.now() / 1000;
 		this.lastTime = this.startTime;
 	}
-	__args__(){
+	__params__(){
 		return [];
 	}
 	init(){

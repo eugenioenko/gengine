@@ -8,7 +8,7 @@ class Input extends Component{
 		window.addEventListener("keyup", this.keyUp.bind(this), false);
 		super.init();
 	}
-	__args__(){
+	__params__(){
 		return [];
 	}
 	keyDown(e){

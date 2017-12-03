@@ -29,7 +29,7 @@ class CanvasDisplay extends Component{
 		super(params, engine);
 		this.scale = 1;
 	}
-	__args__(){
+	__params__(){
 		return ["x", "y", "width", "height"];
 	}
 	init () {

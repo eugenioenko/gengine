@@ -36,7 +36,7 @@ class TileMap extends Sprite{
 		//this.theight = 64;
 		this.map = new Matrix(this.width, this.height);
 	}
-	__args__(){
+	__params__(){
 		return ["x", "y", "width", "height", "twidth", "theight"];
 	}
 	read(x, y){

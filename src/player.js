@@ -5,7 +5,7 @@ class NetworkPlayer extends Sprite{
 		this.width = 32;
 		this.height = 32;
 	}
-	__args__(){
+	__params__(){
 		return ["x", "y"];
 	}
 	init(){

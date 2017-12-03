@@ -3,7 +3,7 @@ class Camera extends Component{
 		super(params, engine);
 		this.speed = 10;
 	}
-	__args__(){
+	__params__(){
 		return ["x", "y"];
 	}
 	init(){

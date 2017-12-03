@@ -21,7 +21,7 @@ class TestSprite extends Sprite{
 		this.color = "red";
 		this.rotation = 0;
 	}
-	__args__(){
+	__params__(){
 		return ["x", "y", "width", "height", "speed", "rotation", "rotationSpeed"];
 	}
 	init(){

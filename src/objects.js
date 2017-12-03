@@ -1,10 +1,10 @@
 
 class GameObject {
 	constructor(params){
-		Debug.validateParams(this.constructor.name, params, this.__args__());
+		Debug.validateParams(this.constructor.name, params, this.__params__());
 		Object.assign(this, params);
 	}
-	__args__() {
+	__params__() {
 		return [];
 	}
 	init() { }
