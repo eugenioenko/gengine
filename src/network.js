@@ -49,7 +49,7 @@ class Network extends Component{
 	}
 
 	onConnect(data){
-		Debug.info(`Connected to the server`);
+		Debug.success(`Connected to the server`);
 		this.socket.emit('init_player', {
 			id: this.socket.id,
 			x: this.player.x,
