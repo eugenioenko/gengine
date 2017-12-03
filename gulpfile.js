@@ -30,9 +30,10 @@ gulp.task('combine', function() {
       "src/colliders.js",
       "src/sprites.js",
       "src/engine.js",
-      "src/player.js",
       "src/camera.js",
       "src/tilemap.js",
+      "src/resources.js",
+      "src/player.js",
       "src/game.js"
     ])
     .pipe(concat({ path: 'gengine.js'}))

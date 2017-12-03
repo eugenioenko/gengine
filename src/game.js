@@ -83,7 +83,7 @@ function Game(engine){
 		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
 
 	];
-	tilemap = new TileMap({
+	let tilemap = new TileMap({
 		x: 0,
 		y: 0,
 		width: 60,
@@ -124,10 +124,19 @@ function Game(engine){
 	}
 }
 
+
+let Resources = new EngineResources();
+Resources.add({url: 'https://placehold.it/42x42', type: Image, name: "placeholder"});
+Resources.load();
+
+window.addEventListener('resourcesLoaded',function(){
+
+});
 Engine.ready(new Engine({
 	canvas: 'canvas',
 	width: 800,
 	height: 600
 }), Game);
+
 
 

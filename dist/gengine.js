@@ -1,3 +1,5 @@
+"use strict"; // jshint ignore:line
+
 class Maths{
 	static clamp(value, min, max){
 		 return Math.min(Math.max(value, min), max);
@@ -636,124 +638,6 @@ class Engine extends GameObject{
 		this.display.fillText(this.time.fps.toFixed(2), 20, 60);
 	}
 }
-class NetworkPlayer extends Sprite{
-	constructor(params){
-		super(params);
-		this.color = "red";
-		this.width = 32;
-		this.height = 32;
-	}
-	__args__(){
-		return ["x", "y"];
-	}
-	init(){
-		this.display = this.getComponent("Display");
-	}
-	move(){ }
-	draw(){
-		this.display.fillRect(this.x, this.y, this.width, this.height, this.color);
-	}
-	collision(sprite){
-
-	}
-}
-
-class Player extends Sprite{
-	constructor(params){
-		super(params);
-		this.color = "blue";
-		this.coorners = {};
-		this.vars = {};
-		this.smoothTime = 1.3;
-		this.vars.cv = 0;
-		this.speed = 6;
-		this.speedY = 0;
-		this.moveDistanceY = 0;
-		this.moveDistanceX = 0;
-		this.velocityY = 0;
-		this.gravity = 0.5;
-		this.maxSpeedY = 10;
-		this.jumpForce = 12;
-		this.jumping = false;
-		this.lastX = this.x;
-		this.lastY = this.y;
-
-	}
-	getCoorners(x, y){
-		tilemap.getCoorners(x, y, this.width, this.height, this.coorners);
-	}
-	init(){
-		this.input = this.getComponent("Input");
-		this.display = this.getComponent("Display");
-		this.tilemap = this.engine.tilemap;
-		this.network = this.getComponent("Network");
-		this.time = this.getComponent("Time");
-	}
-	move(){
-		// left right movement
-		let inputX = this.input.getAxisRaw("Horizontal");
-		this.moveDistanceX = inputX * this.speed * this.time.deltaTime;
-		this.getCoorners(this.x + this.moveDistanceX, this.y);
-		this.moveDistanceX = Math.floor(this.moveDistanceX);
-		if(
-			(inputX == 1 && !this.coorners.downRight.solid && !this.coorners.upRight.solid) ||
-			(inputX == -1 && !this.coorners.downLeft.solid && !this.coorners.upLeft.solid)
-		){
-			this.x += this.moveDistanceX;
-			this.engine.x += this.moveDistanceX; //Maths.smoothDamp(this.engine.x, this.engine.x + this.moveDistanceX, this.argsx, 0.1, 30, 10);
-			//this.engine.x += moveDistanceX;
-		}
-		// gravity
-		this.moveDistanceY = this.velocityY;
-		this.velocityY += this.gravity * this.time.deltaTime;
-
-		this.moveDistanceY = Maths.clamp(this.moveDistanceY, -this.maxSpeedY, this.maxSpeedY);
-		this.getCoorners(this.x, this.y + this.moveDistanceY);
-
-		if(this.moveDistanceY > 0){
-			if(this.coorners.downRight.solid || this.coorners.downLeft.solid){
-				this.moveDistanceY = 0;
-				this.velocityY = 0;
-				this.jumping = false;
-			}
-		} else {
-			if(this.coorners.upRight.solid || this.coorners.upLeft.solid){
-				this.moveDistanceY = 0;
-				this.velocityY = 0;
-			}
-		}
-
-		this.y += this.moveDistanceY;
-		this.engine.y += this.moveDistanceY;
-		//this.engine.y = Maths.smoothDamp(this.engine.y, this.engine.y + this.moveDistanceY, this.args, 0.3, 13, 1);
-
-		// jump pressed and not jumping
-		if(this.input.keyCode("ArrowUp") && !this.jumping){
-			this.jumping = true;
-			this.velocityY = -this.jumpForce;
-		}
-		// jump released and jumping
-		if(!this.input.keyCode("ArrowUp") && this.jumping){
-			if(this.velocityY < -this.jumpForce/2){
-				this.velocityY = -this.jumpForce/2;
-			}
-		}
-		if(this.lastX != this.x && this.lastY != this.y){
-			this.network.move({
-				x: this.x,
-				y: this.y
-			});
-			this.lastX = this.x;
-			this.lastY = this.y;
-		}
-	}
-	draw(){
-		this.display.fillRect(this.x, this.y, this.width, this.height, this.color);
-	}
-	collision(sprite){
-
-	}
-}
 class Camera extends Component{
 	constructor(params, engine){
 		super(params, engine);
@@ -876,6 +760,190 @@ class TileMap extends Sprite{
 	}
 }
 
+class ResourceItem {
+
+	constructor(params){
+		Debug.validateParams('Resources.add', params, ["url", "type", "name"]);
+		Object.assign(this, params);
+		this.item = {};
+	}
+
+	load(success, error){
+		this.item = new this.type();
+		this.item.src = this.url;
+
+		this.item.addEventListener('load', (function(that){
+			//that.item.removeEventListener('load', arguments.callee);
+			Debug.success(`Loaded resource ${that.name}`);
+			return success;
+		})(this));
+
+		/*this.item.addEventListener('error', (function(that){
+			//that.item.removeEventListener('error', arguments.callee);
+			Debug.warn(`Error loading resources ${that.name}: ${that.url}`);
+			return error;
+		})(this));*/
+	}
+
+}
+class EngineResources{
+
+	constructor(){
+		this.items = {};
+		this.length = 0;
+		this.loaded = 0;
+	}
+
+	add(params){
+		// resources will be always overrided if existed before, problem in the future?
+		this.items[params.name] = new ResourceItem(params);
+		this.length++;
+	}
+
+	remove(name){
+		delete this.items.name;
+	}
+
+	success(){
+
+		if(++this.loaded == this.length){
+			let event = new Event('resourcesLoaded');
+			window.dispatchEvent(event);
+		}
+	}
+	error(){
+
+	}
+
+
+	load(){
+		let names = Object.keys(this.items);
+		Debug.group('Loading Resources');
+		for(let name of names){
+			this.items[name].load(this.success.bind(this), this.error.bind(this));
+		}
+		Debug.groupEnd();
+	}
+
+}
+class NetworkPlayer extends Sprite{
+	constructor(params){
+		super(params);
+		this.color = "red";
+		this.width = 32;
+		this.height = 32;
+	}
+	__args__(){
+		return ["x", "y"];
+	}
+	init(){
+		this.display = this.getComponent("Display");
+	}
+	move(){ }
+	draw(){
+		this.display.fillRect(this.x, this.y, this.width, this.height, this.color);
+	}
+	collision(sprite){
+
+	}
+}
+
+class Player extends Sprite{
+	constructor(params){
+		super(params);
+		this.color = "blue";
+		this.coorners = {};
+		this.vars = {};
+		this.smoothTime = 1.3;
+		this.vars.cv = 0;
+		this.speed = 6;
+		this.speedY = 0;
+		this.moveDistanceY = 0;
+		this.moveDistanceX = 0;
+		this.velocityY = 0;
+		this.gravity = 0.5;
+		this.maxSpeedY = 10;
+		this.jumpForce = 12;
+		this.jumping = false;
+		this.lastX = this.x;
+		this.lastY = this.y;
+
+	}
+	getCoorners(x, y){
+		this.tilemap.getCoorners(x, y, this.width, this.height, this.coorners);
+	}
+	init(){
+		this.input = this.getComponent("Input");
+		this.display = this.getComponent("Display");
+		this.tilemap = this.engine.tilemap;
+		this.network = this.getComponent("Network");
+		this.time = this.getComponent("Time");
+	}
+	move(){
+		// left right movement
+		let inputX = this.input.getAxisRaw("Horizontal");
+		this.moveDistanceX = inputX * this.speed * this.time.deltaTime;
+		this.getCoorners(this.x + this.moveDistanceX, this.y);
+		this.moveDistanceX = Math.floor(this.moveDistanceX);
+		if(
+			(inputX == 1 && !this.coorners.downRight.solid && !this.coorners.upRight.solid) ||
+			(inputX == -1 && !this.coorners.downLeft.solid && !this.coorners.upLeft.solid)
+		){
+			this.x += this.moveDistanceX;
+			this.engine.x += this.moveDistanceX; //Maths.smoothDamp(this.engine.x, this.engine.x + this.moveDistanceX, this.argsx, 0.1, 30, 10);
+			//this.engine.x += moveDistanceX;
+		}
+		// gravity
+		this.moveDistanceY = this.velocityY;
+		this.velocityY += this.gravity * this.time.deltaTime;
+
+		this.moveDistanceY = Maths.clamp(this.moveDistanceY, -this.maxSpeedY, this.maxSpeedY);
+		this.getCoorners(this.x, this.y + this.moveDistanceY);
+
+		if(this.moveDistanceY > 0){
+			if(this.coorners.downRight.solid || this.coorners.downLeft.solid){
+				this.moveDistanceY = 0;
+				this.velocityY = 0;
+				this.jumping = false;
+			}
+		} else {
+			if(this.coorners.upRight.solid || this.coorners.upLeft.solid){
+				this.moveDistanceY = 0;
+				this.velocityY = 0;
+			}
+		}
+
+		this.y += this.moveDistanceY;
+		this.engine.y += this.moveDistanceY;
+		//this.engine.y = Maths.smoothDamp(this.engine.y, this.engine.y + this.moveDistanceY, this.args, 0.3, 13, 1);
+
+		// jump pressed and not jumping
+		if(this.input.keyCode("ArrowUp") && !this.jumping){
+			this.jumping = true;
+			this.velocityY = -this.jumpForce;
+		}
+		// jump released and jumping
+		if(!this.input.keyCode("ArrowUp") && this.jumping){
+			if(this.velocityY < -this.jumpForce/2){
+				this.velocityY = -this.jumpForce/2;
+			}
+		}
+		if(this.lastX != this.x && this.lastY != this.y){
+			this.network.move({
+				x: this.x,
+				y: this.y
+			});
+			this.lastX = this.x;
+			this.lastY = this.y;
+		}
+	}
+	draw(){
+		this.display.fillRect(this.x, this.y, this.width, this.height, this.color);
+	}
+	collision(sprite){
+
+	}
+}
 class TestSprite extends Sprite{
 	constructor(params){
 		super(params);
@@ -961,7 +1029,7 @@ function Game(engine){
 		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
 
 	];
-	tilemap = new TileMap({
+	let tilemap = new TileMap({
 		x: 0,
 		y: 0,
 		width: 60,
@@ -1002,10 +1070,19 @@ function Game(engine){
 	}
 }
 
+
+let Resources = new EngineResources();
+Resources.add({url: 'https://placehold.it/42x42', type: Image, name: "placeholder"});
+Resources.load();
+
+window.addEventListener('resourcesLoaded',function(){
+
+});
 Engine.ready(new Engine({
 	canvas: 'canvas',
 	width: 800,
 	height: 600
 }), Game);
+
 
 

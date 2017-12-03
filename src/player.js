@@ -42,7 +42,7 @@ class Player extends Sprite{
 
 	}
 	getCoorners(x, y){
-		tilemap.getCoorners(x, y, this.width, this.height, this.coorners);
+		this.tilemap.getCoorners(x, y, this.width, this.height, this.coorners);
 	}
 	init(){
 		this.input = this.getComponent("Input");
