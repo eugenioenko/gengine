@@ -9,10 +9,12 @@ class Engine extends GameObject{
 		this.gameLoop = this.loop.bind(this);
 	}
 	__args__(){
-		return ["canvas", "width", "height"];
+		return ["canvas", "width", "height", "create", "preload"];
 	}
+
 	init(){
 		Debug.group('Engine loaded components');
+		this.addComponent("Resources", Resources);
 		this.addComponent("Input", Input);
 		this.addComponent("Camera", Camera, {x: 0, y: 0});
 		this.addComponent("Time", Time);
@@ -26,15 +28,21 @@ class Engine extends GameObject{
 		Debug.groupEnd();
 		this.time = this.components.Time;
 		this.display = this.components.Display;
+		this.resources = this.components.Resources;
 
 		this.gameLoop();
 	}
 
-	static ready(engine, callback){
+	static ready(engine){
 		window.addEventListener('load', function(){
 			engine.init();
-			callback(engine);
+			engine.preload(engine);
+			engine.resources.preload(); //resources on complete calls engine.start()
 		});
+	}
+
+	start(){
+		this.create(this);
 	}
 
 	collision(){

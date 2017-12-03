@@ -524,10 +524,12 @@ class Engine extends GameObject{
 		this.gameLoop = this.loop.bind(this);
 	}
 	__args__(){
-		return ["canvas", "width", "height"];
+		return ["canvas", "width", "height", "create", "preload"];
 	}
+
 	init(){
 		Debug.group('Engine loaded components');
+		this.addComponent("Resources", Resources);
 		this.addComponent("Input", Input);
 		this.addComponent("Camera", Camera, {x: 0, y: 0});
 		this.addComponent("Time", Time);
@@ -541,15 +543,21 @@ class Engine extends GameObject{
 		Debug.groupEnd();
 		this.time = this.components.Time;
 		this.display = this.components.Display;
+		this.resources = this.components.Resources;
 
 		this.gameLoop();
 	}
 
-	static ready(engine, callback){
+	static ready(engine){
 		window.addEventListener('load', function(){
 			engine.init();
-			callback(engine);
+			engine.preload(engine);
+			engine.resources.preload(); //resources on complete calls engine.start()
 		});
+	}
+
+	start(){
+		this.create(this);
 	}
 
 	collision(){
@@ -786,12 +794,17 @@ class ResourceItem {
 	}
 
 }
-class EngineResources{
+class Resources extends Component{
 
-	constructor(){
+	constructor(params, engine){
+		super(params, engine);
 		this.items = {};
 		this.length = 0;
 		this.loaded = 0;
+	}
+
+	init(){
+		super.init();
 	}
 
 	add(params){
@@ -805,26 +818,22 @@ class EngineResources{
 	}
 
 	success(){
-
 		if(++this.loaded == this.length){
-			let event = new Event('resourcesLoaded');
-			window.dispatchEvent(event);
+			this.engine.start();
 		}
 	}
+
 	error(){
 
 	}
-
-
-	load(){
+	preload(){
 		let names = Object.keys(this.items);
-		Debug.group('Loading Resources');
+		Debug.group('Preloading Resources');
 		for(let name of names){
 			this.items[name].load(this.success.bind(this), this.error.bind(this));
 		}
 		Debug.groupEnd();
 	}
-
 }
 class NetworkPlayer extends Sprite{
 	constructor(params){
@@ -996,6 +1005,11 @@ class TestSprite extends Sprite{
 }
 
 var e = {};
+
+function Preload(engine){
+	engine.resources.add({url: 'https://placehold.it/42x42', type: Image, name: "placeholder"});
+}
+
 function Game(engine){
 	e = engine;
 	var map = [
@@ -1070,19 +1084,13 @@ function Game(engine){
 	}
 }
 
-
-let Resources = new EngineResources();
-Resources.add({url: 'https://placehold.it/42x42', type: Image, name: "placeholder"});
-Resources.load();
-
-window.addEventListener('resourcesLoaded',function(){
-
-});
 Engine.ready(new Engine({
 	canvas: 'canvas',
 	width: 800,
-	height: 600
-}), Game);
+	height: 600,
+	preload: Preload,
+	create: Game
+}));
 
 
 

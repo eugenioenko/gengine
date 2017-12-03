@@ -50,6 +50,11 @@ class TestSprite extends Sprite{
 }
 
 var e = {};
+
+function Preload(engine){
+	engine.resources.add({url: 'https://placehold.it/42x42', type: Image, name: "placeholder"});
+}
+
 function Game(engine){
 	e = engine;
 	var map = [
@@ -124,19 +129,13 @@ function Game(engine){
 	}
 }
 
-
-let Resources = new EngineResources();
-Resources.add({url: 'https://placehold.it/42x42', type: Image, name: "placeholder"});
-Resources.load();
-
-window.addEventListener('resourcesLoaded',function(){
-
-});
 Engine.ready(new Engine({
 	canvas: 'canvas',
 	width: 800,
-	height: 600
-}), Game);
+	height: 600,
+	preload: Preload,
+	create: Game
+}));
 
 
 

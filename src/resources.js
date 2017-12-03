@@ -24,12 +24,17 @@ class ResourceItem {
 	}
 
 }
-class EngineResources{
+class Resources extends Component{
 
-	constructor(){
+	constructor(params, engine){
+		super(params, engine);
 		this.items = {};
 		this.length = 0;
 		this.loaded = 0;
+	}
+
+	init(){
+		super.init();
 	}
 
 	add(params){
@@ -43,24 +48,20 @@ class EngineResources{
 	}
 
 	success(){
-
 		if(++this.loaded == this.length){
-			let event = new Event('resourcesLoaded');
-			window.dispatchEvent(event);
+			this.engine.start();
 		}
 	}
+
 	error(){
 
 	}
-
-
-	load(){
+	preload(){
 		let names = Object.keys(this.items);
-		Debug.group('Loading Resources');
+		Debug.group('Preloading Resources');
 		for(let name of names){
 			this.items[name].load(this.success.bind(this), this.error.bind(this));
 		}
 		Debug.groupEnd();
 	}
-
 }
