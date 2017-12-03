@@ -513,14 +513,66 @@ class Sprite extends GameObject{
 	destroy(){ }
 }
 
+class Scene extends Component{
+	constructor(params, engine){
+		super(params, engine);
+		this.sprites = [];
+	}
+	init(){
+
+		super.init();
+	}
+	move(){
+		this.collision();
+		for(let sprite of this.sprites){
+			sprite.move();
+		}
+	}
+	draw(){
+		for(let sprite of this.sprites){
+			sprite.draw();
+		}
+	}
+	addSprite(sprite){
+		sprite.engine = this.engine;
+		sprite.init();
+		this.sprites.push(sprite);
+		return;
+	}
+
+	removeSprite(sprite){
+		sprite.destroy();
+		let index = this.sprites.indexOf(sprite);
+		if(index != -1){
+			this.sprites.splice(index, 1);
+		}
+	}
+
+	collision(){
+		for(let i = 0; i < this.sprites.length; ++i){
+			for(let j = i +1; j < this.sprites.length; ++j){
+				let sprite1 = this.sprites[i];
+				let sprite2 = this.sprites[j];
+				if(sprite1.testCollision(sprite2)){
+					sprite1.colliding = true;
+					sprite2.colliding = true;
+					sprite1.collision(sprite2);
+					sprite2.collision(sprite1);
+				}
+			}
+		}
+	}
+
+
+}
 class Engine extends GameObject{
 
 	constructor(params){
 		super(params);
 		this.x = 0;
 		this.y = 0;
-		this.components = {};
-		this.sprites = [];
+		this.component = {};
+		this.components = [];
 		this.gameLoop = this.loop.bind(this);
 	}
 	__args__(){
@@ -540,10 +592,12 @@ class Engine extends GameObject{
 			width: this.width,
 			height: this.height
 		});
+		this.addComponent("Scene", Scene);
 		Debug.groupEnd();
-		this.time = this.components.Time;
-		this.display = this.components.Display;
-		this.resources = this.components.Resources;
+		this.time = this.component.Time;
+		this.display = this.component.Display;
+		this.scene = this.component.Scene;
+		this.resources = this.component.Resources;
 
 		this.gameLoop();
 	}
@@ -560,78 +614,47 @@ class Engine extends GameObject{
 		this.create(this);
 	}
 
-	collision(){
-		for(let i = 0; i < this.sprites.length; ++i){
-			for(let j = i +1; j < this.sprites.length; ++j){
-				let sprite1 = this.sprites[i];
-				let sprite2 = this.sprites[j];
-				if(sprite1.testCollision(sprite2)){
-					sprite1.colliding = true;
-					sprite2.colliding = true;
-					sprite1.collision(sprite2);
-					sprite2.collision(sprite1);
-				}
-			}
-		}
-	}
 
 	addComponent(name, component, params){
-		if(typeof this.components[name] !== "undefined"){
+		if(typeof this.component[name] !== "undefined"){
 			throw new Error(`Component ${name} is already defined`);
 		}
 		params = typeof params == "undefined" ? {} : params;
 		params.name = name;
-		this.components[name] = new component(params, this);
-		this.components[name].init();
+		this.component[name] = new component(params, this);
+		this.component[name].init();
+		this.components.push(this.component[name]);
 	}
 
 	getComponent(name){
-		if(typeof this.components[name] === "undefined"){
+		if(typeof this.component[name] === "undefined"){
 			throw new Error(`Component ${name} is not registred`);
 		}
-		return this.components[name];
+		return this.component[name];
 	}
 
 	addSprite(sprite){
-		sprite.engine = this;
-		sprite.init();
-		this.sprites.push(sprite);
-		return;
+		this.scene.addSprite(sprite);
 	}
 
 	removeSprite(sprite){
-		sprite.destroy();
-		let index = this.sprites.indexOf(sprite);
-		if(index != -1){
-			this.sprites.splice(index, 1);
-		}
+		this.scene.removeSprite(sprite);
 	}
 
 	move(){
-		for(let sprite of this.sprites){
-			sprite.move();
+		for(let component of this.components){
+			component.move();
 		}
-		let components = Object.keys(this.components);
-		for(let componentName of components){
-			this.components[componentName].move();
-		}
-		return;
 	}
 
 	draw(){
 		this.display.clear();
-		for(let sprite of this.sprites){
-			sprite.draw();
+		for(let component of this.components){
+			component.draw();
 		}
-		let components = Object.keys(this.components);
-		for(let componentName of components){
-			this.components[componentName].draw();
-		}
-		return;
 	}
 
 	loop(){
-		this.collision();
 		this.move();
 		this.fpsDelayCount = 0;
 		this.draw();
