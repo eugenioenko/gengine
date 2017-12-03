@@ -95,12 +95,12 @@ function Game(engine){
 	});
 	engine.addSprite(player);
 
-	for (var i = 0; i < 10; ++i){
+	for (var i = 0; i < 2; ++i){
 		engine.addSprite(new TestSprite({
 			x: Maths.rand(0, 5),
 			y: Maths.rand(-20, 0),
-			width: 6,
-			height: 6,
+			width: 16,
+			height: 16,
 			rotation: Maths.rand(0, 359),
 			speed: 2,
 			rotationSpeed: Maths.rand(7, 10),

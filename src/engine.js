@@ -8,7 +8,6 @@ class Engine extends GameObject{
 			width: 640,
 			height: 480
 		});
-		this.debugMode = true;
 		this.components = {};
 		this.sprites = [];
 		this.gameLoop = this.loop.bind(this);
@@ -113,6 +112,7 @@ class Engine extends GameObject{
 	loop(){
 		this.collision();
 		this.move();
+		this.fpsDelayCount = 0;
 		this.draw();
 		this.debugInfo();
 		window.requestAnimationFrame(this.gameLoop);

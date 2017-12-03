@@ -34,15 +34,11 @@ class Player extends Sprite{
 		this.moveDistanceX = 0;
 		this.velocityY = 0;
 		this.gravity = 0.5;
-		this.maxSpeedY = 10;
+		this.maxSpeedY = 10000;
 		this.jumpForce = 12;
 		this.jumping = false;
-		this.args = {
-			cv: 0
-		};
-		this.argsx = {
-			cv: 0
-		};
+		this.lastX = this.x;
+		this.lastY = this.y;
 
 	}
 	getCoorners(x, y){
@@ -71,7 +67,7 @@ class Player extends Sprite{
 		}
 		// gravity
 		this.moveDistanceY = this.velocityY;
-		this.velocityY += this.gravity;
+		this.velocityY += this.gravity * this.time.deltaTime;
 
 		this.moveDistanceY = Maths.clamp(this.moveDistanceY, -this.maxSpeedY, this.maxSpeedY);
 		this.getCoorners(this.x, this.y + this.moveDistanceY);
@@ -104,12 +100,14 @@ class Player extends Sprite{
 				this.velocityY = -this.jumpForce/2;
 			}
 		}
-
-		this.network.move({
-			x: this.x,
-			y: this.y
-		});
-
+		if(this.lastX != this.x && this.lastY != this.y){
+			this.network.move({
+				x: this.x,
+				y: this.y
+			});
+			this.lastX = this.x;
+			this.lastY = this.y;
+		}
 	}
 	draw(){
 		this.display.fillRect(this.x, this.y, this.width, this.height, this.color);

@@ -12,9 +12,9 @@ class Network extends Component{
 		this.socket.on('connect_error', this.onConnectionError.bind(this));
 		this.socket.on('disconnect', this.onDisconnect.bind(this));
 
-		this.socket.on('enter_player', this.onEnterNetworkPlayer.bind(this));
-		this.socket.on('leave_player', this.onLeaveNetworkPlayer.bind(this));
-		this.socket.on('update_player', this.onUpdateNetworkPlayer.bind(this));
+		this.socket.on('enter_network_player', this.onEnterNetworkPlayer.bind(this));
+		this.socket.on('leave_network_player', this.onLeaveNetworkPlayer.bind(this));
+		this.socket.on('update_network_player', this.onUpdateNetworkPlayer.bind(this));
 	}
 
 	__args__(){
@@ -22,7 +22,7 @@ class Network extends Component{
 	}
 
 	init(){
-		this.socket.connect();
+		this.connect();
 		super.init();
 	}
 
@@ -50,6 +50,11 @@ class Network extends Component{
 
 	onConnect(data){
 		Debug.info(`Connected to the server`);
+		this.socket.emit('init_player', {
+			id: this.socket.id,
+			x: this.player.x,
+			y: this.player.y
+		});
 	}
 
 	onDisconnect(data){

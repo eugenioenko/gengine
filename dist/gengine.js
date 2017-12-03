@@ -276,9 +276,9 @@ class Network extends Component{
 		this.socket.on('connect_error', this.onConnectionError.bind(this));
 		this.socket.on('disconnect', this.onDisconnect.bind(this));
 
-		this.socket.on('enter_player', this.onEnterNetworkPlayer.bind(this));
-		this.socket.on('leave_player', this.onLeaveNetworkPlayer.bind(this));
-		this.socket.on('update_player', this.onUpdateNetworkPlayer.bind(this));
+		this.socket.on('enter_network_player', this.onEnterNetworkPlayer.bind(this));
+		this.socket.on('leave_network_player', this.onLeaveNetworkPlayer.bind(this));
+		this.socket.on('update_network_player', this.onUpdateNetworkPlayer.bind(this));
 	}
 
 	__args__(){
@@ -286,7 +286,7 @@ class Network extends Component{
 	}
 
 	init(){
-		this.socket.connect();
+		this.connect();
 		super.init();
 	}
 
@@ -314,6 +314,11 @@ class Network extends Component{
 
 	onConnect(data){
 		Debug.info(`Connected to the server`);
+		this.socket.emit('init_player', {
+			id: this.socket.id,
+			x: this.player.x,
+			y: this.player.y
+		});
 	}
 
 	onDisconnect(data){
@@ -514,7 +519,6 @@ class Engine extends GameObject{
 			width: 640,
 			height: 480
 		});
-		this.debugMode = true;
 		this.components = {};
 		this.sprites = [];
 		this.gameLoop = this.loop.bind(this);
@@ -619,6 +623,7 @@ class Engine extends GameObject{
 	loop(){
 		this.collision();
 		this.move();
+		this.fpsDelayCount = 0;
 		this.draw();
 		this.debugInfo();
 		window.requestAnimationFrame(this.gameLoop);
@@ -667,15 +672,11 @@ class Player extends Sprite{
 		this.moveDistanceX = 0;
 		this.velocityY = 0;
 		this.gravity = 0.5;
-		this.maxSpeedY = 10;
+		this.maxSpeedY = 10000;
 		this.jumpForce = 12;
 		this.jumping = false;
-		this.args = {
-			cv: 0
-		};
-		this.argsx = {
-			cv: 0
-		};
+		this.lastX = this.x;
+		this.lastY = this.y;
 
 	}
 	getCoorners(x, y){
@@ -704,7 +705,7 @@ class Player extends Sprite{
 		}
 		// gravity
 		this.moveDistanceY = this.velocityY;
-		this.velocityY += this.gravity;
+		this.velocityY += this.gravity * this.time.deltaTime;
 
 		this.moveDistanceY = Maths.clamp(this.moveDistanceY, -this.maxSpeedY, this.maxSpeedY);
 		this.getCoorners(this.x, this.y + this.moveDistanceY);
@@ -737,12 +738,14 @@ class Player extends Sprite{
 				this.velocityY = -this.jumpForce/2;
 			}
 		}
-
-		this.network.move({
-			x: this.x,
-			y: this.y
-		});
-
+		if(this.lastX != this.x && this.lastY != this.y){
+			this.network.move({
+				x: this.x,
+				y: this.y
+			});
+			this.lastX = this.x;
+			this.lastY = this.y;
+		}
 	}
 	draw(){
 		this.display.fillRect(this.x, this.y, this.width, this.height, this.color);
@@ -970,12 +973,12 @@ function Game(engine){
 	});
 	engine.addSprite(player);
 
-	for (var i = 0; i < 10; ++i){
+	for (var i = 0; i < 2; ++i){
 		engine.addSprite(new TestSprite({
 			x: Maths.rand(0, 5),
 			y: Maths.rand(-20, 0),
-			width: 6,
-			height: 6,
+			width: 16,
+			height: 16,
 			rotation: Maths.rand(0, 359),
 			speed: 2,
 			rotationSpeed: Maths.rand(7, 10),

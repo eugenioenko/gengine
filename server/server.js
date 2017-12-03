@@ -3,15 +3,18 @@ var io = require('socket.io')();
 console.log('Server is listening');
 
 io.on('connection', (socket) => {
-	// new player was connected
-	socket.broadcast.emit('enter_player', {id: socket.id, x: 0, y: 0});
-	// a player has moved, update everybody on new position (data.x data.y data.id)
+	console.log('new connection ' + socket.id);
+
 	socket.on('move_player', (data) => {
-		socket.broadcast.emit('update_player', data);
+		socket.broadcast.emit('update_network_player', data);
 	});
-	// a player has disconnected
+
+	socket.on('init_player', (data) => {
+		socket.broadcast.emit('enter_network_player', data);
+	});
+
 	socket.on('disconnect', (data) => {
-		io.emit('leave_player', {id: socket.id});
+		io.emit('leave_network_player', {id: socket.id});
 	});
 });
 
