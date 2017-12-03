@@ -1,18 +1,16 @@
 class Engine extends GameObject{
 
-	constructor(canvas){
-		super({
-			parent: null,
-			x: 0,
-			y: 0,
-			width: 640,
-			height: 480
-		});
+	constructor(params){
+		super(params);
+		this.x = 0;
+		this.y = 0;
 		this.components = {};
 		this.sprites = [];
 		this.gameLoop = this.loop.bind(this);
 	}
-
+	__args__(){
+		return ["canvas", "width", "height"];
+	}
 	init(){
 		Debug.group('Engine loaded components');
 		this.addComponent("Input", Input);

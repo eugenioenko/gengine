@@ -34,6 +34,8 @@ class CanvasDisplay extends Component{
 	}
 	init () {
 		this.canvas = document.getElementById(this.id);
+		this.canvas.setAttribute('width', this.width);
+		this.canvas.setAttribute('height', this.height);
 		this.ctx = this.canvas.getContext('2d');
 		this.ctx.font = "16px Helvetica";
 		super.init();

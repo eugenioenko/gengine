@@ -34,7 +34,7 @@ class Player extends Sprite{
 		this.moveDistanceX = 0;
 		this.velocityY = 0;
 		this.gravity = 0.5;
-		this.maxSpeedY = 10000;
+		this.maxSpeedY = 10;
 		this.jumpForce = 12;
 		this.jumping = false;
 		this.lastX = this.x;
