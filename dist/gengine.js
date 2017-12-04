@@ -587,7 +587,7 @@ class Sound extends Component{
 
 	}
 	play(name){
-		this.resources.getResource(name).play();
+		this.resources.get(name).play();
 	}
 	stop(name){
 
@@ -909,7 +909,7 @@ class Resources extends Component{
 		this.items[params.name] = new ResourceItem(params);
 		this.length++;
 	}
-	getResource(name){
+	get(name){
 		return this.items[name].item;
 	}
 	remove(name){

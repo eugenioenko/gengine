@@ -27,7 +27,7 @@ class Sound extends Component{
 
 	}
 	play(name){
-		this.resources.getResource(name).play();
+		this.resources.get(name).play();
 	}
 	stop(name){
 
