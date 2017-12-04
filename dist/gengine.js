@@ -549,8 +549,6 @@ class Scene extends Component{
 				let sprite1 = this.sprites[i];
 				let sprite2 = this.sprites[j];
 				if(sprite1.testCollision(sprite2)){
-					sprite1.colliding = true;
-					sprite2.colliding = true;
 					sprite1.collision(sprite2);
 					sprite2.collision(sprite1);
 				}
@@ -571,7 +569,7 @@ class Engine extends GameObject{
 		this.gameLoop = this.loop.bind(this);
 	}
 	__params__(){
-		return ["canvas", "width", "height", "create", "preload"];
+		return ["canvas", "width", "height"];
 	}
 
 	init(){
@@ -592,21 +590,24 @@ class Engine extends GameObject{
 		this.time = this.component.Time;
 		this.display = this.component.Display;
 		this.scene = this.component.Scene;
-		this.resources = this.component.Resources;
-
-		this.gameLoop();
+		this.resources = this.component.Resources;	
 	}
 
-	static ready(engine){
-		window.addEventListener('load', function(){
-			engine.init();
-			engine.preload(engine);
-			engine.resources.preload(); //resources on complete calls engine.start()
-		});
-	}
-
-	start(){
-		this.create(this);
+	static ready(params){
+		Debug.validateParams('Engine.ready', params, ["canvas", "width", "height", "preload", "create"]);
+		(function(){
+			var engine = new Engine({
+				canvas: params.canvas,
+				width: params.width,
+				height: params.height
+			});
+			window.addEventListener('load', function(){
+				engine.init();
+				params.preload(engine);
+				engine.resources.preload(params.create); // important: preload on complete calls create function
+				engine.gameLoop();
+			});
+		})();
 	}
 
 
@@ -800,18 +801,16 @@ class ResourceItem {
 	load(success, error){
 		this.item = new this.type();
 		this.item.src = this.url;
-
-		this.item.addEventListener('load', (function(that){
-			//that.item.removeEventListener('load', arguments.callee);
-			Debug.success(`Loaded resource ${that.name}`);
-			return success;
-		})(this));
-
-		/*this.item.addEventListener('error', (function(that){
-			//that.item.removeEventListener('error', arguments.callee);
-			Debug.warn(`Error loading resources ${that.name}: ${that.url}`);
-			return error;
-		})(this));*/
+		(function(that){
+			that.item.addEventListener('load', function(){
+				Debug.success(`Loaded resource ${that.name}`);
+				success();
+			});
+			that.item.addEventListener('error', function(){
+				Debug.warn(`Error loading resources ${that.name}: ${that.url}`);
+				error();
+			});	
+		})(this);
 	}
 
 }
@@ -822,6 +821,7 @@ class Resources extends Component{
 		this.items = {};
 		this.length = 0;
 		this.loaded = 0;
+		this.errors = 0;
 	}
 
 	init(){
@@ -839,21 +839,39 @@ class Resources extends Component{
 	}
 
 	success(){
-		if(++this.loaded == this.length){
-			this.engine.start();
-		}
+		this.loaded++;
+		this.checkAllResourcesLoaded();
 	}
 
 	error(){
-
+		// game continues even if resource failed to load. 
+		// better implementation pending.
+		this.errors++;
+		this.loaded++;
+		this.checkAllResourcesLoaded();
 	}
-	preload(){
+
+	checkAllResourcesLoaded(){
+
+		if(this.loaded == this.length){
+			if(this.errors){
+				Debug.warn(`${this.errors} resources failed to load`);
+			}
+			Debug.groupEnd();
+			/**
+			 *  callback to create game!
+			 */
+			this.callback(this.engine);
+		}	
+	}
+	preload(callback){
+		this.callback = callback;
 		let names = Object.keys(this.items);
 		Debug.group('Preloading Resources');
 		for(let name of names){
 			this.items[name].load(this.success.bind(this), this.error.bind(this));
 		}
-		Debug.groupEnd();
+		
 	}
 }
 class NetworkPlayer extends Sprite{
@@ -974,144 +992,3 @@ class Player extends Sprite{
 
 	}
 }
-class TestSprite extends Sprite{
-	constructor(params){
-		super(params);
-		this.colliders.push(new CircleCollider({
-			parent: this,
-			x: this.width/2,
-			y: this.height/2,
-			width: this.width,
-			height: this.height
-		}));
-		this.args = {
-			cv: 0
-		};
-		if(!this.speed){
-			this.speed = 1;
-		}
-		this.rx = this.x;
-		this.ry = this.y;
-		this.x = 0;
-		this.y = 0;
-		this.color = "red";
-		this.rotation = 0;
-	}
-	__params__(){
-		return ["x", "y", "width", "height", "speed", "rotation", "rotationSpeed"];
-	}
-	init(){
-		this.input = this.getComponent("Input");
-		this.display = this.getComponent("Display");
-		this.tilemap = this.engine.tilemap;
-	}
-	move(){
-
-		this.rx += Math.cos(this.rotation * Math.PI/180) * this.speed;
-		this.ry += Math.sin(this.rotation * Math.PI/180) * this.speed;
-		this.x = this.parent.x + this.rx;
-		this.y = this.parent.y + this.ry;
-		this.rotation += this.rotationSpeed;
-		if(this.rotation > 360){
-			this.rotation = 0;
-		}
-		this.color = 'pink';
-	}
-	draw(){
-		this.colliders[0].debugDraw(this.color);
-	}
-	collision(sprite){
-
-	}
-}
-
-var e = {};
-
-function Preload(engine){
-	engine.resources.add({url: 'https://placehold.it/42x42', type: Image, name: "placeholder"});
-}
-
-function Game(engine){
-	e = engine;
-	var map = [
-		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-		1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-		1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,1,
-		1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,
-		1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,0,0,0,1,
-		1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-		1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,1,1,1,0,1,
-		1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-		1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1,
-		1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-		1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,1,1,1,1,0,1,0,1,
-		1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,1,0,1,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,
-		1,0,0,0,0,0,1,1,1,1,1,1,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,
-		1,1,1,1,0,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,1,1,0,0,0,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-		1,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-		1,0,0,0,1,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,1,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-		1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-		1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-		1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,0,0,0,1,1,1,0,0,0,0,0,0,0,1,1,1,1,1,1,
-		1,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-		1,1,1,1,1,1,0,0,1,1,1,1,1,1,0,0,0,0,1,1,0,0,1,1,1,1,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,1,
-		1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-		1,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,1,1,0,0,1,0,1,1,1,1,1,1,1,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,1,
-		1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-		1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-		1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-		1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
-		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-
-	];
-	let tilemap = new TileMap({
-		x: 0,
-		y: 0,
-		width: 60,
-		height: 28,
-		twidth: 48,
-		theight: 48
-	});
-	tilemap.load(map);
-	engine.tilemap = tilemap;
-	engine.addSprite(tilemap);
-
-	let player = new Player({
-		x: 1400,
-		y: 520,
-		width: 32,
-		height: 32
-	});
-	engine.x = 1000;
-	engine.y = 300;
-	engine.addComponent("Network", Network, {
-		url: 'http://enko.duckdns.org:3331',
-		player: player,
-		dummy: NetworkPlayer
-	});
-	engine.addSprite(player);
-
-	for (var i = 0; i < 2; ++i){
-		engine.addSprite(new TestSprite({
-			x: Maths.rand(0, 5),
-			y: Maths.rand(-20, 0),
-			width: 16,
-			height: 16,
-			rotation: Maths.rand(0, 359),
-			speed: 2,
-			rotationSpeed: Maths.rand(7, 10),
-			parent: player
-		}));
-	}
-}
-
-Engine.ready(new Engine({
-	canvas: 'canvas',
-	width: 800,
-	height: 600,
-	preload: Preload,
-	create: Game
-}));
-
-
-

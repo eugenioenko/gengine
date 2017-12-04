@@ -9,18 +9,16 @@ class ResourceItem {
 	load(success, error){
 		this.item = new this.type();
 		this.item.src = this.url;
-
-		this.item.addEventListener('load', (function(that){
-			//that.item.removeEventListener('load', arguments.callee);
-			Debug.success(`Loaded resource ${that.name}`);
-			return success;
-		})(this));
-
-		/*this.item.addEventListener('error', (function(that){
-			//that.item.removeEventListener('error', arguments.callee);
-			Debug.warn(`Error loading resources ${that.name}: ${that.url}`);
-			return error;
-		})(this));*/
+		(function(that){
+			that.item.addEventListener('load', function(){
+				Debug.success(`Loaded resource ${that.name}`);
+				success();
+			});
+			that.item.addEventListener('error', function(){
+				Debug.warn(`Error loading resources ${that.name}: ${that.url}`);
+				error();
+			});	
+		})(this);
 	}
 
 }
@@ -31,6 +29,7 @@ class Resources extends Component{
 		this.items = {};
 		this.length = 0;
 		this.loaded = 0;
+		this.errors = 0;
 	}
 
 	init(){
@@ -48,20 +47,38 @@ class Resources extends Component{
 	}
 
 	success(){
-		if(++this.loaded == this.length){
-			this.engine.start();
-		}
+		this.loaded++;
+		this.checkAllResourcesLoaded();
 	}
 
 	error(){
-
+		// game continues even if resource failed to load. 
+		// better implementation pending.
+		this.errors++;
+		this.loaded++;
+		this.checkAllResourcesLoaded();
 	}
-	preload(){
+
+	checkAllResourcesLoaded(){
+
+		if(this.loaded == this.length){
+			if(this.errors){
+				Debug.warn(`${this.errors} resources failed to load`);
+			}
+			Debug.groupEnd();
+			/**
+			 *  callback to create game!
+			 */
+			this.callback(this.engine);
+		}	
+	}
+	preload(callback){
+		this.callback = callback;
 		let names = Object.keys(this.items);
 		Debug.group('Preloading Resources');
 		for(let name of names){
 			this.items[name].load(this.success.bind(this), this.error.bind(this));
 		}
-		Debug.groupEnd();
+		
 	}
 }

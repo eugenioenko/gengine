@@ -34,8 +34,7 @@ gulp.task('combine', function() {
       "src/camera.js",
       "src/tilemap.js",
       "src/resources.js",
-      "src/player.js",
-      "src/game.js"
+      "src/player.js"
     ])
     .pipe(concat({ path: 'gengine.js'}))
     .pipe(gulp.dest('./dist'));

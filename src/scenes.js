@@ -39,8 +39,6 @@ class Scene extends Component{
 				let sprite1 = this.sprites[i];
 				let sprite2 = this.sprites[j];
 				if(sprite1.testCollision(sprite2)){
-					sprite1.colliding = true;
-					sprite2.colliding = true;
 					sprite1.collision(sprite2);
 					sprite2.collision(sprite1);
 				}

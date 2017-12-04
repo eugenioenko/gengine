@@ -9,7 +9,7 @@ class Engine extends GameObject{
 		this.gameLoop = this.loop.bind(this);
 	}
 	__params__(){
-		return ["canvas", "width", "height", "create", "preload"];
+		return ["canvas", "width", "height"];
 	}
 
 	init(){
@@ -30,21 +30,24 @@ class Engine extends GameObject{
 		this.time = this.component.Time;
 		this.display = this.component.Display;
 		this.scene = this.component.Scene;
-		this.resources = this.component.Resources;
-
-		this.gameLoop();
+		this.resources = this.component.Resources;	
 	}
 
-	static ready(engine){
-		window.addEventListener('load', function(){
-			engine.init();
-			engine.preload(engine);
-			engine.resources.preload(); //resources on complete calls engine.start()
-		});
-	}
-
-	start(){
-		this.create(this);
+	static ready(params){
+		Debug.validateParams('Engine.ready', params, ["canvas", "width", "height", "preload", "create"]);
+		(function(){
+			var engine = new Engine({
+				canvas: params.canvas,
+				width: params.width,
+				height: params.height
+			});
+			window.addEventListener('load', function(){
+				engine.init();
+				params.preload(engine);
+				engine.resources.preload(params.create); // important: preload on complete calls create function
+				engine.gameLoop();
+			});
+		})();
 	}
 
 

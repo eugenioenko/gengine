@@ -129,13 +129,13 @@ function Game(engine){
 	}
 }
 
-Engine.ready(new Engine({
+Engine.ready({
 	canvas: 'canvas',
 	width: 800,
 	height: 600,
 	preload: Preload,
-	create: Game
-}));
+	create: Game 
+});
 
 
 
