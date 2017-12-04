@@ -31,16 +31,16 @@
 		function preload(engine){
 
 			e = engine;
-			engine.resources.add({url: 'https://placehold.it/42x42', type: Image, name: "placeholder1"});
-			engine.resources.add({url: 'https://placehold.it/42x42', type: Image, name: "placeholder2"});
-			engine.resources.add({url: 'https://placehold.it/42x42', type: Image, name: "placeholder3"});
-			engine.resources.add({url: 'https://placehold.it/42x42', type: Image, name: "placeholder4"});
-			engine.resources.add({url: 'https://placehold.it/42x42', type: Image, name: "placeholder5"});
-			engine.resources.add({url: 'http://localhost/gengine/resources/sounds/test.wav', type: Audio, name: "Audio1"});
+			engine.resources.add({url: 'https://placehold.it/42x42', type: "img", name: "placeholder1"});
+			engine.resources.add({url: 'https://placehold.it/42x42', type: "img", name: "placeholder2"});
+			engine.resources.add({url: 'https://placehold.it/42x42', type: "img", name: "placeholder3"});
+			engine.resources.add({url: 'https://placehold.it/42x42', type: "img", name: "placeholder4"});
+			engine.resources.add({url: 'https://placehold.it/42x42', type: "img", name: "placeholder5"});
+			engine.resources.add({url: 'http://www.kozco.com/tech/piano2.wav', type: "audio", name: "Audio1"});
 		}
 
 		function game(engine){
-			engine.sound.play('Audio1');
+			//engine.sound.play('Audio1');
 			console.log('game started');
 		}
 

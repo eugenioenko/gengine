@@ -116,7 +116,6 @@ function Game(engine){
 		dummy: NetworkPlayer
 	});
 	engine.addSprite(player);
-	console.log(engine.sound);
 	engine.sound.play('Audio1');
 
 	for (var i = 0; i < 2; ++i){

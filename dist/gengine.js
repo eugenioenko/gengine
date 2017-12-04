@@ -854,39 +854,26 @@ class TileMap extends Sprite{
 
 class ResourceItem {
 
-	constructor(params){
+	constructor(params, event={success: 'load', error: 'error'}){
 		Debug.validateParams('Resources.add', params, ["url", "type", "name"]);
 		Object.assign(this, params);
+		this.event = event;
 		this.item = {};
 	}
 
 	load(success, error){
-		this.item = document.createElement("audio");
+		this.item = document.createElement(this.type);
 		this.item.src = this.url;
-		if(this.type == 'audio'){
-			(function(that){
-				that.item.addEventListener('canplaythrough', function(){
-					Debug.success(`Loaded resource ${that.name}`);
-					success();
-				});
-				that.item.addEventListener('error', function(){
-					Debug.warn(`Error loading resources ${that.name}: ${that.url}`);
-					error();
-				});	
-			})(this);
-		}else{
-			(function(that){
-				that.item.addEventListener('load', function(){
-					Debug.success(`Loaded resource ${that.name}`);
-					success();
-				});
-				that.item.addEventListener('error', function(){
-					Debug.warn(`Error loading resources ${that.name}: ${that.url}`);
-					error();
-				});	
-			})(this);
-		}
-		
+		(function(that){
+			that.item.addEventListener(that.event.success, function(){
+				Debug.success(`Loaded resource ${that.name}`);
+				success();
+			});
+			that.item.addEventListener(that.event.error, function(){
+				Debug.warn(`Error loading resources ${that.name}: ${that.url}`);
+				error();
+			});	
+		})(this);
 	}
 
 }
@@ -898,6 +885,16 @@ class Resources extends Component{
 		this.length = 0;
 		this.loaded = 0;
 		this.errors = 0;
+		this.events = {
+			"img" : {
+				success: "load",
+				error: "error"
+			},
+			"audio": {
+				success: "canplaythrough",
+				error: "error"
+			}
+		};
 	}
 
 	init(){
@@ -906,7 +903,7 @@ class Resources extends Component{
 
 	add(params){
 		// resources will be always overrided if existed before, problem in the future?
-		this.items[params.name] = new ResourceItem(params);
+		this.items[params.name] = new ResourceItem(params, this.events[params.type]); 
 		this.length++;
 	}
 	get(name){
