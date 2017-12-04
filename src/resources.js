@@ -7,18 +7,32 @@ class ResourceItem {
 	}
 
 	load(success, error){
-		this.item = new this.type();
+		this.item = document.createElement("audio");
 		this.item.src = this.url;
-		(function(that){
-			that.item.addEventListener('load', function(){
-				Debug.success(`Loaded resource ${that.name}`);
-				success();
-			});
-			that.item.addEventListener('error', function(){
-				Debug.warn(`Error loading resources ${that.name}: ${that.url}`);
-				error();
-			});	
-		})(this);
+		if(this.type == 'audio'){
+			(function(that){
+				that.item.addEventListener('canplaythrough', function(){
+					Debug.success(`Loaded resource ${that.name}`);
+					success();
+				});
+				that.item.addEventListener('error', function(){
+					Debug.warn(`Error loading resources ${that.name}: ${that.url}`);
+					error();
+				});	
+			})(this);
+		}else{
+			(function(that){
+				that.item.addEventListener('load', function(){
+					Debug.success(`Loaded resource ${that.name}`);
+					success();
+				});
+				that.item.addEventListener('error', function(){
+					Debug.warn(`Error loading resources ${that.name}: ${that.url}`);
+					error();
+				});	
+			})(this);
+		}
+		
 	}
 
 }
@@ -41,7 +55,9 @@ class Resources extends Component{
 		this.items[params.name] = new ResourceItem(params);
 		this.length++;
 	}
-
+	getResource(name){
+		return this.items[name].item;
+	}
 	remove(name){
 		delete this.items.name;
 	}

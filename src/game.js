@@ -52,7 +52,9 @@ class TestSprite extends Sprite{
 var e = {};
 
 function Preload(engine){
-	engine.resources.add({url: 'https://placehold.it/42x42', type: Image, name: "placeholder"});
+	e = engine;
+	engine.resources.add({url: 'https://placehold.it/42x42', type: 'img', name: "placeholder"});
+	engine.resources.add({url: 'http://localhost/gengine/resources/sounds/test.wav', type: 'audio', name: "Audio1"});
 }
 
 function Game(engine){
@@ -114,6 +116,8 @@ function Game(engine){
 		dummy: NetworkPlayer
 	});
 	engine.addSprite(player);
+	console.log(engine.sound);
+	engine.sound.play('Audio1');
 
 	for (var i = 0; i < 2; ++i){
 		engine.addSprite(new TestSprite({

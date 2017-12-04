@@ -558,6 +558,66 @@ class Scene extends Component{
 
 
 }
+class Sound extends Component{
+	constructor(params, engine){
+		super(params, engine);
+		
+	}
+	init(){
+		/**
+		 * llamado cuando el componente es agregado al motor
+		 * Aqui se podrian precargar algunos sonidos default del motor
+		 */
+		this.resources = this.getComponent("Resources");
+		// va al final del init, actualmente si esta activado modo Debug,
+		// tira mensaje en console de que el componente fue cargado
+		super.init();
+	}
+	move(){
+		// se ejecuta cada ciclo del gameloop
+		// podria estar vacio
+	}
+	draw(){
+		// se ejecuta cada ciclo del gameloop
+		// podria estar vacio
+	}
+
+
+	load(src){
+
+	}
+	play(name){
+		this.resources.getResource(name).play();
+	}
+	stop(name){
+
+	}
+	pause(name){
+
+	}
+
+	/**
+	 * todo: cualquier cosa que se ocurra, sonidos podrian loopear, otros no.
+	 * Musica de fondo seria un sonido?
+	 */
+}
+
+/**
+ * Metodo de testeo sin agregar al motor
+ * el primer parametro es un object literal
+ * que puede tener lo que sea que se necesite cuando se contruye
+ */
+// let sound = new Sound({}, null);
+// ej2
+// let sound = new Sound({algo: "algo"}, null);
+
+/**
+ * metodo de testeo en el motor
+ * engine.addComponent("Sound", Sound, {params});
+ *
+ * luego desde cualquier sprite o componente
+ * this.sound = this.getComponent("Sound"); //devuelve la instancia del motor de sonido del motor.
+ */
 class Engine extends GameObject{
 
 	constructor(params){
@@ -578,6 +638,7 @@ class Engine extends GameObject{
 		this.addComponent("Input", Input);
 		this.addComponent("Camera", Camera, {x: 0, y: 0});
 		this.addComponent("Time", Time);
+		this.addComponent("Sound", Sound);
 		this.addComponent("Display", CanvasDisplay, {
 			id: 'canvas',
 			x: 0,
@@ -591,6 +652,7 @@ class Engine extends GameObject{
 		this.display = this.component.Display;
 		this.scene = this.component.Scene;
 		this.resources = this.component.Resources;	
+		this.sound = this.component.Sound;	
 	}
 
 	static ready(params){
@@ -799,18 +861,32 @@ class ResourceItem {
 	}
 
 	load(success, error){
-		this.item = new this.type();
+		this.item = document.createElement("audio");
 		this.item.src = this.url;
-		(function(that){
-			that.item.addEventListener('load', function(){
-				Debug.success(`Loaded resource ${that.name}`);
-				success();
-			});
-			that.item.addEventListener('error', function(){
-				Debug.warn(`Error loading resources ${that.name}: ${that.url}`);
-				error();
-			});	
-		})(this);
+		if(this.type == 'audio'){
+			(function(that){
+				that.item.addEventListener('canplaythrough', function(){
+					Debug.success(`Loaded resource ${that.name}`);
+					success();
+				});
+				that.item.addEventListener('error', function(){
+					Debug.warn(`Error loading resources ${that.name}: ${that.url}`);
+					error();
+				});	
+			})(this);
+		}else{
+			(function(that){
+				that.item.addEventListener('load', function(){
+					Debug.success(`Loaded resource ${that.name}`);
+					success();
+				});
+				that.item.addEventListener('error', function(){
+					Debug.warn(`Error loading resources ${that.name}: ${that.url}`);
+					error();
+				});	
+			})(this);
+		}
+		
 	}
 
 }
@@ -833,7 +909,9 @@ class Resources extends Component{
 		this.items[params.name] = new ResourceItem(params);
 		this.length++;
 	}
-
+	getResource(name){
+		return this.items[name].item;
+	}
 	remove(name){
 		delete this.items.name;
 	}

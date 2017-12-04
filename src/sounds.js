@@ -1,14 +1,14 @@
 class Sound extends Component{
 	constructor(params, engine){
 		super(params, engine);
-		this.extra = 'extra algo';
+		
 	}
 	init(){
 		/**
 		 * llamado cuando el componente es agregado al motor
 		 * Aqui se podrian precargar algunos sonidos default del motor
 		 */
-
+		this.resources = this.getComponent("Resources");
 		// va al final del init, actualmente si esta activado modo Debug,
 		// tira mensaje en console de que el componente fue cargado
 		super.init();
@@ -27,7 +27,7 @@ class Sound extends Component{
 
 	}
 	play(name){
-
+		this.resources.getResource(name).play();
 	}
 	stop(name){
 

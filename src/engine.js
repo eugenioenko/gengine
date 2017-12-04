@@ -18,6 +18,7 @@ class Engine extends GameObject{
 		this.addComponent("Input", Input);
 		this.addComponent("Camera", Camera, {x: 0, y: 0});
 		this.addComponent("Time", Time);
+		this.addComponent("Sound", Sound);
 		this.addComponent("Display", CanvasDisplay, {
 			id: 'canvas',
 			x: 0,
@@ -31,6 +32,7 @@ class Engine extends GameObject{
 		this.display = this.component.Display;
 		this.scene = this.component.Scene;
 		this.resources = this.component.Resources;	
+		this.sound = this.component.Sound;	
 	}
 
 	static ready(params){

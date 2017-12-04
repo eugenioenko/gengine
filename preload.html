@@ -27,18 +27,20 @@
 <body>
 	<canvas id="canvas" style="display: none;"></canvas>
 	<script>
-
+		var e;
 		function preload(engine){
 
-			engine.resources.add({url: 'https://placeholfd.it/42x42', type: Image, name: "placeholder"});
+			e = engine;
 			engine.resources.add({url: 'https://placehold.it/42x42', type: Image, name: "placeholder1"});
 			engine.resources.add({url: 'https://placehold.it/42x42', type: Image, name: "placeholder2"});
 			engine.resources.add({url: 'https://placehold.it/42x42', type: Image, name: "placeholder3"});
 			engine.resources.add({url: 'https://placehold.it/42x42', type: Image, name: "placeholder4"});
 			engine.resources.add({url: 'https://placehold.it/42x42', type: Image, name: "placeholder5"});
+			engine.resources.add({url: 'http://localhost/gengine/resources/sounds/test.wav', type: Audio, name: "Audio1"});
 		}
 
 		function game(engine){
+			engine.sound.play('Audio1');
 			console.log('game started');
 		}
 
