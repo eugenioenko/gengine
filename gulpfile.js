@@ -32,6 +32,7 @@ gulp.task('combine', function() {
       "src/sprites.js",
       "src/scenes.js",
       "src/sounds.js",
+      "src/buffersounds.js",
       "src/engine.js",
       "src/camera.js",
       "src/tilemap.js",

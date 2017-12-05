@@ -38,7 +38,8 @@ class Engine extends GameObject{
 		this.scene = this.component.Scene;
 		this.resources = this.component.Resources;
 		this.sound = this.component.Sound;
-	}
+		
+	}	
 
 	static ready(params){
 		Debug.validateParams('Engine.ready', params, ["canvas", "width", "height", "preload", "create"]);

@@ -596,9 +596,16 @@ class Scene extends Component{
 class Sound extends Component{
 	constructor(params, engine){
 		super(params, engine);
-
+		this.context = '';
+		this.sound = '';
+		this.sounds = ['resources/sounds/sfx-stage-enter.wav', 'resources/sounds/sfx-state-leave.wav'];
+		this.buffers = new BufferSounds({urls: this.sounds}); 
 	}
 	init(){
+		
+		this.getContext()
+
+		this.buffers.init(); 
 		/**
 		 * llamado cuando el componente es agregado al motor
 		 * Aqui se podrian precargar algunos sonidos default del motor
@@ -617,13 +624,34 @@ class Sound extends Component{
 		// podria estar vacio
 	}
 
-
-	load(src){
-
+	getContext(){
+		  try {
+		    window.AudioContext = window.AudioContext||window.webkitAudioContext||window.mozAudioContext||window.oAudioContext||window.msAudioContext;
+		    this.context = new AudioContext();
+		  } catch(e) {
+		    alert('Este navegador no soporta la API de audio');
+		  }
 	}
+
+	
 	play(name){
-		this.resources.get(name).currentTime = 0;
-		this.resources.get(name).play();
+		/*var electro;
+		var getSound = new XMLHttpRequest();
+		getSound.open("GET", "resources/sounds/sfx-stage-enter.wav", true);
+		getSound.responseType = "arraybuffer";
+		getSound.onload = function() {
+		this.context.decodeAudioData(getSound.response, function(buffer){
+			this.sound = buffer;
+		});
+		}
+		getSound.send();
+
+		var playSound = this.context.createBufferSource(); 
+				playSound.buffer = this.sound; 
+				playSound.connect(this.context.destination);  
+				playSound.start(0); */
+
+		
 	}
 	stop(name){
 
@@ -654,6 +682,54 @@ class Sound extends Component{
  * luego desde cualquier sprite o componente
  * this.sound = this.getComponent("Sound"); //devuelve la instancia del motor de sonido del motor.
  */
+class BufferSounds extends GameObject {
+
+  constructor(params) { 
+    super(params); 
+    this.context;
+    this.buffer = [];
+  }
+  __params__(){
+    return ['urls'];
+  }
+  init(){
+      this.getContext();
+
+      super.init();
+      for(let url of this.urls){
+        this.context.decodeAudioData(url, this.loaded.bind(this), this.error);
+      }
+    
+  }
+
+  getContext(){
+      try {
+        window.AudioContext = window.AudioContext||window.webkitAudioContext||window.mozAudioContext||window.oAudioContext||window.msAudioContext;
+        this.context = new AudioContext();
+      } catch(e) {
+        alert('Este navegador no soporta la API de audio');
+      }
+  }
+
+  error(error){
+    console.log(error);
+  }
+
+  loaded(buffer) {
+    this.buffer.push(buffer);
+  }
+
+  getSoundByIndex(index) {
+    return this.buffer[index];
+  }
+
+  play(){
+    var source =  this.context.createBufferSource();
+    source.buffer = this.buffer;
+    source.connect( this.context.destination);
+    source.start(0);
+  }
+}
 class Engine extends GameObject{
 
 	constructor(params){
@@ -694,7 +770,8 @@ class Engine extends GameObject{
 		this.scene = this.component.Scene;
 		this.resources = this.component.Resources;
 		this.sound = this.component.Sound;
-	}
+		
+	}	
 
 	static ready(params){
 		Debug.validateParams('Engine.ready', params, ["canvas", "width", "height", "preload", "create"]);

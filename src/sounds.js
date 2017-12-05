@@ -1,9 +1,16 @@
 class Sound extends Component{
 	constructor(params, engine){
 		super(params, engine);
-
+		this.context = '';
+		this.sound = '';
+		this.sounds = ['resources/sounds/sfx-stage-enter.wav', 'resources/sounds/sfx-state-leave.wav'];
+		this.buffers = new BufferSounds({urls: this.sounds}); 
 	}
 	init(){
+		
+		this.getContext()
+
+		this.buffers.init(); 
 		/**
 		 * llamado cuando el componente es agregado al motor
 		 * Aqui se podrian precargar algunos sonidos default del motor
@@ -22,13 +29,34 @@ class Sound extends Component{
 		// podria estar vacio
 	}
 
-
-	load(src){
-
+	getContext(){
+		  try {
+		    window.AudioContext = window.AudioContext||window.webkitAudioContext||window.mozAudioContext||window.oAudioContext||window.msAudioContext;
+		    this.context = new AudioContext();
+		  } catch(e) {
+		    alert('Este navegador no soporta la API de audio');
+		  }
 	}
+
+	
 	play(name){
-		this.resources.get(name).currentTime = 0;
-		this.resources.get(name).play();
+		/*var electro;
+		var getSound = new XMLHttpRequest();
+		getSound.open("GET", "resources/sounds/sfx-stage-enter.wav", true);
+		getSound.responseType = "arraybuffer";
+		getSound.onload = function() {
+		this.context.decodeAudioData(getSound.response, function(buffer){
+			this.sound = buffer;
+		});
+		}
+		getSound.send();
+
+		var playSound = this.context.createBufferSource(); 
+				playSound.buffer = this.sound; 
+				playSound.connect(this.context.destination);  
+				playSound.start(0); */
+
+		
 	}
 	stop(name){
 
