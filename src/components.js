@@ -11,4 +11,8 @@ class Component extends GameObject{
 	init(){
 		Debug.success(`${this.constructor.name} initialized`);
 	}
+
+	move() { }
+
+	draw() { }
 }

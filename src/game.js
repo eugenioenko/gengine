@@ -49,16 +49,17 @@ class TestSprite extends Sprite{
 	}
 }
 
-var e = {};
-
 function Preload(engine){
-	e = engine;
-	engine.resources.add({url: 'https://placehold.it/42x42', type: 'img', name: "placeholder"});
-	engine.resources.add({url: 'http://localhost/gengine/resources/sounds/test.wav', type: 'audio', name: "Audio1"});
+	let resources = engine.resources;
+	resources.add({url: 'https://placehold.it/42x42', type: 'img', name: "placeholder"});
+	resources.add({url: './resources/sounds/sfx-stage-enter.wav', type: 'audio', name: "stage-enter"});
+	resources.add({url: './resources/sounds/sfx-state-leave.wav', type: 'audio', name: "stage-leave"});
+	resources.add({url: './resources/sounds/sfx-ice-push.wav', type: 'audio', name: "climb"});
+
+
 }
 
 function Game(engine){
-	e = engine;
 	var map = [
 		1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
 		1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
@@ -116,7 +117,6 @@ function Game(engine){
 		dummy: NetworkPlayer
 	});
 	engine.addSprite(player);
-	engine.sound.play('Audio1');
 
 	for (var i = 0; i < 2; ++i){
 		engine.addSprite(new TestSprite({
@@ -137,7 +137,7 @@ Engine.ready({
 	width: 800,
 	height: 600,
 	preload: Preload,
-	create: Game 
+	create: Game
 });
 
 

@@ -98,8 +98,6 @@ class GameObject {
 		return [];
 	}
 	init() { }
-	move() { }
-	draw() { }
 }
 class Component extends GameObject{
 	constructor(params, engine){
@@ -114,6 +112,10 @@ class Component extends GameObject{
 	init(){
 		Debug.success(`${this.constructor.name} initialized`);
 	}
+
+	move() { }
+
+	draw() { }
 }
 class Time extends Component{
 	constructor(params, engine){
@@ -561,7 +563,7 @@ class Scene extends Component{
 class Sound extends Component{
 	constructor(params, engine){
 		super(params, engine);
-		
+
 	}
 	init(){
 		/**
@@ -587,6 +589,7 @@ class Sound extends Component{
 
 	}
 	play(name){
+		this.resources.get(name).currentTime = 0;
 		this.resources.get(name).play();
 	}
 	stop(name){
@@ -1001,6 +1004,8 @@ class Player extends Sprite{
 		this.tilemap = this.engine.tilemap;
 		this.network = this.getComponent("Network");
 		this.time = this.getComponent("Time");
+		this.sound = this.getComponent("Sound");
+		this.sound.play("stage-enter");
 	}
 	move(){
 		// left right movement
@@ -1043,6 +1048,7 @@ class Player extends Sprite{
 		// jump pressed and not jumping
 		if(this.input.keyCode("ArrowUp") && !this.jumping){
 			this.jumping = true;
+			this.sound.play("climb");
 			this.velocityY = -this.jumpForce;
 		}
 		// jump released and jumping

@@ -1,7 +1,7 @@
 class Sound extends Component{
 	constructor(params, engine){
 		super(params, engine);
-		
+
 	}
 	init(){
 		/**
@@ -27,6 +27,7 @@ class Sound extends Component{
 
 	}
 	play(name){
+		this.resources.get(name).currentTime = 0;
 		this.resources.get(name).play();
 	}
 	stop(name){

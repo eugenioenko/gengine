@@ -50,6 +50,8 @@ class Player extends Sprite{
 		this.tilemap = this.engine.tilemap;
 		this.network = this.getComponent("Network");
 		this.time = this.getComponent("Time");
+		this.sound = this.getComponent("Sound");
+		this.sound.play("stage-enter");
 	}
 	move(){
 		// left right movement
@@ -92,6 +94,7 @@ class Player extends Sprite{
 		// jump pressed and not jumping
 		if(this.input.keyCode("ArrowUp") && !this.jumping){
 			this.jumping = true;
+			this.sound.play("climb");
 			this.velocityY = -this.jumpForce;
 		}
 		// jump released and jumping

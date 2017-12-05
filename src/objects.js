@@ -8,6 +8,4 @@ class GameObject {
 		return [];
 	}
 	init() { }
-	move() { }
-	draw() { }
 }
