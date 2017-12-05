@@ -977,24 +977,39 @@ class NetworkPlayer extends Sprite{
 
 	}
 }
+
 class Bullet extends Sprite{
 	constructor(params){
 		super(params);
+		this.x = this.parent.x + 16;
+		this.y = this.parent.y + 16;
 		this.width = 10;
 		this.height = 4;
 		this.color = "red";
-		this.speed = 4;
+		this.speed = 14;
+	}
+	init(){
+		this.display = this.getComponent("Display");
+		this.network = this.getComponent("Network");
+		this.time = this.getComponent("Time");
 	}
 	move(){
-		this.x += this.speed * this.dir;
+		this.x += this.speed * this.dir * this.time.deltaTime;
+		if(this.x < this.engine.x){
+			this.engine.scene.removeSprite(this);
+		}
+		if(this.x > this.engine.x+this.engine.width){
+			this.engine.scene.removeSprite(this);
+		}
 	}
 	draw(){
 		this.display.fillRect(this.x, this.y, this.width, this.height, this.color);
 	}
 	__params__(){
-		return ["x", "y", "dir"];
+		return ["parent", "dir"];
 	}
 }
+
 class Player extends Sprite{
 	constructor(params){
 		super(params);
@@ -1003,6 +1018,7 @@ class Player extends Sprite{
 		this.vars = {};
 		this.smoothTime = 1.3;
 		this.vars.cv = 0;
+		this.dir = 1;
 		this.speed = 6;
 		this.speedY = 0;
 		this.moveDistanceY = 0;
@@ -1012,9 +1028,6 @@ class Player extends Sprite{
 		this.maxSpeedY = 10;
 		this.jumpForce = 12;
 		this.jumping = false;
-		this.lastX = this.x;
-		this.lastY = this.y;
-
 	}
 	getCoorners(x, y){
 		this.tilemap.getCoorners(x, y, this.width, this.height, this.coorners);
@@ -1032,6 +1045,12 @@ class Player extends Sprite{
 	move(){
 		// left right movement
 		let inputX = this.input.getAxisRaw("Horizontal");
+		if(inputX > 0){
+			this.dir = 1;
+		}
+		if(inputX < 0){
+			this.dir = -1;
+		}
 		this.moveDistanceX = inputX * this.speed * this.time.deltaTime;
 		this.getCoorners(this.x + this.moveDistanceX, this.y);
 		this.moveDistanceX = Math.floor(this.moveDistanceX);
@@ -1079,21 +1098,11 @@ class Player extends Sprite{
 				this.velocityY = -this.jumpForce/2;
 			}
 		}
-		if(this.lastX != this.x && this.lastY != this.y){
-			this.network.move({
-				x: this.x,
-				y: this.y
-			});
-			this.lastX = this.x;
-			this.lastY = this.y;
-		}
-
 		// shooting
 		if(this.input.keyCode("ArrowDown")){
 			this.scene.addSprite(new Bullet({
-				x: this.x,
-				y: this.y,
-				dir: 1
+				parent: this,
+				dir: this.dir
 			}));
 		}
 	}
