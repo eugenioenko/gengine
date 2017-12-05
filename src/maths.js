@@ -10,6 +10,9 @@ class Maths{
 	static rand(min, max){
 		return Math.floor(Math.random() * (max - min + 1)) + min;
 	}
+	static randRange(min, max){
+		return Math.floor(Math.random() * (max - min + 1)) + min;
+	}
 	static smoothDamp(current, target, $currentVelocity, smoothTime, maxSpeed, deltaTime){
 		smoothTime = Math.max(0.0001, smoothTime);
 		let num = 2.0 / smoothTime;
