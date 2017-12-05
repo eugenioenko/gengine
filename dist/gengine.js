@@ -868,14 +868,18 @@ class ResourceItem {
 		this.item = document.createElement(this.type);
 		this.item.src = this.url;
 		(function(that){
-			that.item.addEventListener(that.event.success, function(){
+			that.item.addEventListener(that.event.success, listenSuccess);
+			that.item.addEventListener(that.event.error, listenError);
+			function listenSuccess(){
 				Debug.success(`Loaded resource ${that.name}`);
+				that.item.removeEventListener(that.event.success, listenSuccess);
 				success();
-			});
-			that.item.addEventListener(that.event.error, function(){
-				Debug.warn(`Error loading resources ${that.name}: ${that.url}`);
+			}
+			function listenError(){
+				Debug.success(`Loaded resource ${that.name}`);
+				that.item.removeEventListener(that.event.error, listenError);
 				error();
-			});	
+			}
 		})(this);
 	}
 
@@ -906,7 +910,7 @@ class Resources extends Component{
 
 	add(params){
 		// resources will be always overrided if existed before, problem in the future?
-		this.items[params.name] = new ResourceItem(params, this.events[params.type]); 
+		this.items[params.name] = new ResourceItem(params, this.events[params.type]);
 		this.length++;
 	}
 	get(name){
@@ -922,7 +926,7 @@ class Resources extends Component{
 	}
 
 	error(){
-		// game continues even if resource failed to load. 
+		// game continues even if resource failed to load.
 		// better implementation pending.
 		this.errors++;
 		this.loaded++;
@@ -940,7 +944,7 @@ class Resources extends Component{
 			 *  callback to create game!
 			 */
 			this.callback(this.engine);
-		}	
+		}
 	}
 	preload(callback){
 		this.callback = callback;
@@ -949,7 +953,7 @@ class Resources extends Component{
 		for(let name of names){
 			this.items[name].load(this.success.bind(this), this.error.bind(this));
 		}
-		
+
 	}
 }
 class NetworkPlayer extends Sprite{
@@ -973,7 +977,24 @@ class NetworkPlayer extends Sprite{
 
 	}
 }
-
+class Bullet extends Sprite{
+	constructor(params){
+		super(params);
+		this.width = 10;
+		this.height = 4;
+		this.color = "red";
+		this.speed = 4;
+	}
+	move(){
+		this.x += this.speed * this.dir;
+	}
+	draw(){
+		this.display.fillRect(this.x, this.y, this.width, this.height, this.color);
+	}
+	__params__(){
+		return ["x", "y", "dir"];
+	}
+}
 class Player extends Sprite{
 	constructor(params){
 		super(params);
@@ -1005,6 +1026,7 @@ class Player extends Sprite{
 		this.network = this.getComponent("Network");
 		this.time = this.getComponent("Time");
 		this.sound = this.getComponent("Sound");
+		this.scene = this.getComponent("Scene");
 		this.sound.play("stage-enter");
 	}
 	move(){
@@ -1064,6 +1086,15 @@ class Player extends Sprite{
 			});
 			this.lastX = this.x;
 			this.lastY = this.y;
+		}
+
+		// shooting
+		if(this.input.keyCode("ArrowDown")){
+			this.scene.addSprite(new Bullet({
+				x: this.x,
+				y: this.y,
+				dir: 1
+			}));
 		}
 	}
 	draw(){

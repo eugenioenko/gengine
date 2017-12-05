@@ -11,14 +11,18 @@ class ResourceItem {
 		this.item = document.createElement(this.type);
 		this.item.src = this.url;
 		(function(that){
-			that.item.addEventListener(that.event.success, function(){
+			that.item.addEventListener(that.event.success, listenSuccess);
+			that.item.addEventListener(that.event.error, listenError);
+			function listenSuccess(){
 				Debug.success(`Loaded resource ${that.name}`);
+				that.item.removeEventListener(that.event.success, listenSuccess);
 				success();
-			});
-			that.item.addEventListener(that.event.error, function(){
-				Debug.warn(`Error loading resources ${that.name}: ${that.url}`);
+			}
+			function listenError(){
+				Debug.success(`Loaded resource ${that.name}`);
+				that.item.removeEventListener(that.event.error, listenError);
 				error();
-			});	
+			}
 		})(this);
 	}
 
@@ -49,7 +53,7 @@ class Resources extends Component{
 
 	add(params){
 		// resources will be always overrided if existed before, problem in the future?
-		this.items[params.name] = new ResourceItem(params, this.events[params.type]); 
+		this.items[params.name] = new ResourceItem(params, this.events[params.type]);
 		this.length++;
 	}
 	get(name){
@@ -65,7 +69,7 @@ class Resources extends Component{
 	}
 
 	error(){
-		// game continues even if resource failed to load. 
+		// game continues even if resource failed to load.
 		// better implementation pending.
 		this.errors++;
 		this.loaded++;
@@ -83,7 +87,7 @@ class Resources extends Component{
 			 *  callback to create game!
 			 */
 			this.callback(this.engine);
-		}	
+		}
 	}
 	preload(callback){
 		this.callback = callback;
@@ -92,6 +96,6 @@ class Resources extends Component{
 		for(let name of names){
 			this.items[name].load(this.success.bind(this), this.error.bind(this));
 		}
-		
+
 	}
 }

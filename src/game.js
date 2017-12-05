@@ -48,8 +48,10 @@ class TestSprite extends Sprite{
 
 	}
 }
+var e;
 
 function Preload(engine){
+	e = engine;
 	let resources = engine.resources;
 	resources.add({url: 'https://placehold.it/42x42', type: 'img', name: "placeholder"});
 	resources.add({url: './resources/sounds/sfx-stage-enter.wav', type: 'audio', name: "stage-enter"});
