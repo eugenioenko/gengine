@@ -25,24 +25,30 @@ class Bullet extends Sprite{
 		super(params);
 		this.x = this.parent.x + 16;
 		this.y = this.parent.y + 16;
-		this.width = 10;
-		this.height = 4;
+		this.width = 9;
+		this.height = 3;
 		this.color = "red";
-		this.speed = 14;
+		this.speed = 3;
 	}
 	init(){
 		this.display = this.getComponent("Display");
 		this.network = this.getComponent("Network");
 		this.time = this.getComponent("Time");
+		this.camera = this.getComponent("Camera");
 	}
 	move(){
 		this.x += this.speed * this.dir * this.time.deltaTime;
-		if(this.x < this.engine.x){
-			this.engine.scene.removeSprite(this);
+		if(this.x < this.camera.x){
+			this.destroy();
 		}
-		if(this.x > this.engine.x+this.engine.width){
-			this.engine.scene.removeSprite(this);
+		if(this.x > this.camera.x+this.engine.width){
+			this.destroy();
 		}
+	}
+	destroy(){
+		this.parent.shooting = false;
+		console.log('destroy');
+		super.destroy();
 	}
 	draw(){
 		this.display.fillRect(this.x, this.y, this.width, this.height, this.color);
@@ -70,6 +76,7 @@ class Player extends Sprite{
 		this.maxSpeedY = 10;
 		this.jumpForce = 12;
 		this.jumping = false;
+		this.shooting = false;
 	}
 	getCoorners(x, y){
 		this.tilemap.getCoorners(x, y, this.width, this.height, this.coorners);
@@ -82,7 +89,10 @@ class Player extends Sprite{
 		this.time = this.getComponent("Time");
 		this.sound = this.getComponent("Sound");
 		this.scene = this.getComponent("Scene");
+		this.camera = this.getComponent("Camera");
 		this.sound.play("stage-enter");
+		this.camera.x = Math.floor(this.x - this.camera.width/2);
+		this.camera.y = Math.floor(this.camera.height / 2);
 	}
 	move(){
 		// left right movement
@@ -93,7 +103,7 @@ class Player extends Sprite{
 		if(inputX < 0){
 			this.dir = -1;
 		}
-		this.moveDistanceX = inputX * this.speed * this.time.deltaTime;
+		this.moveDistanceX = Math.floor(inputX * this.speed * this.time.deltaTime);
 		this.getCoorners(this.x + this.moveDistanceX, this.y);
 		this.moveDistanceX = Math.floor(this.moveDistanceX);
 		if(
@@ -101,11 +111,10 @@ class Player extends Sprite{
 			(inputX == -1 && !this.coorners.downLeft.solid && !this.coorners.upLeft.solid)
 		){
 			this.x += this.moveDistanceX;
-			this.engine.x += this.moveDistanceX; //Maths.smoothDamp(this.engine.x, this.engine.x + this.moveDistanceX, this.argsx, 0.1, 30, 10);
-			//this.engine.x += moveDistanceX;
+			this.camera.x += this.moveDistanceX;
 		}
 		// gravity
-		this.moveDistanceY = this.velocityY;
+		this.moveDistanceY = Math.floor(this.velocityY);
 		this.velocityY += this.gravity * this.time.deltaTime;
 
 		this.moveDistanceY = Maths.clamp(this.moveDistanceY, -this.maxSpeedY, this.maxSpeedY);
@@ -125,8 +134,7 @@ class Player extends Sprite{
 		}
 
 		this.y += this.moveDistanceY;
-		this.engine.y += this.moveDistanceY;
-		//this.engine.y = Maths.smoothDamp(this.engine.y, this.engine.y + this.moveDistanceY, this.args, 0.3, 13, 1);
+		this.camera.y += this.moveDistanceY;
 
 		// jump pressed and not jumping
 		if(this.input.keyCode("ArrowUp") && !this.jumping){
@@ -141,7 +149,8 @@ class Player extends Sprite{
 			}
 		}
 		// shooting
-		if(this.input.keyCode("ArrowDown")){
+		if(this.input.keyCode("ArrowDown") && !this.shooting){
+			this.shooting = true;
 			this.scene.addSprite(new Bullet({
 				parent: this,
 				dir: this.dir

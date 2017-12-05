@@ -16,7 +16,12 @@ class Engine extends GameObject{
 		Debug.group('Engine loaded components');
 		this.addComponent("Resources", Resources);
 		this.addComponent("Input", Input);
-		this.addComponent("Camera", Camera, {x: 0, y: 0});
+		this.addComponent("Camera", Camera, {
+			x: 0,
+			y: 0,
+			width: this.width,
+			height: this.height
+		});
 		this.addComponent("Time", Time);
 		this.addComponent("Sound", Sound);
 		this.addComponent("Display", CanvasDisplay, {
@@ -31,8 +36,8 @@ class Engine extends GameObject{
 		this.time = this.component.Time;
 		this.display = this.component.Display;
 		this.scene = this.component.Scene;
-		this.resources = this.component.Resources;	
-		this.sound = this.component.Sound;	
+		this.resources = this.component.Resources;
+		this.sound = this.component.Sound;
 	}
 
 	static ready(params){

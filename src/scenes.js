@@ -26,7 +26,6 @@ class Scene extends Component{
 	}
 
 	removeSprite(sprite){
-		sprite.destroy();
 		let index = this.sprites.indexOf(sprite);
 		if(index != -1){
 			this.sprites.splice(index, 1);

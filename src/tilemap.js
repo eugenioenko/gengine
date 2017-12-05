@@ -49,6 +49,7 @@ class TileMap extends Sprite{
 		this.map.load(array);
 	}
 	init(){
+		this.camera = this.getComponent("Camera");
 		this.display = this.getComponent("Display");
 		//this.map.randomize();
 	}
@@ -71,10 +72,10 @@ class TileMap extends Sprite{
 		coorners.downRight = this.getTile(x+width, y+height);
 	}
 	getDrawRect(){
-		let x1 = this.getTileX(this.engine.x);
-		let y1 = this.getTileY(this.engine.y);
-		let x2 = Math.ceil(this.engine.width / this.twidth);
-		let y2 = Math.ceil(this.engine.height / this.theight);
+		let x1 = this.getTileX(this.camera.x);
+		let y1 = this.getTileY(this.camera.y);
+		let x2 = Math.ceil(this.camera.width / this.twidth);
+		let y2 = Math.ceil(this.camera.height / this.theight);
 		x1 = Maths.clamp(x1, 0, this.width);
 		y1 = Maths.clamp(y1, 0, this.height);
 		x2 = Maths.clamp(x2+x1+1, x1, this.width);

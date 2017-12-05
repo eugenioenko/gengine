@@ -24,6 +24,3 @@ class Utils{
 		return this.autoIncrementGen.next().value;
 	}
 }
-
-u = new Utils;
-u.randomId();

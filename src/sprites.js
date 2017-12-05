@@ -41,5 +41,7 @@ class Sprite extends GameObject{
 	move(){ }
 	draw(){ }
 	collision(sprite){ }
-	destroy(){ }
+	destroy(){
+		this.engine.scene.removeSprite(this);
+	}
 }

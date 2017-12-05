@@ -10,6 +10,9 @@ class Maths{
 	static rand(min, max){
 		return Math.floor(Math.random() * (max - min + 1)) + min;
 	}
+	static randRange(min, max){
+		return Math.floor(Math.random() * (max - min + 1)) + min;
+	}
 	static smoothDamp(current, target, $currentVelocity, smoothTime, maxSpeed, deltaTime){
 		smoothTime = Math.max(0.0001, smoothTime);
 		let num = 2.0 / smoothTime;
@@ -99,6 +102,33 @@ class GameObject {
 	}
 	init() { }
 }
+class Utils{
+	constructor(){
+		this.autoIncrementGen = (function*(){
+			let count = 0;
+			while(count++ < Number.MAX_SAFE_INTEGER){
+				yield count;
+			}
+		})();
+
+		this.characters = ['A','a','B','b','C','c','D','d','E','e','F','f','G','g','H','h','I','i','J','j','K','k','L','l','M','m','N','n','O','o','P','p','Q','q','R','r','S','s','T','t','U','u','V','v','W','w','X','x','Y','y','Z','z','$'];
+	}
+	randomId(length=6){
+		let result = '';
+		for(let i = 0; i < length; ++i){
+			result += this.characters[Math.floor(Math.random() * this.characters.length)];
+		}
+		return result;
+	}
+	/**
+	 * Auto Increment generator
+	 * @return {Number} An autoIncremented Number
+	 */
+	autoIncrement(){
+		return this.autoIncrementGen.next().value;
+	}
+}
+
 class Component extends GameObject{
 	constructor(params, engine){
 		super(params);
@@ -186,6 +216,7 @@ class Display extends Component{
 	}
 	init() {
 		this.canvas = document.getElementById(this.id);
+		this.camera = this.getComponent("Camera");
 		this.width = this.canvas.width;
 		this.height = this.canvas.height;
 		super.init();
@@ -215,6 +246,7 @@ class CanvasDisplay extends Component{
 		this.canvas.setAttribute('height', this.height);
 		this.ctx = this.canvas.getContext('2d');
 		this.ctx.font = "16px Helvetica";
+		this.camera = this.getComponent("Camera");
 		super.init();
 	}
 	set zoom(value){
@@ -232,18 +264,18 @@ class CanvasDisplay extends Component{
 	fillRect(x, y, width, height, color){
 		this.ctx.beginPath();
 		this.ctx.fillStyle =  color;
-		this.ctx.rect(-this.engine.x + x, -this.engine.y + y, width, height);
+		this.ctx.rect(-this.camera.x + x, -this.camera.y + y, width, height);
 		this.ctx.fill();
 	}
 	rect(x, y, width, height, color){
 		this.ctx.beginPath();
 		this.ctx.strokeStyle =  color;
-		this.ctx.rect(-this.engine.x + x, -this.engine.y + y, width, height);
+		this.ctx.rect(-this.camera.x + x, -this.camera.y + y, width, height);
 		this.ctx.stroke();
 	}
 	circle(x, y, width, color){
 		this.ctx.beginPath();
-		this.ctx.arc(-this.engine.x + x, -this.engine.y + y, width/2, 0, 2 * Math.PI, false);
+		this.ctx.arc(-this.camera.x + x, -this.camera.y + y, width/2, 0, 2 * Math.PI, false);
 		this.ctx.strokeStyle =  color;
 		this.ctx.stroke();
 	}
@@ -507,7 +539,9 @@ class Sprite extends GameObject{
 	move(){ }
 	draw(){ }
 	collision(sprite){ }
-	destroy(){ }
+	destroy(){
+		this.engine.scene.removeSprite(this);
+	}
 }
 
 class Scene extends Component{
@@ -538,7 +572,6 @@ class Scene extends Component{
 	}
 
 	removeSprite(sprite){
-		sprite.destroy();
 		let index = this.sprites.indexOf(sprite);
 		if(index != -1){
 			this.sprites.splice(index, 1);
@@ -639,7 +672,12 @@ class Engine extends GameObject{
 		Debug.group('Engine loaded components');
 		this.addComponent("Resources", Resources);
 		this.addComponent("Input", Input);
-		this.addComponent("Camera", Camera, {x: 0, y: 0});
+		this.addComponent("Camera", Camera, {
+			x: 0,
+			y: 0,
+			width: this.width,
+			height: this.height
+		});
 		this.addComponent("Time", Time);
 		this.addComponent("Sound", Sound);
 		this.addComponent("Display", CanvasDisplay, {
@@ -654,8 +692,8 @@ class Engine extends GameObject{
 		this.time = this.component.Time;
 		this.display = this.component.Display;
 		this.scene = this.component.Scene;
-		this.resources = this.component.Resources;	
-		this.sound = this.component.Sound;	
+		this.resources = this.component.Resources;
+		this.sound = this.component.Sound;
 	}
 
 	static ready(params){
@@ -739,17 +777,17 @@ class Camera extends Component{
 		this.speed = 10;
 	}
 	__params__(){
-		return ["x", "y"];
+		return ["x", "y", "width", "height"];
 	}
 	init(){
 		this.input = this.getComponent("Input");
 		super.init();
 	}
 	move(){
-		if(this.input.keyCode("KeyS")) this.engine.y -= this.speed;
-		if(this.input.keyCode("KeyW")) this.engine.y += this.speed;
-		if(this.input.keyCode("KeyD")) this.engine.x += this.speed;
-		if(this.input.keyCode("KeyA")) this.engine.x -= this.speed;
+		if(this.input.keyCode("KeyS")) this.y -= this.speed;
+		if(this.input.keyCode("KeyW")) this.y += this.speed;
+		if(this.input.keyCode("KeyD")) this.x += this.speed;
+		if(this.input.keyCode("KeyA")) this.x -= this.speed;
 	}
 }
 
@@ -803,6 +841,7 @@ class TileMap extends Sprite{
 		this.map.load(array);
 	}
 	init(){
+		this.camera = this.getComponent("Camera");
 		this.display = this.getComponent("Display");
 		//this.map.randomize();
 	}
@@ -825,10 +864,10 @@ class TileMap extends Sprite{
 		coorners.downRight = this.getTile(x+width, y+height);
 	}
 	getDrawRect(){
-		let x1 = this.getTileX(this.engine.x);
-		let y1 = this.getTileY(this.engine.y);
-		let x2 = Math.ceil(this.engine.width / this.twidth);
-		let y2 = Math.ceil(this.engine.height / this.theight);
+		let x1 = this.getTileX(this.camera.x);
+		let y1 = this.getTileY(this.camera.y);
+		let x2 = Math.ceil(this.camera.width / this.twidth);
+		let y2 = Math.ceil(this.camera.height / this.theight);
 		x1 = Maths.clamp(x1, 0, this.width);
 		y1 = Maths.clamp(y1, 0, this.height);
 		x2 = Maths.clamp(x2+x1+1, x1, this.width);
@@ -983,24 +1022,30 @@ class Bullet extends Sprite{
 		super(params);
 		this.x = this.parent.x + 16;
 		this.y = this.parent.y + 16;
-		this.width = 10;
-		this.height = 4;
+		this.width = 9;
+		this.height = 3;
 		this.color = "red";
-		this.speed = 14;
+		this.speed = 3;
 	}
 	init(){
 		this.display = this.getComponent("Display");
 		this.network = this.getComponent("Network");
 		this.time = this.getComponent("Time");
+		this.camera = this.getComponent("Camera");
 	}
 	move(){
 		this.x += this.speed * this.dir * this.time.deltaTime;
-		if(this.x < this.engine.x){
-			this.engine.scene.removeSprite(this);
+		if(this.x < this.camera.x){
+			this.destroy();
 		}
-		if(this.x > this.engine.x+this.engine.width){
-			this.engine.scene.removeSprite(this);
+		if(this.x > this.camera.x+this.engine.width){
+			this.destroy();
 		}
+	}
+	destroy(){
+		this.parent.shooting = false;
+		console.log('destroy');
+		super.destroy();
 	}
 	draw(){
 		this.display.fillRect(this.x, this.y, this.width, this.height, this.color);
@@ -1028,6 +1073,7 @@ class Player extends Sprite{
 		this.maxSpeedY = 10;
 		this.jumpForce = 12;
 		this.jumping = false;
+		this.shooting = false;
 	}
 	getCoorners(x, y){
 		this.tilemap.getCoorners(x, y, this.width, this.height, this.coorners);
@@ -1040,7 +1086,10 @@ class Player extends Sprite{
 		this.time = this.getComponent("Time");
 		this.sound = this.getComponent("Sound");
 		this.scene = this.getComponent("Scene");
+		this.camera = this.getComponent("Camera");
 		this.sound.play("stage-enter");
+		this.camera.x = Math.floor(this.x - this.camera.width/2);
+		this.camera.y = Math.floor(this.camera.height / 2);
 	}
 	move(){
 		// left right movement
@@ -1051,7 +1100,7 @@ class Player extends Sprite{
 		if(inputX < 0){
 			this.dir = -1;
 		}
-		this.moveDistanceX = inputX * this.speed * this.time.deltaTime;
+		this.moveDistanceX = Math.floor(inputX * this.speed * this.time.deltaTime);
 		this.getCoorners(this.x + this.moveDistanceX, this.y);
 		this.moveDistanceX = Math.floor(this.moveDistanceX);
 		if(
@@ -1059,11 +1108,10 @@ class Player extends Sprite{
 			(inputX == -1 && !this.coorners.downLeft.solid && !this.coorners.upLeft.solid)
 		){
 			this.x += this.moveDistanceX;
-			this.engine.x += this.moveDistanceX; //Maths.smoothDamp(this.engine.x, this.engine.x + this.moveDistanceX, this.argsx, 0.1, 30, 10);
-			//this.engine.x += moveDistanceX;
+			this.camera.x += this.moveDistanceX;
 		}
 		// gravity
-		this.moveDistanceY = this.velocityY;
+		this.moveDistanceY = Math.floor(this.velocityY);
 		this.velocityY += this.gravity * this.time.deltaTime;
 
 		this.moveDistanceY = Maths.clamp(this.moveDistanceY, -this.maxSpeedY, this.maxSpeedY);
@@ -1083,8 +1131,7 @@ class Player extends Sprite{
 		}
 
 		this.y += this.moveDistanceY;
-		this.engine.y += this.moveDistanceY;
-		//this.engine.y = Maths.smoothDamp(this.engine.y, this.engine.y + this.moveDistanceY, this.args, 0.3, 13, 1);
+		this.camera.y += this.moveDistanceY;
 
 		// jump pressed and not jumping
 		if(this.input.keyCode("ArrowUp") && !this.jumping){
@@ -1099,7 +1146,8 @@ class Player extends Sprite{
 			}
 		}
 		// shooting
-		if(this.input.keyCode("ArrowDown")){
+		if(this.input.keyCode("ArrowDown") && !this.shooting){
+			this.shooting = true;
 			this.scene.addSprite(new Bullet({
 				parent: this,
 				dir: this.dir

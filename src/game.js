@@ -111,8 +111,6 @@ function Game(engine){
 		width: 32,
 		height: 32
 	});
-	engine.x = 1000;
-	engine.y = 300;
 	engine.addComponent("Network", Network, {
 		url: 'http://enko.duckdns.org:3331',
 		player: player,

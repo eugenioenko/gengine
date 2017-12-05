@@ -9,6 +9,7 @@ class Display extends Component{
 	}
 	init() {
 		this.canvas = document.getElementById(this.id);
+		this.camera = this.getComponent("Camera");
 		this.width = this.canvas.width;
 		this.height = this.canvas.height;
 		super.init();
@@ -38,6 +39,7 @@ class CanvasDisplay extends Component{
 		this.canvas.setAttribute('height', this.height);
 		this.ctx = this.canvas.getContext('2d');
 		this.ctx.font = "16px Helvetica";
+		this.camera = this.getComponent("Camera");
 		super.init();
 	}
 	set zoom(value){
@@ -55,18 +57,18 @@ class CanvasDisplay extends Component{
 	fillRect(x, y, width, height, color){
 		this.ctx.beginPath();
 		this.ctx.fillStyle =  color;
-		this.ctx.rect(-this.engine.x + x, -this.engine.y + y, width, height);
+		this.ctx.rect(-this.camera.x + x, -this.camera.y + y, width, height);
 		this.ctx.fill();
 	}
 	rect(x, y, width, height, color){
 		this.ctx.beginPath();
 		this.ctx.strokeStyle =  color;
-		this.ctx.rect(-this.engine.x + x, -this.engine.y + y, width, height);
+		this.ctx.rect(-this.camera.x + x, -this.camera.y + y, width, height);
 		this.ctx.stroke();
 	}
 	circle(x, y, width, color){
 		this.ctx.beginPath();
-		this.ctx.arc(-this.engine.x + x, -this.engine.y + y, width/2, 0, 2 * Math.PI, false);
+		this.ctx.arc(-this.camera.x + x, -this.camera.y + y, width/2, 0, 2 * Math.PI, false);
 		this.ctx.strokeStyle =  color;
 		this.ctx.stroke();
 	}

@@ -4,16 +4,16 @@ class Camera extends Component{
 		this.speed = 10;
 	}
 	__params__(){
-		return ["x", "y"];
+		return ["x", "y", "width", "height"];
 	}
 	init(){
 		this.input = this.getComponent("Input");
 		super.init();
 	}
 	move(){
-		if(this.input.keyCode("KeyS")) this.engine.y -= this.speed;
-		if(this.input.keyCode("KeyW")) this.engine.y += this.speed;
-		if(this.input.keyCode("KeyD")) this.engine.x += this.speed;
-		if(this.input.keyCode("KeyA")) this.engine.x -= this.speed;
+		if(this.input.keyCode("KeyS")) this.y -= this.speed;
+		if(this.input.keyCode("KeyW")) this.y += this.speed;
+		if(this.input.keyCode("KeyD")) this.x += this.speed;
+		if(this.input.keyCode("KeyA")) this.x -= this.speed;
 	}
 }
