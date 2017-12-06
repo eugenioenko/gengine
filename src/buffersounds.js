@@ -9,15 +9,32 @@ class BufferSounds extends GameObject {
     return ['urls'];
   }
   init(){
-      this.getContext();
-
       super.init();
+      this.getContext();
+      var that = this;
+
       for(let url of this.urls){
-        this.context.decodeAudioData(url, this.loaded.bind(this), this.error);
+        that.load(url);
       }
+
+      console.log(this.buffer);
     
   }
 
+  load(url) {
+    var request = new XMLHttpRequest();
+    request.open('GET', url, true);
+    request.responseType = 'arraybuffer';
+    var that = this;
+    
+    request.onload = function() {
+      that.context.decodeAudioData(request.response, function(buffer) {
+       
+        that.buffer.push(buffer);
+      }, that.error);
+    }
+    request.send();
+  }
   getContext(){
       try {
         window.AudioContext = window.AudioContext||window.webkitAudioContext||window.mozAudioContext||window.oAudioContext||window.msAudioContext;
@@ -28,11 +45,7 @@ class BufferSounds extends GameObject {
   }
 
   error(error){
-    console.log(error);
-  }
-
-  loaded(buffer) {
-    this.buffer.push(buffer);
+    Debug.error('BufferSounds: '+error);
   }
 
   getSoundByIndex(index) {

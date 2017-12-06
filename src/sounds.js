@@ -3,14 +3,16 @@ class Sound extends Component{
 		super(params, engine);
 		this.context = '';
 		this.sound = '';
-		this.sounds = ['resources/sounds/sfx-stage-enter.wav', 'resources/sounds/sfx-state-leave.wav'];
+		this.sounds = ['resources/sounds/sfx-stage-enter.wav', 'resources/sounds/sfx-ice-push.wav'];
 		this.buffers = new BufferSounds({urls: this.sounds}); 
+		
 	}
 	init(){
 		
 		this.getContext()
 
 		this.buffers.init(); 
+	
 		/**
 		 * llamado cuando el componente es agregado al motor
 		 * Aqui se podrian precargar algunos sonidos default del motor
@@ -39,22 +41,12 @@ class Sound extends Component{
 	}
 
 	
-	play(name){
-		/*var electro;
-		var getSound = new XMLHttpRequest();
-		getSound.open("GET", "resources/sounds/sfx-stage-enter.wav", true);
-		getSound.responseType = "arraybuffer";
-		getSound.onload = function() {
-		this.context.decodeAudioData(getSound.response, function(buffer){
-			this.sound = buffer;
-		});
-		}
-		getSound.send();
-
-		var playSound = this.context.createBufferSource(); 
-				playSound.buffer = this.sound; 
-				playSound.connect(this.context.destination);  
-				playSound.start(0); */
+	play(){
+		console.log(this.buffers.buffer[0]);
+		var source =  this.context.createBufferSource();
+	    source.buffer = this.buffers.buffer[0];
+	    source.connect(this.context.destination);
+	    source.start(0);
 
 		
 	}

@@ -90,7 +90,7 @@ class Player extends Sprite{
 		this.sound = this.getComponent("Sound");
 		this.scene = this.getComponent("Scene");
 		this.camera = this.getComponent("Camera");
-		this.sound.play("stage-enter");
+	
 		this.camera.x = Math.floor(this.x - this.camera.width/2);
 		this.camera.y = Math.floor(this.camera.height / 2);
 	}
@@ -139,7 +139,7 @@ class Player extends Sprite{
 		// jump pressed and not jumping
 		if(this.input.keyCode("ArrowUp") && !this.jumping){
 			this.jumping = true;
-			this.sound.play("climb");
+			
 			this.velocityY = -this.jumpForce;
 		}
 		// jump released and jumping
@@ -155,6 +155,10 @@ class Player extends Sprite{
 				parent: this,
 				dir: this.dir
 			}));
+		}
+
+		if(this.input.keyCode("KeyK") && !this.shooting){
+			this.sound.play();
 		}
 	}
 	draw(){
