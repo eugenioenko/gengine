@@ -158,6 +158,7 @@ class Player extends Sprite{
 		}
 
 		if(this.input.keyCode("KeyK") && !this.shooting){
+			this.sound.addEffect();
 			this.sound.play();
 		}
 	}

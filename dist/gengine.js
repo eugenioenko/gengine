@@ -600,7 +600,7 @@ class Sound extends Component{
 		this.sound = '';
 		this.sounds = ['resources/sounds/sfx-stage-enter.wav', 'resources/sounds/sfx-ice-push.wav'];
 		this.buffers = new BufferSounds({urls: this.sounds}); 
-		
+		this.effect = '';
 	}
 	init(){
 		
@@ -637,11 +637,28 @@ class Sound extends Component{
 
 	
 	play(){
+
+		/*var effect = new Effect(effectName);
+		effect.init();*/
+
 		console.log(this.buffers.buffer[0]);
 		var source =  this.context.createBufferSource();
 	    source.buffer = this.buffers.buffer[0];
-	    source.connect(this.context.destination);
-	    source.start(0);
+	    if(this.effect != ''){
+	    	var effect = this.effect;
+	    	effect.value = 1;
+	    	console.log(effect);
+	    	source.connect(effect);
+	    	effect.connect(this.context.destination);
+	    	source.start(0);
+	    	//effect.start(0);
+	    }else{
+	    	source.connect(this.context.destination);
+	    	source.start(0);
+	    }
+	    //source.connect(effect);
+	    //effect.connect(this.context.destination);
+	   
 
 		
 	}
@@ -651,7 +668,9 @@ class Sound extends Component{
 	pause(name){
 
 	}
-
+	addEffect(){
+		this.effect = this.context.createGain();
+	}
 	/**
 	 * todo: cualquier cosa que se ocurra, sonidos podrian loopear, otros no.
 	 * Musica de fondo seria un sonido?
@@ -728,12 +747,6 @@ class BufferSounds extends GameObject {
     return this.buffer[index];
   }
 
-  play(){
-    var source =  this.context.createBufferSource();
-    source.buffer = this.buffer;
-    source.connect( this.context.destination);
-    source.start(0);
-  }
 }
 class Engine extends GameObject{
 
@@ -1237,6 +1250,7 @@ class Player extends Sprite{
 		}
 
 		if(this.input.keyCode("KeyK") && !this.shooting){
+			this.sound.addEffect();
 			this.sound.play();
 		}
 	}

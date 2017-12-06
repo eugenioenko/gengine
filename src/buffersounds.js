@@ -52,10 +52,4 @@ class BufferSounds extends GameObject {
     return this.buffer[index];
   }
 
-  play(){
-    var source =  this.context.createBufferSource();
-    source.buffer = this.buffer;
-    source.connect( this.context.destination);
-    source.start(0);
-  }
 }
