@@ -1,3 +1,7 @@
+/**
+ * A RecourceItem is a media object like image, audio. It is used by the Resources class 
+ * during the preload phase of the engine loading.
+ */
 class ResourceItem {
 
 	constructor(params, event={success: 'load', error: 'error'}){
@@ -27,6 +31,10 @@ class ResourceItem {
 	}
 
 }
+/**
+ * Resources component is set of the images and audio resources of the game.
+ * It handles adding and getting the resources by a name and also the preload phase of the engine loading.
+ */
 class Resources extends Component{
 
 	constructor(params, engine){

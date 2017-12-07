@@ -1,3 +1,15 @@
+/**
+ * Manages the time of the game.
+ * time.startTime: seconds elapsed scince the game started
+ * time.frameTime: almost the same as startTime, has the elapsed seconds
+ * scince the game started but it updates the value by counting the frametime of each gameloop.
+ * time.deltaTime: inverse relative value to the fps of the game. When the game runs on 60fps the value is 1. 
+ * When the fps drop, the deltaTime value is increased proportionaly to the amount of fps droped.
+ * Example:
+ * 60fps: deltaTime == 1
+ * 30fps: deltaTime == 2
+ * 15fps: deltaTime == 4
+ */
 class Time extends Component{
 	constructor(params, engine){
 		super(params, engine);

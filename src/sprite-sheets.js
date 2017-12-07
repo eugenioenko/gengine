@@ -6,6 +6,11 @@ class Rect{
 		this.y2 = y2;
 	}
 }
+/**
+ * A sprite sheet consists of different sprites/tiles drawn in the same image.
+ * When created, the Spritesheet will create the coordinates of each sprite/tile on 
+ * the image depending on the width/height of the frame/tile on the sheet.
+ */
 class SpriteSheet extends GameObject{
 	constructor(params){
 		super(params);

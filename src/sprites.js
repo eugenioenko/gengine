@@ -1,3 +1,7 @@
+/**
+ * Base Sprite component. Every Sprite of the engine should derive from this class.
+ * Sprites are object which per each loop of the game move and draw. 
+ */
 class Sprite extends GameObject{
 	constructor(params){
 		super(params);
@@ -37,10 +41,29 @@ class Sprite extends GameObject{
 	get gy(){
 		return this.y;
 	}
+	/**
+	 * Method called when the sprite is added to a scene after creation
+	 */
 	init(){ }
+	/**
+	 * Method executed each game loop
+	 */
 	move(){ }
+	/**
+	 * Method executed each loop of the game
+	 */
 	draw(){ }
+	/**
+	 * Callback method executed when the sprite collided with another sprite.
+	 * @param {sprite} the other sprite whith whom the collision ocurred
+	 */
 	collision(sprite){ }
+
+	/**
+	 * This a "destructor", when a sprite needs to be removed from a scene, executed destroy.
+	 * @important on derrived Sprite classes, don't forget to execute super.destroy() at the end.
+	 * otherwise the sprite won't be removed.
+	 */
 	destroy(){
 		this.engine.scene.removeSprite(this);
 	}
