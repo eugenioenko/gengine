@@ -1,3 +1,6 @@
+/**
+ * Example of a game, this module is used for testing the engine.
+ */
 class TestSprite extends Sprite{
 	constructor(params){
 		super(params);

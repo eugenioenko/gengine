@@ -1,3 +1,8 @@
+/**
+ * Collider represents a rect/circle which can collide with another collider.
+ * The position of the collider is relative to its parent sprite.
+ * A sprite can have "infinite" number of colliders.
+ */
 class Collider extends GameObject{
 	constructor(params){
 		super(params);
@@ -17,6 +22,9 @@ class Collider extends GameObject{
 			this.parent.display.rect(this.x, this.y, this.width, this.height, color);
 	}
 }
+/**
+ * CircleCollider is a Collider with a circular shape.
+ */
 class CircleCollider extends Collider{
 	constructor(params){
 		super(params);
@@ -37,6 +45,9 @@ class CircleCollider extends Collider{
 			this.parent.display.circle(this.gx, this.gy, this.width, color);
 	}
 }
+/**
+ * RectCollider is a collider with a rectange/square shape.
+ */
 class RectCollider extends Collider{
 	constructor(params){
 		super(params);

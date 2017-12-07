@@ -1,3 +1,7 @@
+/**
+ * A class with static methods which test for collision between different
+ * types of colliders.
+ */
 class TestCollision{
 	static CircleVsRect(circle, rect){
 		let halfRectWidth = rect.width / 2;

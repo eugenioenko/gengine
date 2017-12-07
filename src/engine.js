@@ -1,3 +1,11 @@
+/**
+ * Engine is the main object of the game engine.
+ * Engine consist of a group of different components which manage different tasks.
+ * Each component is a lego piece, and the engine is the glue which binds them together.
+ * Once the document is ready, Engine will initialize each component added
+ * into it, call the preloader method, execute the game creation function 
+ * and then start executing the game loop.
+ */
 class Engine extends GameObject{
 
 	constructor(params){
@@ -40,7 +48,12 @@ class Engine extends GameObject{
 		this.sound = this.component.Sound;
 		
 	}	
-
+	/**
+	 * Static function to replace the windows.onload method.
+	 * Once the window is ready, engine will initialize its components, execute
+	 * the preloader and when preloader loaded all the resources, create the game
+	 * and execute the gameloop.
+	 */
 	static ready(params){
 		Debug.validateParams('Engine.ready', params, ["canvas", "width", "height", "preload", "create"]);
 		(function(){

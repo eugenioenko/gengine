@@ -1,3 +1,6 @@
+/**
+ * Base/example class of the Display component of the Engine.
+ */
 class Display extends Component{
 	constructor(params, engine){
 		super(params, engine);
@@ -25,6 +28,9 @@ class Display extends Component{
 		this.clear();
 	}
 }
+/**
+ * The component for drawing sprites and figures into the canvas screen.
+ */
 class CanvasDisplay extends Component{
 	constructor(params, engine){
 		super(params, engine);

@@ -1,3 +1,12 @@
+/**
+ * Class with static methods to facilitate the messages on the javascript console.
+ * All the methods of Debug class will only run if the debug mode is on.
+ * To activate the debug mode, declare a global variable before initializing the engine
+ * with the name: GENGINE_DEBUG_MODE = true.
+ * If the debug mode is off, no messages would be sent to the console.
+ * While developing your project, its recomended to have the debug mode on to get
+ * some messages of the state of the engine.
+ */
 class Debug{
 
 	static active(){
