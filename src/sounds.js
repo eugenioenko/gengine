@@ -4,15 +4,15 @@ class Sound extends Component{
 		this.context = '';
 		this.sound = '';
 		this.sounds = ['resources/sounds/sfx-stage-enter.wav', 'resources/sounds/sfx-ice-push.wav'];
-		this.buffers = new BufferSounds({urls: this.sounds}); 
+		this.buffers = new BufferSounds({urls: this.sounds});
 		this.effect = '';
 	}
 	init(){
-		
-		this.getContext()
 
-		this.buffers.init(); 
-	
+		this.getContext();
+
+		this.buffers.init();
+
 		/**
 		 * llamado cuando el componente es agregado al motor
 		 * Aqui se podrian precargar algunos sonidos default del motor
@@ -40,7 +40,7 @@ class Sound extends Component{
 		  }
 	}
 
-	
+
 	play(){
 
 		/*var effect = new Effect(effectName);
@@ -63,9 +63,9 @@ class Sound extends Component{
 	    }
 	    //source.connect(effect);
 	    //effect.connect(this.context.destination);
-	   
 
-		
+
+
 	}
 	stop(name){
 

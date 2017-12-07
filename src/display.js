@@ -75,6 +75,13 @@ class CanvasDisplay extends Component{
 	fillText(text, x, y){
 		this.ctx.fillText(text, x, y);
 	}
+	drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight){
+		this.ctx.drawImage(image, sx, sy, sWidth, sHeight, dx, dy,dWidth, dHeight);
+	}
+	drawTile(sheet, index, x, y){
+		let tile = sheet.tiles[index];
+		this.ctx.drawImage(sheet.image, tile.x1, tile.y1, sheet.width, sheet.height, x, y, sheet.width, sheet.height);
+	}
 }
 
 class WebGLDisplay extends Display{

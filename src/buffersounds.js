@@ -1,8 +1,7 @@
 class BufferSounds extends GameObject {
 
-  constructor(params) { 
-    super(params); 
-    this.context;
+  constructor(params) {
+    super(params);
     this.buffer = [];
   }
   __params__(){
@@ -17,8 +16,6 @@ class BufferSounds extends GameObject {
         that.load(url);
       }
 
-      console.log(this.buffer);
-    
   }
 
   load(url) {
@@ -26,13 +23,13 @@ class BufferSounds extends GameObject {
     request.open('GET', url, true);
     request.responseType = 'arraybuffer';
     var that = this;
-    
+
     request.onload = function() {
       that.context.decodeAudioData(request.response, function(buffer) {
-       
+
         that.buffer.push(buffer);
       }, that.error);
-    }
+    };
     request.send();
   }
   getContext(){

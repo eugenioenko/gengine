@@ -282,6 +282,13 @@ class CanvasDisplay extends Component{
 	fillText(text, x, y){
 		this.ctx.fillText(text, x, y);
 	}
+	drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight){
+		this.ctx.drawImage(image, sx, sy, sWidth, sHeight, dx, dy,dWidth, dHeight);
+	}
+	drawTile(sheet, index, x, y){
+		let tile = sheet.tiles[index];
+		this.ctx.drawImage(sheet.image, tile.x1, tile.y1, sheet.width, sheet.height, x, y, sheet.width, sheet.height);
+	}
 }
 
 class WebGLDisplay extends Display{
@@ -496,6 +503,35 @@ class RectCollider extends Collider{
 			this.parent.display.rect(this.gx, this.gy, this.width, this.height, color);
 	}
 }
+class Rect{
+	constructor(x1, y1, x2, y2){
+		this.x1 = x1;
+		this.y1 = y1;
+		this.x2 = x2;
+		this.y2 = y2;
+	}
+}
+class SpriteSheet extends GameObject{
+	constructor(params){
+		super(params);
+		this.tiles = [];
+		let rwidth = Math.floor(this.image.width / this.width+this.gap);
+		let cheight = Math.floor(this.image.height / this.height+this.gap);
+		for(let i = 0; i < rwidth; ++i){
+			for(let j = 0; j < cheight; ++j){
+				let x1 = i * this.width + this.gap;
+				let y1 = j * this.height + this.gap;
+				let x2 = x1 + this.width;
+				let y2 = y1 + this.height;
+				this.tiles.push(new Rect(x1, y1, x2, y2));
+			}
+		}
+	}
+	__params__(){
+		return ["width", "height", "image", "gap"];
+	}
+
+}
 class Sprite extends GameObject{
 	constructor(params){
 		super(params);
@@ -599,15 +635,15 @@ class Sound extends Component{
 		this.context = '';
 		this.sound = '';
 		this.sounds = ['resources/sounds/sfx-stage-enter.wav', 'resources/sounds/sfx-ice-push.wav'];
-		this.buffers = new BufferSounds({urls: this.sounds}); 
+		this.buffers = new BufferSounds({urls: this.sounds});
 		this.effect = '';
 	}
 	init(){
-		
-		this.getContext()
 
-		this.buffers.init(); 
-	
+		this.getContext();
+
+		this.buffers.init();
+
 		/**
 		 * llamado cuando el componente es agregado al motor
 		 * Aqui se podrian precargar algunos sonidos default del motor
@@ -635,7 +671,7 @@ class Sound extends Component{
 		  }
 	}
 
-	
+
 	play(){
 
 		/*var effect = new Effect(effectName);
@@ -658,9 +694,9 @@ class Sound extends Component{
 	    }
 	    //source.connect(effect);
 	    //effect.connect(this.context.destination);
-	   
 
-		
+
+
 	}
 	stop(name){
 
@@ -695,9 +731,8 @@ class Sound extends Component{
  */
 class BufferSounds extends GameObject {
 
-  constructor(params) { 
-    super(params); 
-    this.context;
+  constructor(params) {
+    super(params);
     this.buffer = [];
   }
   __params__(){
@@ -712,8 +747,6 @@ class BufferSounds extends GameObject {
         that.load(url);
       }
 
-      console.log(this.buffer);
-    
   }
 
   load(url) {
@@ -721,13 +754,13 @@ class BufferSounds extends GameObject {
     request.open('GET', url, true);
     request.responseType = 'arraybuffer';
     var that = this;
-    
+
     request.onload = function() {
       that.context.decodeAudioData(request.response, function(buffer) {
-       
+
         that.buffer.push(buffer);
       }, that.error);
-    }
+    };
     request.send();
   }
   getContext(){
