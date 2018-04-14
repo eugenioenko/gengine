@@ -1,6 +1,6 @@
 /**
  * Scene is a collection of sprites of a game level or a game scene.
- * The engine can have a single scene or multiple. Depending on the active scene of 
+ * The engine can have a single scene or multiple. Depending on the active scene of
  * the engine, that scene sprites would be draw, moved and collided on the stage.
  */
 class Scene extends Component{
@@ -9,7 +9,6 @@ class Scene extends Component{
 		this.sprites = [];
 	}
 	init(){
-
 		super.init();
 	}
 	move(){

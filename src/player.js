@@ -85,14 +85,13 @@ class Player extends Sprite{
 		this.input = this.getComponent("Input");
 		this.display = this.getComponent("Display");
 		this.tilemap = this.engine.tilemap;
-		this.network = this.getComponent("Network");
 		this.time = this.getComponent("Time");
 		this.sound = this.getComponent("Sound");
 		this.scene = this.getComponent("Scene");
 		this.camera = this.getComponent("Camera");
-	
-		this.camera.x = Math.floor(this.x - this.camera.width/2);
-		this.camera.y = Math.floor(this.camera.height / 2);
+
+		this.camera.x = Math.floor(this.x - this.camera.width / 2);
+		this.camera.y = Math.floor(this.y - this.camera.height / 2);
 	}
 	move(){
 		// left right movement
@@ -139,7 +138,7 @@ class Player extends Sprite{
 		// jump pressed and not jumping
 		if(this.input.keyCode("ArrowUp") && !this.jumping){
 			this.jumping = true;
-			
+
 			this.velocityY = -this.jumpForce;
 		}
 		// jump released and jumping

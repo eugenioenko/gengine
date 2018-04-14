@@ -104,12 +104,12 @@ class Debug{
  * Base Object of mostly all the classes of the engine.
  * It creates a structure so that when instances of objects are created,
  * the parameters are passed as object literals.
- *
+ * 
  * The __params__ is used as validation of the arguments pased in the constructor.
- * __params__ should return an array with the names of all the keys which should be
+ * __params__ should return an array with the names of all the keys which should be 
  * present during the construction of an gameObject. This will only happen if the debug
  * mode is activated.
- *
+ * 
  * @example
  * let o = new GameObject({x: 0, y: 0});
  *
@@ -118,21 +118,10 @@ class GameObject {
 	constructor(params){
 		Debug.validateParams(this.constructor.name, params, this.__params__());
 		Object.assign(this, params);
-		let optional = this.__config__();
-		for (let key in optional) {
-			if (typeof this[key] === 'undefined') {
-				this[key] = optional[key];
-			}
-		}
-
 	}
 	__params__() {
 		return [];
 	}
-	__config__() {
-		return {};
-	}
-
 	init() { }
 }
 class Utils{
@@ -346,9 +335,9 @@ class CanvasDisplay extends Component{
 	drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight){
 		this.ctx.drawImage(image, sx, sy, sWidth, sHeight, dx, dy,dWidth, dHeight);
 	}
-	drawTile(sheet, index, x, y, width, height){
+	drawTile(sheet, index, x, y){
 		let tile = sheet.tiles[index];
-		this.ctx.drawImage(sheet.image, tile.x1, tile.y1, sheet.width, sheet.height, x, y, width, height);
+		this.ctx.drawImage(sheet.image, tile.x1, tile.y1, sheet.width, sheet.height, x, y, sheet.width, sheet.height);
 	}
 }
 
@@ -589,37 +578,27 @@ class Rect{
 }
 /**
  * A sprite sheet consists of different sprites/tiles drawn in the same image.
- * When created, the Spritesheet will create the coordinates of each sprite/tile on
+ * When created, the Spritesheet will create the coordinates of each sprite/tile on 
  * the image depending on the width/height of the frame/tile on the sheet.
  */
 class SpriteSheet extends GameObject{
-	constructor(params) {
+	constructor(params){
 		super(params);
 		this.tiles = [];
-		let rwidth = Math.floor((this.image.width - this.offsetLeft) / this.width);
-		let cheight = Math.floor((this.image.height - this.offsetTop) / this.height);
-		for(let i = 0; i < rwidth; ++i) {
-			for(let j = 0; j < cheight; ++j) {
-				let x1 = this.offsetLeft + i * this.width;
-				let y1 = this.offsetTop + j * this.height;
-				let x2 = this.offsetLeft + x1 + this.width;
-				let y2 = this.offsetTop + y1 + this.height;
+		let rwidth = Math.floor(this.image.width / this.width+this.gap);
+		let cheight = Math.floor(this.image.height / this.height+this.gap);
+		for(let i = 0; i < rwidth; ++i){
+			for(let j = 0; j < cheight; ++j){
+				let x1 = i * this.width + this.gap;
+				let y1 = j * this.height + this.gap;
+				let x2 = x1 + this.width;
+				let y2 = y1 + this.height;
 				this.tiles.push(new Rect(x1, y1, x2, y2));
 			}
 		}
 	}
 	__params__(){
-		return ["width", "height", "image"];
-	}
-
-	__config__(){
-		return {
-			offsetTop: 0,
-			offsetBottom: 0,
-			offsetLeft: 0,
-			offsetRight: 0,
-			gap: 0
-		};
+		return ["width", "height", "image", "gap"];
 	}
 
 }
@@ -695,35 +674,25 @@ class Sprite extends GameObject{
 }
 
 /**
- * Scene is a collection of Sprites.
- * If the scene is visible, the sprites get drawn on the screen
- * If the scene is active, the sprites get moved on the screen
- * It is possible to have multiple scenes per stage
- * 
+ * Scene is a collection of sprites of a game level or a game scene.
+ * The engine can have a single scene or multiple. Depending on the active scene of
+ * the engine, that scene sprites would be draw, moved and collided on the stage.
  */
 class Scene extends Component{
 	constructor(params, engine){
 		super(params, engine);
 		this.sprites = [];
-		this.visible = true;
-		this.active = true;
 	}
 	init(){
 		super.init();
 	}
 	move(){
-		if (!this.active){
-			return;
-		}
 		this.collision();
 		for(let sprite of this.sprites){
 			sprite.move();
 		}
 	}
 	draw(){
-		if (!this.visible){
-			return;
-		}
 		for(let sprite of this.sprites){
 			sprite.draw();
 		}
@@ -757,67 +726,73 @@ class Scene extends Component{
 
 
 }
-/**
- * Stage is a collection of Scenes.
- */
-class Stage extends Component {
-	constructor(params, engine) {
-		super(params, engine);
-		this.scenes = {};
-		this.add("default");
-	}
-
-	init() {
-		super.init();
-	}
-
-	move() {
-		for (let name in this.scenes) {
-			this.scenes[name].move();
-		}
-	}
-
-	draw() {
-		for (let name in this.scenes) {
-			this.scenes[name].draw();
-		}
-	}
-
-	add(name) {
-		this.scenes[name] = new Scene({}, this.engine);
-	}
-
-	disable(name) {
-		this.scenes[name].enabled = false;
-	}
-
-	enable(name) {
-		this.scenes[name].enabled = true;
-	}
-
-	hide(name) {
-		this.scenes[name].visible = false;
-	}
-
-	show(name) {
-		this.scenes[name].visible = true;
-	}
-
-}
 class Sound extends Component{
 	constructor(params, engine){
 		super(params, engine);
+		this.context = '';
+		this.sound = '';
+		this.sounds = ['resources/sounds/sfx-stage-enter.wav', 'resources/sounds/sfx-ice-push.wav'];
+		this.buffers = new BufferSounds({urls: this.sounds});
+		this.effect = '';
 	}
 	init(){
+
+		this.getContext();
+
+		this.buffers.init();
+
+		/**
+		 * llamado cuando el componente es agregado al motor
+		 * Aqui se podrian precargar algunos sonidos default del motor
+		 */
+		this.resources = this.getComponent("Resources");
+		// va al final del init, actualmente si esta activado modo Debug,
+		// tira mensaje en console de que el componente fue cargado
 		super.init();
 	}
-
 	move(){
+		// se ejecuta cada ciclo del gameloop
+		// podria estar vacio
 	}
 	draw(){
+		// se ejecuta cada ciclo del gameloop
+		// podria estar vacio
 	}
 
+	getContext(){
+		  try {
+		    window.AudioContext = window.AudioContext||window.webkitAudioContext||window.mozAudioContext||window.oAudioContext||window.msAudioContext;
+		    this.context = new AudioContext();
+		  } catch(e) {
+		    alert('Este navegador no soporta la API de audio');
+		  }
+	}
+
+
 	play(){
+
+		/*var effect = new Effect(effectName);
+		effect.init();*/
+
+		console.log(this.buffers.buffer[0]);
+		var source =  this.context.createBufferSource();
+	    source.buffer = this.buffers.buffer[0];
+	    if(this.effect != ''){
+	    	var effect = this.effect;
+	    	effect.value = 1;
+	    	console.log(effect);
+	    	source.connect(effect);
+	    	effect.connect(this.context.destination);
+	    	source.start(0);
+	    	//effect.start(0);
+	    }else{
+	    	source.connect(this.context.destination);
+	    	source.start(0);
+	    }
+	    //source.connect(effect);
+	    //effect.connect(this.context.destination);
+
+
 
 	}
 	stop(name){
@@ -826,9 +801,31 @@ class Sound extends Component{
 	pause(name){
 
 	}
+	addEffect(){
+		this.effect = this.context.createGain();
+	}
+	/**
+	 * todo: cualquier cosa que se ocurra, sonidos podrian loopear, otros no.
+	 * Musica de fondo seria un sonido?
+	 */
 }
 
+/**
+ * Metodo de testeo sin agregar al motor
+ * el primer parametro es un object literal
+ * que puede tener lo que sea que se necesite cuando se contruye
+ */
+// let sound = new Sound({}, null);
+// ej2
+// let sound = new Sound({algo: "algo"}, null);
 
+/**
+ * metodo de testeo en el motor
+ * engine.addComponent("Sound", Sound, {params});
+ *
+ * luego desde cualquier sprite o componente
+ * this.sound = this.getComponent("Sound"); //devuelve la instancia del motor de sonido del motor.
+ */
 class BufferSounds extends GameObject {
 
   constructor(params) {
@@ -922,11 +919,11 @@ class Engine extends GameObject{
 			width: this.width,
 			height: this.height
 		});
-		this.addComponent("Stage", Stage);
+		this.addComponent("Scene", Scene);
 		Debug.groupEnd();
 		this.time = this.component.Time;
 		this.display = this.component.Display;
-		this.stage = this.component.Stage;
+		this.scene = this.component.Scene;
 		this.resources = this.component.Resources;
 		this.sound = this.component.Sound;
 		
@@ -977,11 +974,11 @@ class Engine extends GameObject{
 	}
 
 	addSprite(sprite){
-		this.stage.scenes["default"].addSprite(sprite);
+		this.scene.addSprite(sprite);
 	}
 
 	removeSprite(sprite){
-		this.stage.scenes["default"].removeSprite(sprite);
+		this.scene.removeSprite(sprite);
 	}
 
 	move(){
@@ -1252,6 +1249,27 @@ class Resources extends Component{
 
 	}
 }
+class NetworkPlayer extends Sprite{
+	constructor(params){
+		super(params);
+		this.color = "red";
+		this.width = 32;
+		this.height = 32;
+	}
+	__params__(){
+		return ["x", "y"];
+	}
+	init(){
+		this.display = this.getComponent("Display");
+	}
+	move(){ }
+	draw(){
+		this.display.fillRect(this.x, this.y, this.width, this.height, this.color);
+	}
+	collision(sprite){
+
+	}
+}
 
 class Bullet extends Sprite{
 	constructor(params){
@@ -1265,6 +1283,7 @@ class Bullet extends Sprite{
 	}
 	init(){
 		this.display = this.getComponent("Display");
+		this.network = this.getComponent("Network");
 		this.time = this.getComponent("Time");
 		this.camera = this.getComponent("Camera");
 	}
@@ -1319,10 +1338,11 @@ class Player extends Sprite{
 		this.tilemap = this.engine.tilemap;
 		this.time = this.getComponent("Time");
 		this.sound = this.getComponent("Sound");
+		this.scene = this.getComponent("Scene");
 		this.camera = this.getComponent("Camera");
-	
-		this.camera.x = Math.floor(this.x - this.camera.width/2);
-		this.camera.y = Math.floor(this.camera.height / 2);
+
+		this.camera.x = Math.floor(this.x - this.camera.width / 2);
+		this.camera.y = Math.floor(this.y - this.camera.height / 2);
 	}
 	move(){
 		// left right movement
@@ -1369,7 +1389,7 @@ class Player extends Sprite{
 		// jump pressed and not jumping
 		if(this.input.keyCode("ArrowUp") && !this.jumping){
 			this.jumping = true;
-			
+
 			this.velocityY = -this.jumpForce;
 		}
 		// jump released and jumping
@@ -1380,7 +1400,11 @@ class Player extends Sprite{
 		}
 		// shooting
 		if(this.input.keyCode("ArrowDown") && !this.shooting){
-
+			this.shooting = true;
+			this.scene.addSprite(new Bullet({
+				parent: this,
+				dir: this.dir
+			}));
 		}
 
 		if(this.input.keyCode("KeyK") && !this.shooting){
