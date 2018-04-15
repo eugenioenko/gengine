@@ -1,6 +1,12 @@
 "use strict"; // jshint ignore:line
 
 class Maths{
+	/**
+	 * Clamps a value between min and max
+	 * @param {number} value
+	 * @param {number} min
+	 * @param {number} max
+	 */
 	static clamp(value, min, max){
 		 return Math.min(Math.max(value, min), max);
 	}
@@ -1258,13 +1264,19 @@ class Player extends Sprite{
 		this.speed = 6;
 		this.speedY = 0;
 		this.moveDistanceY = 0;
-		this.moveDistanceX = 0;
 		this.velocityY = 0;
 		this.gravity = 0.5;
 		this.maxSpeedY = 10;
 		this.jumpForce = 12;
 		this.jumping = false;
 		this.shooting = false;
+
+		this.accelerationForceX = 0.3;
+		this.accelerationX = 0;
+		this.maxSpeedX = 8;
+		this.velocityX = 0;
+		this.frictionX = 0.8;
+		this.dirX = 0;
 		this.addCollider(-10, -10, this.width+10, this.height+10);
 	}
 	getCoorners(x, y){
@@ -1284,17 +1296,36 @@ class Player extends Sprite{
 	}
 	move(){
 		// left right movement
+		let moveDistanceX = 0;
 		let inputX = this.input.getAxis("Horizontal");
-		this.moveDistanceX = Math.floor(inputX * this.speed * this.time.deltaTime);
-		this.getCoorners(this.x + this.moveDistanceX, this.y);
-
-		if(
-			(inputX == 1 && !this.coorners.downRight.solid && !this.coorners.upRight.solid) ||
-			(inputX == -1 && !this.coorners.downLeft.solid && !this.coorners.upLeft.solid)
-		){
-			this.x += this.moveDistanceX;
-			this.camera.x += this.moveDistanceX;
+		// acceleration movement
+		this.accelerationX = inputX * this.accelerationForceX;
+		this.velocityX += this.accelerationX * this.time.deltaTime;
+		// friction
+		if (!inputX) {
+			let currentDir = Math.sign(this.velocityX);
+			this.velocityX += -currentDir * this.frictionX * this.time.deltaTime;
+			if (Math.sign(this.velocityX) !== currentDir) {
+				this.velocityX = 0;
+			}
 		}
+		this.velocityX = Maths.clamp(this.velocityX, -this.maxSpeedX, this.maxSpeedX);
+		moveDistanceX += this.velocityX * this.time.deltaTime;
+		moveDistanceX = Math.floor(moveDistanceX);
+
+		// test collision
+		this.getCoorners(this.x + moveDistanceX, this.y);
+		if(
+			(moveDistanceX > 0 && this.coorners.downRight.solid && this.coorners.upRight.solid) ||
+			(moveDistanceX < 0 && this.coorners.downLeft.solid && this.coorners.upLeft.solid)
+		){
+			this.velocityX = 0;
+			moveDistanceX = 0;
+		}
+		// set new position
+		this.x += moveDistanceX;
+		this.camera.x += moveDistanceX;
+
 		// gravity
 		this.moveDistanceY = Math.floor(this.velocityY);
 		this.velocityY += this.gravity * this.time.deltaTime;
