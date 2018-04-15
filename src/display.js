@@ -64,20 +64,50 @@ class CanvasDisplay extends Component{
 		this.ctx.beginPath();
 		this.ctx.fillStyle =  color;
 		this.ctx.rect(-this.camera.x + x, -this.camera.y + y, width, height);
+		this.ctx.closePath();
 		this.ctx.fill();
 	}
 	rect(x, y, width, height, color){
 		this.ctx.beginPath();
+		this.ctx.lineWidth = 1;
 		this.ctx.strokeStyle =  color;
 		this.ctx.rect(-this.camera.x + x, -this.camera.y + y, width, height);
+		this.ctx.closePath();
 		this.ctx.stroke();
 	}
 	circle(x, y, width, color){
 		this.ctx.beginPath();
 		this.ctx.arc(-this.camera.x + x, -this.camera.y + y, width/2, 0, 2 * Math.PI, false);
 		this.ctx.strokeStyle =  color;
+		this.ctx.closePath();
 		this.ctx.stroke();
 	}
+	fillTriangleUp(x, y, width, height, color) {
+		x = -this.camera.x + x;
+		y = -this.camera.y + y;
+		this.ctx.beginPath();
+		this.ctx.moveTo(x, y + height);
+		this.ctx.lineTo(x + width, y + height);
+		this.ctx.lineTo(x + width, y);
+		this.ctx.closePath();
+		// the fill color
+		this.ctx.fillStyle = color;
+		this.ctx.fill();
+	}
+
+	fillTriangleDown(x, y, width, height, color) {
+		x = -this.camera.x + x;
+		y = -this.camera.y + y;
+		this.ctx.beginPath();
+		this.ctx.moveTo(x, y);
+		this.ctx.lineTo(x, y + height);
+		this.ctx.lineTo(x + width, y + height);
+		this.ctx.closePath();
+		// the fill color
+		this.ctx.fillStyle = color;
+		this.ctx.fill();
+	}
+
 	fillText(text, x, y){
 		this.ctx.fillText(text, x, y);
 	}

@@ -1,6 +1,6 @@
 /**
  * Base Sprite component. Every Sprite of the engine should derive from this class.
- * Sprites are object which per each loop of the game move and draw. 
+ * Sprites are object which per each loop of the game move and draw.
  */
 class Sprite extends GameObject{
 	constructor(params){
@@ -15,7 +15,13 @@ class Sprite extends GameObject{
 		return this.engine.getComponent(name);
 	}
 	addCollider(x, y, width, height){
-		this.colliders.push(new RectCollider(this, x, y, width, height));
+		this.colliders.push(new RectCollider({
+			parent: this,
+			x: x,
+			y: y,
+			width: width,
+			height:height
+		}));
 	}
 	debugDraw(color = "red"){
 		if(this.parent && this.parent.display)

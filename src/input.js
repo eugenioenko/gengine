@@ -20,7 +20,7 @@ class Input extends Component{
 	keyCode(code){
 		return typeof this.keyCode_[code] !== "undefined" ? this.keyCode_[code] : false;
 	}
-	getAxisRaw(type){
+	getAxis(type){
 		let result = 0;
 		result =  this.keyCode("ArrowLeft") ? -1 : 0;
 		result += this.keyCode("ArrowRight") ? 1 : 0;

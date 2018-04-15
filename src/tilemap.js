@@ -3,8 +3,8 @@
 var Tiles = [
 	{color: '#eee', solid: false},
 	{color: '#333', solid: true},
-	{color: '#037', solid: true},
-	{color: '#730', solid: true},
+	{color: '#333', solid: true},
+	{color: '#333', solid: true},
 	{color: '#bae1ff', solid: true}
 ];
 
@@ -91,8 +91,17 @@ class TileMap extends Sprite{
 		let rect = this.getDrawRect();
 		for(var i = rect.x1; i < rect.x2; ++i){
 			for(var j = rect.y1; j < rect.y2; ++j){
-				this.display.fillRect(this.x+(i*this.twidth), this.y+(j*this.theight), this.twidth, this.theight, Tiles[this.read(i,j)].color);
-				this.display.rect(this.x+(i*this.twidth), this.y+(j*this.theight), this.twidth, this.theight, Tiles[0].color);
+				let tile = this.read(i, j);
+				if(tile == 2) {
+					this.display.fillRect(this.x + (i * this.twidth), this.y + (j * this.theight), this.twidth, this.theight, Tiles[0].color);
+					this.display.fillTriangleUp(this.x + (i * this.twidth), this.y + (j * this.theight), this.twidth, this.theight, Tiles[tile].color);
+				} else if (tile == 3) {
+					this.display.fillRect(this.x + (i * this.twidth), this.y + (j * this.theight), this.twidth, this.theight, Tiles[0].color);
+					this.display.fillTriangleDown(this.x + (i * this.twidth), this.y + (j * this.theight), this.twidth, this.theight, Tiles[tile].color);
+				} else {
+					this.display.fillRect(this.x + (i * this.twidth), this.y + (j * this.theight), this.twidth, this.theight, Tiles[tile].color);
+					this.display.rect(this.x+(i*this.twidth), this.y+(j*this.theight), this.twidth, this.theight, Tiles[0].color);
+				}
 			}
 		}
 		return;

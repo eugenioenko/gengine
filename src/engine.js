@@ -3,7 +3,7 @@
  * Engine consist of a group of different components which manage different tasks.
  * Each component is a lego piece, and the engine is the glue which binds them together.
  * Once the document is ready, Engine will initialize each component added
- * into it, call the preloader method, execute the game creation function 
+ * into it, call the preloader method, execute the game creation function
  * and then start executing the game loop.
  */
 class Engine extends GameObject{
@@ -14,6 +14,7 @@ class Engine extends GameObject{
 		this.y = 0;
 		this.component = {};
 		this.components = [];
+		this.objects = {};
 		this.gameLoop = this.loop.bind(this);
 	}
 	__params__(){
@@ -46,8 +47,8 @@ class Engine extends GameObject{
 		this.scene = this.component.Scene;
 		this.resources = this.component.Resources;
 		this.sound = this.component.Sound;
-		
-	}	
+
+	}
 	/**
 	 * Static function to replace the windows.onload method.
 	 * Once the window is ready, engine will initialize its components, execute
@@ -70,7 +71,6 @@ class Engine extends GameObject{
 			});
 		})();
 	}
-
 
 	addComponent(name, component, params = {}){
 		if(Debug.active()){

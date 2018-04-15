@@ -104,12 +104,12 @@ class Debug{
  * Base Object of mostly all the classes of the engine.
  * It creates a structure so that when instances of objects are created,
  * the parameters are passed as object literals.
- * 
+ *
  * The __params__ is used as validation of the arguments pased in the constructor.
- * __params__ should return an array with the names of all the keys which should be 
+ * __params__ should return an array with the names of all the keys which should be
  * present during the construction of an gameObject. This will only happen if the debug
  * mode is activated.
- * 
+ *
  * @example
  * let o = new GameObject({x: 0, y: 0});
  *
@@ -118,9 +118,18 @@ class GameObject {
 	constructor(params){
 		Debug.validateParams(this.constructor.name, params, this.__params__());
 		Object.assign(this, params);
+		const config = this.__config__();
+		for (let key in config){
+			if (typeof this[key] === "undefined") {
+				this[key] = config[key];
+			}
+		}
 	}
 	__params__() {
 		return [];
+	}
+	__config__() {
+		return {};
 	}
 	init() { }
 }
@@ -242,7 +251,7 @@ class Input extends Component{
 	keyCode(code){
 		return typeof this.keyCode_[code] !== "undefined" ? this.keyCode_[code] : false;
 	}
-	getAxisRaw(type){
+	getAxis(type){
 		let result = 0;
 		result =  this.keyCode("ArrowLeft") ? -1 : 0;
 		result += this.keyCode("ArrowRight") ? 1 : 0;
@@ -315,20 +324,50 @@ class CanvasDisplay extends Component{
 		this.ctx.beginPath();
 		this.ctx.fillStyle =  color;
 		this.ctx.rect(-this.camera.x + x, -this.camera.y + y, width, height);
+		this.ctx.closePath();
 		this.ctx.fill();
 	}
 	rect(x, y, width, height, color){
 		this.ctx.beginPath();
+		this.ctx.lineWidth = 1;
 		this.ctx.strokeStyle =  color;
 		this.ctx.rect(-this.camera.x + x, -this.camera.y + y, width, height);
+		this.ctx.closePath();
 		this.ctx.stroke();
 	}
 	circle(x, y, width, color){
 		this.ctx.beginPath();
 		this.ctx.arc(-this.camera.x + x, -this.camera.y + y, width/2, 0, 2 * Math.PI, false);
 		this.ctx.strokeStyle =  color;
+		this.ctx.closePath();
 		this.ctx.stroke();
 	}
+	fillTriangleUp(x, y, width, height, color) {
+		x = -this.camera.x + x;
+		y = -this.camera.y + y;
+		this.ctx.beginPath();
+		this.ctx.moveTo(x, y + height);
+		this.ctx.lineTo(x + width, y + height);
+		this.ctx.lineTo(x + width, y);
+		this.ctx.closePath();
+		// the fill color
+		this.ctx.fillStyle = color;
+		this.ctx.fill();
+	}
+
+	fillTriangleDown(x, y, width, height, color) {
+		x = -this.camera.x + x;
+		y = -this.camera.y + y;
+		this.ctx.beginPath();
+		this.ctx.moveTo(x, y);
+		this.ctx.lineTo(x, y + height);
+		this.ctx.lineTo(x + width, y + height);
+		this.ctx.closePath();
+		// the fill color
+		this.ctx.fillStyle = color;
+		this.ctx.fill();
+	}
+
 	fillText(text, x, y){
 		this.ctx.fillText(text, x, y);
 	}
@@ -551,6 +590,9 @@ class RectCollider extends Collider{
 	constructor(params){
 		super(params);
 	}
+	__params__() {
+		return ["parent", "x", "y", "width", "height"];
+	}
 	test(collider){
 		if(collider instanceof CircleCollider){
 			return TestCollision.CircleVsRect(collider, this);
@@ -604,7 +646,7 @@ class SpriteSheet extends GameObject{
 }
 /**
  * Base Sprite component. Every Sprite of the engine should derive from this class.
- * Sprites are object which per each loop of the game move and draw. 
+ * Sprites are object which per each loop of the game move and draw.
  */
 class Sprite extends GameObject{
 	constructor(params){
@@ -619,7 +661,13 @@ class Sprite extends GameObject{
 		return this.engine.getComponent(name);
 	}
 	addCollider(x, y, width, height){
-		this.colliders.push(new RectCollider(this, x, y, width, height));
+		this.colliders.push(new RectCollider({
+			parent: this,
+			x: x,
+			y: y,
+			width: width,
+			height:height
+		}));
 	}
 	debugDraw(color = "red"){
 		if(this.parent && this.parent.display)
@@ -729,25 +777,8 @@ class Scene extends Component{
 class Sound extends Component{
 	constructor(params, engine){
 		super(params, engine);
-		this.context = '';
-		this.sound = '';
-		this.sounds = ['resources/sounds/sfx-stage-enter.wav', 'resources/sounds/sfx-ice-push.wav'];
-		this.buffers = new BufferSounds({urls: this.sounds});
-		this.effect = '';
 	}
 	init(){
-
-		this.getContext();
-
-		this.buffers.init();
-
-		/**
-		 * llamado cuando el componente es agregado al motor
-		 * Aqui se podrian precargar algunos sonidos default del motor
-		 */
-		this.resources = this.getComponent("Resources");
-		// va al final del init, actualmente si esta activado modo Debug,
-		// tira mensaje en console de que el componente fue cargado
 		super.init();
 	}
 	move(){
@@ -759,40 +790,7 @@ class Sound extends Component{
 		// podria estar vacio
 	}
 
-	getContext(){
-		  try {
-		    window.AudioContext = window.AudioContext||window.webkitAudioContext||window.mozAudioContext||window.oAudioContext||window.msAudioContext;
-		    this.context = new AudioContext();
-		  } catch(e) {
-		    alert('Este navegador no soporta la API de audio');
-		  }
-	}
-
-
 	play(){
-
-		/*var effect = new Effect(effectName);
-		effect.init();*/
-
-		console.log(this.buffers.buffer[0]);
-		var source =  this.context.createBufferSource();
-	    source.buffer = this.buffers.buffer[0];
-	    if(this.effect != ''){
-	    	var effect = this.effect;
-	    	effect.value = 1;
-	    	console.log(effect);
-	    	source.connect(effect);
-	    	effect.connect(this.context.destination);
-	    	source.start(0);
-	    	//effect.start(0);
-	    }else{
-	    	source.connect(this.context.destination);
-	    	source.start(0);
-	    }
-	    //source.connect(effect);
-	    //effect.connect(this.context.destination);
-
-
 
 	}
 	stop(name){
@@ -801,31 +799,7 @@ class Sound extends Component{
 	pause(name){
 
 	}
-	addEffect(){
-		this.effect = this.context.createGain();
-	}
-	/**
-	 * todo: cualquier cosa que se ocurra, sonidos podrian loopear, otros no.
-	 * Musica de fondo seria un sonido?
-	 */
 }
-
-/**
- * Metodo de testeo sin agregar al motor
- * el primer parametro es un object literal
- * que puede tener lo que sea que se necesite cuando se contruye
- */
-// let sound = new Sound({}, null);
-// ej2
-// let sound = new Sound({algo: "algo"}, null);
-
-/**
- * metodo de testeo en el motor
- * engine.addComponent("Sound", Sound, {params});
- *
- * luego desde cualquier sprite o componente
- * this.sound = this.getComponent("Sound"); //devuelve la instancia del motor de sonido del motor.
- */
 class BufferSounds extends GameObject {
 
   constructor(params) {
@@ -883,7 +857,7 @@ class BufferSounds extends GameObject {
  * Engine consist of a group of different components which manage different tasks.
  * Each component is a lego piece, and the engine is the glue which binds them together.
  * Once the document is ready, Engine will initialize each component added
- * into it, call the preloader method, execute the game creation function 
+ * into it, call the preloader method, execute the game creation function
  * and then start executing the game loop.
  */
 class Engine extends GameObject{
@@ -894,6 +868,7 @@ class Engine extends GameObject{
 		this.y = 0;
 		this.component = {};
 		this.components = [];
+		this.objects = {};
 		this.gameLoop = this.loop.bind(this);
 	}
 	__params__(){
@@ -926,8 +901,8 @@ class Engine extends GameObject{
 		this.scene = this.component.Scene;
 		this.resources = this.component.Resources;
 		this.sound = this.component.Sound;
-		
-	}	
+
+	}
 	/**
 	 * Static function to replace the windows.onload method.
 	 * Once the window is ready, engine will initialize its components, execute
@@ -950,7 +925,6 @@ class Engine extends GameObject{
 			});
 		})();
 	}
-
 
 	addComponent(name, component, params = {}){
 		if(Debug.active()){
@@ -1041,8 +1015,8 @@ class Camera extends Component{
 var Tiles = [
 	{color: '#eee', solid: false},
 	{color: '#333', solid: true},
-	{color: '#037', solid: true},
-	{color: '#730', solid: true},
+	{color: '#333', solid: true},
+	{color: '#333', solid: true},
 	{color: '#bae1ff', solid: true}
 ];
 
@@ -1129,8 +1103,17 @@ class TileMap extends Sprite{
 		let rect = this.getDrawRect();
 		for(var i = rect.x1; i < rect.x2; ++i){
 			for(var j = rect.y1; j < rect.y2; ++j){
-				this.display.fillRect(this.x+(i*this.twidth), this.y+(j*this.theight), this.twidth, this.theight, Tiles[this.read(i,j)].color);
-				this.display.rect(this.x+(i*this.twidth), this.y+(j*this.theight), this.twidth, this.theight, Tiles[0].color);
+				let tile = this.read(i, j);
+				if(tile == 2) {
+					this.display.fillRect(this.x + (i * this.twidth), this.y + (j * this.theight), this.twidth, this.theight, Tiles[0].color);
+					this.display.fillTriangleUp(this.x + (i * this.twidth), this.y + (j * this.theight), this.twidth, this.theight, Tiles[tile].color);
+				} else if (tile == 3) {
+					this.display.fillRect(this.x + (i * this.twidth), this.y + (j * this.theight), this.twidth, this.theight, Tiles[0].color);
+					this.display.fillTriangleDown(this.x + (i * this.twidth), this.y + (j * this.theight), this.twidth, this.theight, Tiles[tile].color);
+				} else {
+					this.display.fillRect(this.x + (i * this.twidth), this.y + (j * this.theight), this.twidth, this.theight, Tiles[tile].color);
+					this.display.rect(this.x+(i*this.twidth), this.y+(j*this.theight), this.twidth, this.theight, Tiles[0].color);
+				}
 			}
 		}
 		return;
@@ -1249,66 +1232,20 @@ class Resources extends Component{
 
 	}
 }
-class NetworkPlayer extends Sprite{
-	constructor(params){
-		super(params);
-		this.color = "red";
-		this.width = 32;
-		this.height = 32;
+class PlatformerController extends Component {
+	constructor(params, engine) {
+		super(params, engine);
 	}
-	__params__(){
-		return ["x", "y"];
+	__params__() {
+		return ["tilemap"];
 	}
-	init(){
-		this.display = this.getComponent("Display");
+	getCoorners(x1, y1, x2, y2, coorners){
+		this.tilemap.getCoorners(x1, y1, x2, y2, coorners);
 	}
-	move(){ }
-	draw(){
-		this.display.fillRect(this.x, this.y, this.width, this.height, this.color);
-	}
-	collision(sprite){
-
+	init() {
+		super.init();
 	}
 }
-
-class Bullet extends Sprite{
-	constructor(params){
-		super(params);
-		this.x = this.parent.x + 16;
-		this.y = this.parent.y + 16;
-		this.width = 9;
-		this.height = 3;
-		this.color = "red";
-		this.speed = 3;
-	}
-	init(){
-		this.display = this.getComponent("Display");
-		this.network = this.getComponent("Network");
-		this.time = this.getComponent("Time");
-		this.camera = this.getComponent("Camera");
-	}
-	move(){
-		this.x += this.speed * this.dir * this.time.deltaTime;
-		if(this.x < this.camera.x){
-			this.destroy();
-		}
-		if(this.x > this.camera.x+this.engine.width){
-			this.destroy();
-		}
-	}
-	destroy(){
-		this.parent.shooting = false;
-		console.log('destroy');
-		super.destroy();
-	}
-	draw(){
-		this.display.fillRect(this.x, this.y, this.width, this.height, this.color);
-	}
-	__params__(){
-		return ["parent", "dir"];
-	}
-}
-
 class Player extends Sprite{
 	constructor(params){
 		super(params);
@@ -1328,34 +1265,29 @@ class Player extends Sprite{
 		this.jumpForce = 12;
 		this.jumping = false;
 		this.shooting = false;
+		this.addCollider(-10, -10, this.width+10, this.height+10);
 	}
 	getCoorners(x, y){
-		this.tilemap.getCoorners(x, y, this.width, this.height, this.coorners);
+		this.controller.getCoorners(x, y, this.width, this.height, this.coorners);
 	}
 	init(){
 		this.input = this.getComponent("Input");
 		this.display = this.getComponent("Display");
-		this.tilemap = this.engine.tilemap;
 		this.time = this.getComponent("Time");
 		this.sound = this.getComponent("Sound");
 		this.scene = this.getComponent("Scene");
 		this.camera = this.getComponent("Camera");
+		this.controller = this.getComponent("PlatformerController");
 
 		this.camera.x = Math.floor(this.x - this.camera.width / 2);
 		this.camera.y = Math.floor(this.y - this.camera.height / 2);
 	}
 	move(){
 		// left right movement
-		let inputX = this.input.getAxisRaw("Horizontal");
-		if(inputX > 0){
-			this.dir = 1;
-		}
-		if(inputX < 0){
-			this.dir = -1;
-		}
+		let inputX = this.input.getAxis("Horizontal");
 		this.moveDistanceX = Math.floor(inputX * this.speed * this.time.deltaTime);
 		this.getCoorners(this.x + this.moveDistanceX, this.y);
-		this.moveDistanceX = Math.floor(this.moveDistanceX);
+
 		if(
 			(inputX == 1 && !this.coorners.downRight.solid && !this.coorners.upRight.solid) ||
 			(inputX == -1 && !this.coorners.downLeft.solid && !this.coorners.upLeft.solid)
@@ -1398,24 +1330,74 @@ class Player extends Sprite{
 				this.velocityY = -this.jumpForce/2;
 			}
 		}
-		// shooting
-		if(this.input.keyCode("ArrowDown") && !this.shooting){
-			this.shooting = true;
-			this.scene.addSprite(new Bullet({
-				parent: this,
-				dir: this.dir
-			}));
-		}
-
-		if(this.input.keyCode("KeyK") && !this.shooting){
-			this.sound.addEffect();
-			this.sound.play();
-		}
 	}
 	draw(){
 		this.display.fillRect(this.x, this.y, this.width, this.height, this.color);
 	}
 	collision(sprite){
+
+	}
+}
+
+class Enemy extends Sprite {
+	constructor(params) {
+		super(params);
+		this.color = "red";
+		this.coorners = {};
+		this.dirX = 1;
+		this.speed = 3;
+		this.speedY = 0;
+		this.moveDistanceY = 0;
+		this.moveDistanceX = 0;
+		this.velocityY = 0;
+		this.gravity = 0.5;
+		this.maxSpeedY = 10;
+		this.addCollider(0, 0, this.width, this.height);
+	}
+	getCoorners(x, y) {
+		this.controller.getCoorners(x, y, this.width, this.height, this.coorners);
+	}
+	init() {
+		this.display = this.getComponent("Display");
+		this.time = this.getComponent("Time");
+		this.controller = this.getComponent("PlatformerController");
+	}
+	move() {
+		// left right movement
+		this.moveDistanceX = Math.floor(this.dirX * this.speed * this.time.deltaTime);
+		this.getCoorners(this.x + this.moveDistanceX, this.y);
+
+		if (this.dirX == 1) {
+			if(this.coorners.downRight.solid && this.coorners.upRight.solid) {
+				this.dirX = -1;
+			} else {
+				this.x += this.moveDistanceX;
+			}
+		}
+		if(this.dirX == -1) {
+			if(this.coorners.downLeft.solid && this.coorners.upLeft.solid) {
+				this.dirX = 1;
+			} else {
+				this.x += this.moveDistanceX;
+			}
+		}
+		// gravity
+		this.moveDistanceY = Math.floor(this.velocityY);
+		this.velocityY += this.gravity * this.time.deltaTime;
+
+		this.moveDistanceY = Maths.clamp(this.moveDistanceY, -this.maxSpeedY, this.maxSpeedY);
+		this.getCoorners(this.x, this.y + this.moveDistanceY);
+
+		if (this.moveDistanceY > 0 && this.coorners.downRight.solid || this.coorners.downLeft.solid) {
+			this.moveDistanceY = 0;
+			this.velocityY = 0;
+		}
+		this.y += this.moveDistanceY;
+	}
+	draw() {
+		this.display.fillRect(this.x, this.y, this.width, this.height, this.color);
+	}
+	collision(sprite) {
 
 	}
 }

@@ -52,6 +52,9 @@ class RectCollider extends Collider{
 	constructor(params){
 		super(params);
 	}
+	__params__() {
+		return ["parent", "x", "y", "width", "height"];
+	}
 	test(collider){
 		if(collider instanceof CircleCollider){
 			return TestCollision.CircleVsRect(collider, this);
