@@ -1,11 +1,13 @@
 
 
 var Tiles = [
-	{color: '#eee', solid: false, angle: 0},
-	{color: '#333', solid: true, angle: 45},
-	{color: '#333', solid: true, angle: 135},
-	{color: '#333', solid: true, angle: 0},
-	{color: '#bae1ff', solid: true, angle: 0}
+	{ color: '#eee', solid: false, angle: 0, friction: 0.0 },
+	{ color: '#333', solid: true, angle: 45, friction: 0.4 },
+	{ color: '#333', solid: true, angle: 135, friction: 0.4 },
+	{ color: '#333', solid: true, angle: 0, friction: 0.4 },
+	{ color: 'red', solid: true, angle: 0, friction: 0.8 },
+	{ color: 'cyan', solid: true, angle: 0, friction: -0.1 },
+	{ color: 'blue', solid: true, angle: 0, friction: 3.8 }
 ];
 
 class Matrix {

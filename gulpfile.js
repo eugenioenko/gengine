@@ -27,6 +27,7 @@ gulp.task('combine', function() {
       "src/input.js",
       "src/display.js",
       "src/network.js",
+      "src/qtree.js",
       "src/collisions.js",
       "src/colliders.js",
       "src/sprite-sheets.js",

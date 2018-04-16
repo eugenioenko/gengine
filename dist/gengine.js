@@ -500,6 +500,87 @@ class Network extends Component{
 
 }
 
+class QuadTree extends GameObject {
+    constructor (params) {
+        super(params);
+        this.capacity = 4;
+        this.nodes = [];
+        this.sprites = [];
+    }
+
+    __params__() {
+        return ["rect"];
+    }
+
+    contains (x, y){
+        return this.rect.x1 <= x && this.rect.x2 > x &&
+               this.rect.y1 <= y && this.rect.y2 > y;
+    }
+
+    subdivide () {
+        let width = Math.floor((this.rect.x2 - this.rect.x1) / 2);
+        let height = Math.floor((this.rect.y2 - this.rect.y1) / 2);
+        this.nodes[0] = new QuadTree({rect: {
+            x1: this.rect.x1,
+            y1: this.rect.y1,
+            x2: this.rect.x1 + width,
+            y2: this.rect.y1 + height
+        }});
+        this.nodes[1] = new QuadTree({
+            rect: {
+                x1: this.rect.x1 + width + 1,
+                y1: this.rect.y1,
+                x2: this.rect.x2,
+                y2: this.rect.y1 + height
+            }
+        });
+        this.nodes[2] = new QuadTree({
+            rect: {
+                x1: this.rect.x1 + width + 1,
+                y1: this.rect.y1 + height + 1,
+                x2: this.rect.x2,
+                y2: this.rect.y2
+            }
+        });
+        this.nodes[3] = new QuadTree({
+            rect: {
+                x1: this.rect.x1,
+                y1: this.rect.y1 + height + 1,
+                x2: this.rect.x1 + width,
+                y2: this.rect.y2
+            }
+        });
+    }
+
+    insert (sprite) {
+        if (!this.contains(Math.floor(sprite.x + (sprite.width / 2)), Math.floor(sprite.y + (sprite.height / 2)))){
+            return false;
+        }
+        if (this.sprites.length < this.capacity) {
+            this.sprites.push(sprite);
+            return true;
+        }
+        if (!this.nodes.length) {
+            this.subdivide();
+        }
+        return this.nodes[0].insert(sprite) || this.nodes[1].insert(sprite) || this.nodes[2].insert(sprite) || this.nodes[3].insert(sprite);
+    }
+}
+/*
+var qtree = new QuadTree({rect: {
+    x1: 0,
+    y1: 0,
+    x2: 100,
+    y2: 100
+}});
+for(let i = 0; i < 500; ++i){
+    qtree.insert({
+        x: Maths.rand(0, 100),
+        y: Maths.rand(0, 100),
+        width: 10,
+        height: 10
+    });
+}*/
 /**
  * A class with static methods which test for collision between different
  * types of colliders.
@@ -1019,11 +1100,13 @@ class Camera extends Component{
 
 
 var Tiles = [
-	{color: '#eee', solid: false, angle: 0},
-	{color: '#333', solid: true, angle: 45},
-	{color: '#333', solid: true, angle: 135},
-	{color: '#333', solid: true, angle: 0},
-	{color: '#bae1ff', solid: true, angle: 0}
+	{ color: '#eee', solid: false, angle: 0, friction: 0.0 },
+	{ color: '#333', solid: true, angle: 45, friction: 0.4 },
+	{ color: '#333', solid: true, angle: 135, friction: 0.4 },
+	{ color: '#333', solid: true, angle: 0, friction: 0.4 },
+	{ color: 'red', solid: true, angle: 0, friction: 0.8 },
+	{ color: 'cyan', solid: true, angle: 0, friction: -0.1 },
+	{ color: 'blue', solid: true, angle: 0, friction: 3.8 }
 ];
 
 class Matrix {
@@ -1271,11 +1354,11 @@ class Player extends Sprite{
 		this.jumping = false;
 		this.shooting = false;
 
-		this.accelerationForceX = 0.3;
+		this.accelerationForceX = 0.8;
 		this.accelerationX = 0;
-		this.maxSpeedX = 8;
+		this.maxSpeedMultX = 3;
 		this.velocityX = 0;
-		this.frictionX = 0.8;
+		this.frictionX = 0.4;
 		this.dirX = 0;
 		this.addCollider(-10, -10, this.width+10, this.height+10);
 	}
@@ -1298,21 +1381,28 @@ class Player extends Sprite{
 		// left right movement
 		let moveDistanceX = 0;
 		let inputX = this.input.getAxis("Horizontal");
+		/*
 		// acceleration movement
 		this.accelerationX = inputX * this.accelerationForceX;
 		this.velocityX += this.accelerationX * this.time.deltaTime;
 		// friction
-		if (!inputX) {
-			let currentDir = Math.sign(this.velocityX);
-			this.velocityX += -currentDir * this.frictionX * this.time.deltaTime;
-			if (Math.sign(this.velocityX) !== currentDir) {
-				this.velocityX = 0;
-			}
+		let currentDir = Math.sign(this.velocityX);
+		this.getCoorners(this.x + moveDistanceX, this.y + this.width/2);
+		let friction = (this.coorners.downRight.friction + this.coorners.downLeft.friction) / 2;
+		this.velocityX += -currentDir * friction * this.time.deltaTime;
+		if (Math.sign(this.velocityX) !== currentDir) {
+			this.velocityX = 0;
 		}
-		this.velocityX = Maths.clamp(this.velocityX, -this.maxSpeedX, this.maxSpeedX);
+		// limit speed
+		let maxSpeedX = this.maxSpeedMultX;
+		if (this.input.keyCode("KeyZ") && inputX && (this.coorners.downLeft.solid || this.coorners.downRight.solid)) {
+			maxSpeedX *= 2;
+		}
+		this.velocityX = Maths.clamp(this.velocityX, -maxSpeedX, maxSpeedX);
 		moveDistanceX += this.velocityX * this.time.deltaTime;
+		*/
+		moveDistanceX = inputX * 8 * this.time.deltaTime;
 		moveDistanceX = Math.floor(moveDistanceX);
-
 		// test collision
 		this.getCoorners(this.x + moveDistanceX, this.y);
 		if(

@@ -31,11 +31,11 @@ class Player extends Sprite{
 		this.jumping = false;
 		this.shooting = false;
 
-		this.accelerationForceX = 0.3;
+		this.accelerationForceX = 0.8;
 		this.accelerationX = 0;
-		this.maxSpeedX = 8;
+		this.maxSpeedMultX = 3;
 		this.velocityX = 0;
-		this.frictionX = 0.8;
+		this.frictionX = 0.4;
 		this.dirX = 0;
 		this.addCollider(-10, -10, this.width+10, this.height+10);
 	}
@@ -58,21 +58,28 @@ class Player extends Sprite{
 		// left right movement
 		let moveDistanceX = 0;
 		let inputX = this.input.getAxis("Horizontal");
+		/*
 		// acceleration movement
 		this.accelerationX = inputX * this.accelerationForceX;
 		this.velocityX += this.accelerationX * this.time.deltaTime;
 		// friction
-		if (!inputX) {
-			let currentDir = Math.sign(this.velocityX);
-			this.velocityX += -currentDir * this.frictionX * this.time.deltaTime;
-			if (Math.sign(this.velocityX) !== currentDir) {
-				this.velocityX = 0;
-			}
+		let currentDir = Math.sign(this.velocityX);
+		this.getCoorners(this.x + moveDistanceX, this.y + this.width/2);
+		let friction = (this.coorners.downRight.friction + this.coorners.downLeft.friction) / 2;
+		this.velocityX += -currentDir * friction * this.time.deltaTime;
+		if (Math.sign(this.velocityX) !== currentDir) {
+			this.velocityX = 0;
 		}
-		this.velocityX = Maths.clamp(this.velocityX, -this.maxSpeedX, this.maxSpeedX);
+		// limit speed
+		let maxSpeedX = this.maxSpeedMultX;
+		if (this.input.keyCode("KeyZ") && inputX && (this.coorners.downLeft.solid || this.coorners.downRight.solid)) {
+			maxSpeedX *= 2;
+		}
+		this.velocityX = Maths.clamp(this.velocityX, -maxSpeedX, maxSpeedX);
 		moveDistanceX += this.velocityX * this.time.deltaTime;
+		*/
+		moveDistanceX = inputX * 8 * this.time.deltaTime;
 		moveDistanceX = Math.floor(moveDistanceX);
-
 		// test collision
 		this.getCoorners(this.x + moveDistanceX, this.y);
 		if(
