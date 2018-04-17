@@ -5,8 +5,8 @@ class PlatformerController extends Component {
 	__params__() {
 		return ["tilemap"];
 	}
-	getCoorners(x1, y1, x2, y2, coorners){
-		this.tilemap.getCoorners(x1, y1, x2, y2, coorners);
+	getCoorners(x1, y1, width, height, coorners){
+		this.tilemap.getCoorners(x1, y1, width, height, coorners);
 	}
 	init() {
 		super.init();
@@ -57,7 +57,7 @@ class Player extends Sprite{
 	move(){
 		// left right movement
 		let moveDistanceX = 0;
-		let inputX = this.input.getAxis("Horizontal");
+		let inputX = this.input.getAxisHorizontal();
 		/*
 		// acceleration movement
 		this.accelerationX = inputX * this.accelerationForceX;
@@ -78,20 +78,29 @@ class Player extends Sprite{
 		this.velocityX = Maths.clamp(this.velocityX, -maxSpeedX, maxSpeedX);
 		moveDistanceX += this.velocityX * this.time.deltaTime;
 		*/
-		moveDistanceX = inputX * 8 * this.time.deltaTime;
+		moveDistanceX = inputX * 18 * this.time.deltaTime;
 		moveDistanceX = Math.floor(moveDistanceX);
 		// test collision
 		this.getCoorners(this.x + moveDistanceX, this.y);
-		if(
-			(moveDistanceX > 0 && this.coorners.downRight.solid && this.coorners.upRight.solid) ||
-			(moveDistanceX < 0 && this.coorners.downLeft.solid && this.coorners.upLeft.solid)
-		){
+		if(moveDistanceX > 0 && (this.coorners.downRight.solid || this.coorners.upRight.solid)) {
 			this.velocityX = 0;
-			moveDistanceX = 0;
+			moveDistanceX = (this.coorners.downRight.x * this.coorners.downLeft.width) - this.x - this.width - 1;
+
+
 		}
-		// set new position
+		if(moveDistanceX < 0 && (this.coorners.downLeft.solid || this.coorners.upLeft.solid)){
+			this.velocityX = 0;
+			moveDistanceX = this.x - ((this.coorners.downLeft.x + 1) * this.coorners.downLeft.width) -1;
+			moveDistanceX *= -1;
+
+		}
 		this.x += moveDistanceX;
 		this.camera.x += moveDistanceX;
+
+
+
+
+
 
 		// gravity
 		this.moveDistanceY = Math.floor(this.velocityY);

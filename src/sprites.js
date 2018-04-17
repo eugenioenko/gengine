@@ -41,12 +41,7 @@ class Sprite extends GameObject{
 					return true;
 		return false;
 	}
-	get gx(){
-		return this.x;
-	}
-	get gy(){
-		return this.y;
-	}
+
 	/**
 	 * Method called when the sprite is added to a scene after creation
 	 */

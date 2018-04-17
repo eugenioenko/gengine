@@ -65,7 +65,14 @@ class TileMap extends Sprite{
 		return Math.floor(y / this.theight);
 	}
 	getTile(x, y){
-		return Tiles[this.read(this.getTileX(x), this.getTileY(y))];
+		x = this.getTileX(x);
+		y = this.getTileY(y);
+		let tile = Tiles[this.read(x, y)];
+		tile.x = x;
+		tile.y = y;
+		tile.width = this.twidth;
+		tile.height = this.theight;
+		return tile;
 	}
 	getCoorners(x, y, width, height, coorners){
 		coorners.upLeft = this.getTile(x, y);

@@ -20,10 +20,14 @@ class Input extends Component{
 	keyCode(code){
 		return typeof this.keyCode_[code] !== "undefined" ? this.keyCode_[code] : false;
 	}
-	getAxis(type){
-		let result = 0;
-		result =  this.keyCode("ArrowLeft") ? -1 : 0;
+	getAxisHorizontal(){
+		let result =  this.keyCode("ArrowLeft") ? -1 : 0;
 		result += this.keyCode("ArrowRight") ? 1 : 0;
+		return result;
+	}
+	getAxisVertical() {
+		let result = this.keyCode("ArrowUp") ? -1 : 0;
+		result += this.keyCode("ArrowDown") ? 1 : 0;
 		return result;
 	}
 }
