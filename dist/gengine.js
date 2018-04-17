@@ -38,7 +38,19 @@ class Maths{
 		}
 		return num8;
 	}
+
+	static RectIntersect(rect1, rect2) {
+		if (rect1.x <= rect2.x + rect2.width &&
+			rect1.x + rect1.width > rect2.x &&
+			rect1.y <= rect2.y + rect2.height &&
+			rect1.height + rect1.y >= rect2.y
+		) {
+			return true;
+		}
+		return false;
+	}
 }
+
 /**
  * Class with static methods to facilitate the messages on the javascript console.
  * All the methods of Debug class will only run if the debug mode is on.
@@ -500,87 +512,122 @@ class Network extends Component{
 
 }
 
-class QuadTree extends GameObject {
+class Rect extends GameObject{
     constructor (params) {
         super(params);
-        this.capacity = 4;
-        this.nodes = [];
+    }
+    __params__() {
+        return ["x", "y", "width", "height"];
+    }
+
+    contains(point) {
+        return (point.x >= this.x &&
+            point.x <= this.x + this.width &&
+            point.y >= this.y &&
+            point.y <= this.y + this.height);
+    }
+
+    intersects(rect) {
+        return (this.x <= rect.x + rect.width &&
+                this.x + this.width > rect.x &&
+                this.y <= rect.y + rect.height &&
+                this.height + this.y >= rect.y);
+    }
+}
+
+class QuadTree extends Rect {
+    constructor (params) {
+        super(params);
+        this.sectors = [];
         this.sprites = [];
     }
 
     __params__() {
-        return ["rect"];
-    }
-
-    contains (x, y){
-        return this.rect.x1 <= x && this.rect.x2 > x &&
-               this.rect.y1 <= y && this.rect.y2 > y;
+        return ["x", "y", "width", "height", "capacity"];
     }
 
     subdivide () {
-        let width = Math.floor((this.rect.x2 - this.rect.x1) / 2);
-        let height = Math.floor((this.rect.y2 - this.rect.y1) / 2);
-        this.nodes[0] = new QuadTree({rect: {
-            x1: this.rect.x1,
-            y1: this.rect.y1,
-            x2: this.rect.x1 + width,
-            y2: this.rect.y1 + height
-        }});
-        this.nodes[1] = new QuadTree({
-            rect: {
-                x1: this.rect.x1 + width + 1,
-                y1: this.rect.y1,
-                x2: this.rect.x2,
-                y2: this.rect.y1 + height
-            }
+        let width = this.width / 2;
+        let height = this.height / 2;
+        this.sectors[0] = new QuadTree({
+            x: this.x,
+            y: this.y,
+            width: width,
+            height: height,
+            capacity: this.capacity
         });
-        this.nodes[2] = new QuadTree({
-            rect: {
-                x1: this.rect.x1 + width + 1,
-                y1: this.rect.y1 + height + 1,
-                x2: this.rect.x2,
-                y2: this.rect.y2
-            }
+        this.sectors[1] = new QuadTree({
+            x: this.x + width,
+            y: this.y,
+            width: width,
+            height: height,
+            capacity: this.capacity
         });
-        this.nodes[3] = new QuadTree({
-            rect: {
-                x1: this.rect.x1,
-                y1: this.rect.y1 + height + 1,
-                x2: this.rect.x1 + width,
-                y2: this.rect.y2
-            }
+        this.sectors[2] = new QuadTree({
+            x: this.x + width,
+            y: this.y + height,
+            width: width,
+            height: height,
+            capacity: this.capacity
+        });
+        this.sectors[3] = new QuadTree({
+            x: this.x,
+            y: this.y + height,
+            width: width,
+            height: height,
+            capacity: this.capacity
         });
     }
 
     insert (sprite) {
-        if (!this.contains(Math.floor(sprite.x + (sprite.width / 2)), Math.floor(sprite.y + (sprite.height / 2)))){
+        if (!this.contains(sprite)) {
             return false;
         }
         if (this.sprites.length < this.capacity) {
             this.sprites.push(sprite);
             return true;
         }
-        if (!this.nodes.length) {
+        if (!this.sectors.length) {
             this.subdivide();
         }
-        return this.nodes[0].insert(sprite) || this.nodes[1].insert(sprite) || this.nodes[2].insert(sprite) || this.nodes[3].insert(sprite);
+        return this.sectors[0].insert(sprite) || this.sectors[1].insert(sprite) || this.sectors[2].insert(sprite) || this.sectors[3].insert(sprite);
     }
+
+    query(rect, sprites) {
+        if (typeof sprites === "undefined") {
+            sprites = [];
+        }
+        if (!rect.intersects(this)) {
+            return sprites;
+        }
+        for (let sprite of this.sprites) {
+            if (rect.contains(sprite)) {
+                sprites.push(sprite);
+            }
+        }
+        for (let sectore of this.sectors) {
+            sectore.query(rect, sprites);
+        }
+        return sprites;
+    }
+
 }
-/*
-var qtree = new QuadTree({rect: {
-    x1: 0,
-    y1: 0,
-    x2: 100,
-    y2: 100
-}});
-for(let i = 0; i < 500; ++i){
+
+var qtree = new QuadTree({
+    x: 0,
+    y: 0,
+    width: 100,
+    height: 100,
+    capacity: 10
+});
+for(let i = 0; i < 30; ++i){
     qtree.insert({
         x: Maths.rand(0, 100),
         y: Maths.rand(0, 100),
         width: 10,
         height: 10
     });
-}*/
+}
 /**
  * A class with static methods which test for collision between different
  * types of colliders.
@@ -697,7 +744,7 @@ class RectCollider extends Collider{
 			this.parent.display.rect(this.gx, this.gy, this.width, this.height, color);
 	}
 }
-class Rect{
+class RectSheet{
 	constructor(x1, y1, x2, y2){
 		this.x1 = x1;
 		this.y1 = y1;
@@ -707,7 +754,7 @@ class Rect{
 }
 /**
  * A sprite sheet consists of different sprites/tiles drawn in the same image.
- * When created, the Spritesheet will create the coordinates of each sprite/tile on 
+ * When created, the Spritesheet will create the coordinates of each sprite/tile on
  * the image depending on the width/height of the frame/tile on the sheet.
  */
 class SpriteSheet extends GameObject{
@@ -722,7 +769,7 @@ class SpriteSheet extends GameObject{
 				let y1 = j * this.height + this.gap;
 				let x2 = x1 + this.width;
 				let y2 = y1 + this.height;
-				this.tiles.push(new Rect(x1, y1, x2, y2));
+				this.tiles.push(new RectSheet(x1, y1, x2, y2));
 			}
 		}
 	}
@@ -1419,7 +1466,6 @@ class Player extends Sprite{
 		// gravity
 		this.moveDistanceY = Math.floor(this.velocityY);
 		this.velocityY += this.gravity * this.time.deltaTime;
-
 		this.moveDistanceY = Maths.clamp(this.moveDistanceY, -this.maxSpeedY, this.maxSpeedY);
 		this.getCoorners(this.x, this.y + this.moveDistanceY);
 

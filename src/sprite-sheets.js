@@ -1,4 +1,4 @@
-class Rect{
+class RectSheet{
 	constructor(x1, y1, x2, y2){
 		this.x1 = x1;
 		this.y1 = y1;
@@ -8,7 +8,7 @@ class Rect{
 }
 /**
  * A sprite sheet consists of different sprites/tiles drawn in the same image.
- * When created, the Spritesheet will create the coordinates of each sprite/tile on 
+ * When created, the Spritesheet will create the coordinates of each sprite/tile on
  * the image depending on the width/height of the frame/tile on the sheet.
  */
 class SpriteSheet extends GameObject{
@@ -23,7 +23,7 @@ class SpriteSheet extends GameObject{
 				let y1 = j * this.height + this.gap;
 				let x2 = x1 + this.width;
 				let y2 = y1 + this.height;
-				this.tiles.push(new Rect(x1, y1, x2, y2));
+				this.tiles.push(new RectSheet(x1, y1, x2, y2));
 			}
 		}
 	}

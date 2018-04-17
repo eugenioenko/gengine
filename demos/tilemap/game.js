@@ -98,7 +98,7 @@ function Game(engine){
 Engine.ready({
 	canvas: 'canvas',
 	width: 600,
-	height: 480,
+	height: 400,
 	preload: Preload,
 	create: Game
 });

@@ -96,7 +96,6 @@ class Player extends Sprite{
 		// gravity
 		this.moveDistanceY = Math.floor(this.velocityY);
 		this.velocityY += this.gravity * this.time.deltaTime;
-
 		this.moveDistanceY = Maths.clamp(this.moveDistanceY, -this.maxSpeedY, this.maxSpeedY);
 		this.getCoorners(this.x, this.y + this.moveDistanceY);
 
