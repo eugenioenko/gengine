@@ -74,11 +74,13 @@ class TileMap extends Sprite{
 		tile.height = this.theight;
 		return tile;
 	}
-	getCoorners(x, y, width, height, coorners){
-		coorners.upLeft = this.getTile(x, y);
-		coorners.upRight = this.getTile(x+width, y);
-		coorners.downLeft = this.getTile(x, y+height);
-		coorners.downRight = this.getTile(x+width, y+height);
+	getCoorners(x, y, width, height){
+		return {
+			upLeft: this.getTile(x, y),
+			upRight: this.getTile(x+width, y),
+			downLeft: this.getTile(x, y+height),
+			downRight: this.getTile(x+width, y+height)
+		};
 	}
 	getDrawRect(){
 		let x1 = this.getTileX(this.camera.x);

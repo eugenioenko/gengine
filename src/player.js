@@ -1,15 +1,49 @@
-class PlatformerController extends Component {
+class PlatformController extends Component {
 	constructor(params, engine) {
 		super(params, engine);
+		this.maxVelocityY = 10;
+		this.gravity = 0.5;
 	}
 	__params__() {
 		return ["tilemap"];
 	}
-	getCoorners(x1, y1, width, height, coorners){
-		this.tilemap.getCoorners(x1, y1, width, height, coorners);
+	getCoorners(x1, y1, width, height){
+		return this.tilemap.getCoorners(x1, y1, width, height);
+	}
+	checkForWalls(sprite, moveDistanceX) {
+		moveDistanceX = Math.floor(moveDistanceX);
+		let coorners = this.getCoorners(sprite.x + moveDistanceX, sprite.y, sprite.width, sprite.height);
+		if (moveDistanceX > 0 && (coorners.downRight.solid || coorners.upRight.solid)) {
+			moveDistanceX = (coorners.downRight.x * coorners.downLeft.width) - sprite.x - sprite.width - 1;
+		}
+		if (moveDistanceX < 0 && (coorners.downLeft.solid || coorners.upLeft.solid)) {
+			moveDistanceX = sprite.x - ((coorners.downLeft.x + 1) * coorners.downLeft.width) - 1;
+			moveDistanceX *= -1;
+		}
+		return moveDistanceX;
+	}
+	applyGravity(sprite) {
+		let moveDistanceY = Math.floor(sprite.velocityY);
+		sprite.velocityY += this.gravity * this.time.deltaTime;
+		moveDistanceY = Maths.clamp(moveDistanceY, -this.maxVelocityY, this.maxVelocityY);
+		let coorners = this.getCoorners(sprite.x, sprite.y + moveDistanceY, sprite.width, sprite.height);
+		if (moveDistanceY > 0) {
+			if (coorners.downRight.solid || coorners.downLeft.solid) {
+				moveDistanceY = 0;
+				sprite.velocityY = 0;
+				sprite.jumping = false;
+			}
+		} else {
+			if (coorners.upRight.solid || coorners.upLeft.solid) {
+				moveDistanceY = 0;
+				sprite.velocityY = 0;
+			}
+		}
+		return moveDistanceY;
 	}
 	init() {
 		super.init();
+		this.time = this.getComponent("Time");
 	}
 }
 class Player extends Sprite{
@@ -23,10 +57,7 @@ class Player extends Sprite{
 		this.dir = 1;
 		this.speed = 6;
 		this.speedY = 0;
-		this.moveDistanceY = 0;
 		this.velocityY = 0;
-		this.gravity = 0.5;
-		this.maxSpeedY = 10;
 		this.jumpForce = 12;
 		this.jumping = false;
 		this.shooting = false;
@@ -40,7 +71,7 @@ class Player extends Sprite{
 		this.addCollider(-10, -10, this.width+10, this.height+10);
 	}
 	getCoorners(x, y){
-		this.controller.getCoorners(x, y, this.width, this.height, this.coorners);
+		return this.controller.getCoorners(x, y, this.width, this.height);
 	}
 	init(){
 		this.input = this.getComponent("Input");
@@ -49,7 +80,7 @@ class Player extends Sprite{
 		this.sound = this.getComponent("Sound");
 		this.scene = this.getComponent("Scene");
 		this.camera = this.getComponent("Camera");
-		this.controller = this.getComponent("PlatformerController");
+		this.controller = this.getComponent("PlatformController");
 
 		this.camera.x = Math.floor(this.x - this.camera.width / 2);
 		this.camera.y = Math.floor(this.y - this.camera.height / 2);
@@ -78,56 +109,17 @@ class Player extends Sprite{
 		this.velocityX = Maths.clamp(this.velocityX, -maxSpeedX, maxSpeedX);
 		moveDistanceX += this.velocityX * this.time.deltaTime;
 		*/
-		moveDistanceX = inputX * 18 * this.time.deltaTime;
-		moveDistanceX = Math.floor(moveDistanceX);
-		// test collision
-		this.getCoorners(this.x + moveDistanceX, this.y);
-		if(moveDistanceX > 0 && (this.coorners.downRight.solid || this.coorners.upRight.solid)) {
-			this.velocityX = 0;
-			moveDistanceX = (this.coorners.downRight.x * this.coorners.downLeft.width) - this.x - this.width - 1;
-
-
-		}
-		if(moveDistanceX < 0 && (this.coorners.downLeft.solid || this.coorners.upLeft.solid)){
-			this.velocityX = 0;
-			moveDistanceX = this.x - ((this.coorners.downLeft.x + 1) * this.coorners.downLeft.width) -1;
-			moveDistanceX *= -1;
-
-		}
+		moveDistanceX = inputX * 8 * this.time.deltaTime;
+		moveDistanceX = this.controller.checkForWalls(this, moveDistanceX);
 		this.x += moveDistanceX;
 		this.camera.x += moveDistanceX;
-
-
-
-
-
-
 		// gravity
-		this.moveDistanceY = Math.floor(this.velocityY);
-		this.velocityY += this.gravity * this.time.deltaTime;
-		this.moveDistanceY = Maths.clamp(this.moveDistanceY, -this.maxSpeedY, this.maxSpeedY);
-		this.getCoorners(this.x, this.y + this.moveDistanceY);
-
-		if(this.moveDistanceY > 0){
-			if(this.coorners.downRight.solid || this.coorners.downLeft.solid){
-				this.moveDistanceY = 0;
-				this.velocityY = 0;
-				this.jumping = false;
-			}
-		} else {
-			if(this.coorners.upRight.solid || this.coorners.upLeft.solid){
-				this.moveDistanceY = 0;
-				this.velocityY = 0;
-			}
-		}
-
-		this.y += this.moveDistanceY;
-		this.camera.y += this.moveDistanceY;
-
+		let moveDistanceY = this.controller.applyGravity(this);
+		this.y += moveDistanceY;
+		this.camera.y += moveDistanceY;
 		// jump pressed and not jumping
 		if(this.input.keyCode("ArrowUp") && !this.jumping){
 			this.jumping = true;
-
 			this.velocityY = -this.jumpForce;
 		}
 		// jump released and jumping
@@ -166,7 +158,7 @@ class Enemy extends Sprite {
 	init() {
 		this.display = this.getComponent("Display");
 		this.time = this.getComponent("Time");
-		this.controller = this.getComponent("PlatformerController");
+		this.controller = this.getComponent("PlatformController");
 	}
 	move() {
 		// left right movement

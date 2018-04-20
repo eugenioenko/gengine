@@ -60,13 +60,14 @@ function Game(engine){
 		height: 32
 	});
 
-	engine.addComponent("PlatformerController", PlatformerController, {
+	engine.addComponent("PlatformController", PlatformController, {
 		"tilemap": tilemap
 	});
 
 	engine.addSprite(tilemap);
 	engine.addSprite(player);
 
+	/*
 	engine.addSprite(new Enemy({
 		x: 1440,
 		y: 520,
@@ -90,8 +91,7 @@ function Game(engine){
 		y: 620,
 		width: 22,
 		height: 22
-	}));
-
+	}));*/
 
 }
 
