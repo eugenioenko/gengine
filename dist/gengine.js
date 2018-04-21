@@ -1454,7 +1454,7 @@ class Player extends Sprite{
 
 		this.accelerationForceX = 0.8;
 		this.accelerationX = 0;
-		this.maxSpeedMultX = 3;
+		this.maxSpeedMultX = 9;
 		this.velocityX = 0;
 		this.frictionX = 0.4;
 		this.dirX = 0;
@@ -1479,15 +1479,16 @@ class Player extends Sprite{
 		// left right movement
 		let moveDistanceX = 0;
 		let inputX = this.input.getAxisHorizontal();
-		/*
+
 		// acceleration movement
 		this.accelerationX = inputX * this.accelerationForceX;
 		this.velocityX += this.accelerationX * this.time.deltaTime;
 		// friction
 		let currentDir = Math.sign(this.velocityX);
 		this.getCoorners(this.x + moveDistanceX, this.y + this.width/2);
-		let friction = (this.coorners.downRight.friction + this.coorners.downLeft.friction) / 2;
-		this.velocityX += -currentDir * friction * this.time.deltaTime;
+		//let friction = (this.coorners.downRight.friction + this.coorners.downLeft.friction) / 2;
+
+		this.velocityX += -currentDir * this.frictionX * this.time.deltaTime;
 		if (Math.sign(this.velocityX) !== currentDir) {
 			this.velocityX = 0;
 		}
@@ -1498,8 +1499,8 @@ class Player extends Sprite{
 		}
 		this.velocityX = Maths.clamp(this.velocityX, -maxSpeedX, maxSpeedX);
 		moveDistanceX += this.velocityX * this.time.deltaTime;
-		*/
-		moveDistanceX = inputX * 8 * this.time.deltaTime;
+
+		//moveDistanceX = inputX * 8 * this.time.deltaTime;
 		moveDistanceX = this.controller.checkForWalls(this, moveDistanceX);
 		this.x += moveDistanceX;
 		this.camera.x += moveDistanceX;
