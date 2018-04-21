@@ -58,7 +58,7 @@ class TileMap extends Sprite{
 	getTile(x, y){
 		x = this.getTileX(x);
 		y = this.getTileY(y);
-		let tile = this.tiles[this.read(x, y)];
+		let tile = this.tiles[this.read(x, y)] || this.tiles[0];
 		tile.x = x;
 		tile.y = y;
 		tile.width = this.twidth;

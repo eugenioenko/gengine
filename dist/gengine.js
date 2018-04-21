@@ -369,7 +369,9 @@ class CanvasDisplay extends Component{
 		return this.scale;
 	}
 	clear(){
-		this.ctx.clearRect(0, 0, this.width / this.scale, this.height / this.scale);
+		//this.ctx.clearRect(0, 0, this.width / this.scale, this.height / this.scale);
+		this.ctx.fillStyle = '#0FF';
+		this.ctx.fillRect(0, 0, this.width / this.scale, this.height / this.scale);
 	}
 	fillRect(x, y, width, height, color){
 		this.ctx.beginPath();
@@ -1222,7 +1224,7 @@ class TileMap extends Sprite{
 	getTile(x, y){
 		x = this.getTileX(x);
 		y = this.getTileY(y);
-		let tile = this.tiles[this.read(x, y)];
+		let tile = this.tiles[this.read(x, y)] || this.tiles[0];
 		tile.x = x;
 		tile.y = y;
 		tile.width = this.twidth;

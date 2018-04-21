@@ -64,7 +64,9 @@ class CanvasDisplay extends Component{
 		return this.scale;
 	}
 	clear(){
-		this.ctx.clearRect(0, 0, this.width / this.scale, this.height / this.scale);
+		//this.ctx.clearRect(0, 0, this.width / this.scale, this.height / this.scale);
+		this.ctx.fillStyle = '#0FF';
+		this.ctx.fillRect(0, 0, this.width / this.scale, this.height / this.scale);
 	}
 	fillRect(x, y, width, height, color){
 		this.ctx.beginPath();
