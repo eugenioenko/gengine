@@ -1,15 +1,3 @@
-
-
-var Tiles = [
-	{ color: '#eee', solid: false, angle: 0, friction: 0.0 },
-	{ color: '#333', solid: true, angle: 45, friction: 0.4 },
-	{ color: '#333', solid: true, angle: 135, friction: 0.4 },
-	{ color: '#333', solid: true, angle: 0, friction: 0.4 },
-	{ color: 'red', solid: true, angle: 0, friction: 0.8 },
-	{ color: 'cyan', solid: true, angle: 0, friction: -0.1 },
-	{ color: 'blue', solid: true, angle: 0, friction: 3.8 }
-];
-
 class Matrix {
 	constructor(width, height){
 		this.array = new Uint16Array(width * height);
@@ -34,12 +22,10 @@ class Matrix {
 class TileMap extends Sprite{
 	constructor(params){
 		super(params);
-		//this.twidth = 64;
-		//this.theight = 64;
 		this.map = new Matrix(this.width, this.height);
 	}
 	__params__(){
-		return ["x", "y", "width", "height", "twidth", "theight"];
+		return ["x", "y", "width", "height", "twidth", "theight", "sheet", "tiles"];
 	}
 	read(x, y){
 		return this.map.read(x, y);
@@ -48,6 +34,9 @@ class TileMap extends Sprite{
 		this.map.write(x, y, value);
 	}
 	load(array){
+		if (array.length !== (this.width * this.height)) {
+			Debug.warn(`Tilemap size mismatch with width: ${this.width} and height ${this.height}`);
+		}
 		this.map.load(array);
 	}
 	init(){
@@ -67,7 +56,7 @@ class TileMap extends Sprite{
 	getTile(x, y){
 		x = this.getTileX(x);
 		y = this.getTileY(y);
-		let tile = Tiles[this.read(x, y)];
+		let tile = this.tiles[this.read(x, y)];
 		tile.x = x;
 		tile.y = y;
 		tile.width = this.twidth;
@@ -103,15 +92,15 @@ class TileMap extends Sprite{
 		for(var i = rect.x1; i < rect.x2; ++i){
 			for(var j = rect.y1; j < rect.y2; ++j){
 				let tile = this.read(i, j);
-				if(tile == 2) {
-					this.display.fillRect(this.x + (i * this.twidth), this.y + (j * this.theight), this.twidth, this.theight, Tiles[0].color);
-					this.display.fillTriangleUp(this.x + (i * this.twidth), this.y + (j * this.theight), this.twidth, this.theight, Tiles[tile].color);
-				} else if (tile == 3) {
-					this.display.fillRect(this.x + (i * this.twidth), this.y + (j * this.theight), this.twidth, this.theight, Tiles[0].color);
-					this.display.fillTriangleDown(this.x + (i * this.twidth), this.y + (j * this.theight), this.twidth, this.theight, Tiles[tile].color);
-				} else {
-					this.display.fillRect(this.x + (i * this.twidth), this.y + (j * this.theight), this.twidth, this.theight, Tiles[tile].color);
-					this.display.rect(this.x+(i*this.twidth), this.y+(j*this.theight), this.twidth, this.theight, Tiles[0].color);
+				if(tile) {
+					this.display.drawTile(
+						this.x + (i * this.twidth),
+						this.y + (j * this.theight),
+						this.twidth,
+						this.theight,
+						this.sheet,
+						tile - 1
+					);
 				}
 			}
 		}

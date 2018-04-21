@@ -1,9 +1,7 @@
-class RectSheet{
-	constructor(x1, y1, x2, y2){
-		this.x1 = x1;
-		this.y1 = y1;
-		this.x2 = x2;
-		this.y2 = y2;
+class Point{
+	constructor(x, y){
+		this.x = x;
+		this.y = y;
 	}
 }
 /**
@@ -15,20 +13,35 @@ class SpriteSheet extends GameObject{
 	constructor(params){
 		super(params);
 		this.tiles = [];
-		let rwidth = Math.floor(this.image.width / this.width+this.gap);
-		let cheight = Math.floor(this.image.height / this.height+this.gap);
-		for(let i = 0; i < rwidth; ++i){
-			for(let j = 0; j < cheight; ++j){
-				let x1 = i * this.width + this.gap;
-				let y1 = j * this.height + this.gap;
-				let x2 = x1 + this.width;
-				let y2 = y1 + this.height;
-				this.tiles.push(new RectSheet(x1, y1, x2, y2));
+		let i_count = 1;
+		let j_count = 1;
+		if (this.padding) {
+			while (this.image.width - this.offsetX - i_count++ * (this.width + this.padding) >= this.width);
+			while (this.image.height - this.offsetY - j_count++ * (this.height + this.padding) >= this.width);
+			i_count--;
+			j_count--;
+		} else {
+			i_count = Math.floor((this.image.width - this.offsetX) / this.width);
+			j_count = Math.floor((this.image.height - this.offsetY) / this.height);
+		}
+
+		for(let j = 0; j < j_count; ++j){
+			for(let i = 0; i < i_count; ++i){
+				let x = this.offsetX + (i * this.padding) + i * this.width;
+				let y = this.offsetY + (j * this.padding) + j * this.height;
+				this.tiles.push(new Point(x, y));
 			}
 		}
 	}
 	__params__(){
-		return ["width", "height", "image", "gap"];
+		return ["width", "height", "image"];
+	}
+	__config__(){
+		return {
+			offsetX: 0,
+			offsetY: 0,
+			padding: 0
+		};
 	}
 
 }

@@ -151,6 +151,29 @@ class GameObject {
 	}
 	init() { }
 }
+
+class Rect extends GameObject {
+	constructor(params) {
+		super(params);
+	}
+	__params__() {
+		return ["x", "y", "width", "height"];
+	}
+
+	contains(point) {
+		return (point.x >= this.x &&
+			point.x <= this.x + this.width &&
+			point.y >= this.y &&
+			point.y <= this.y + this.height);
+	}
+
+	intersects(rect) {
+		return (this.x <= rect.x + rect.width &&
+			this.x + this.width > rect.x &&
+			this.y <= rect.y + rect.height &&
+			this.height + this.y >= rect.y);
+	}
+}
 class Utils{
 	constructor(){
 		this.autoIncrementGen = (function*(){
@@ -321,12 +344,18 @@ class CanvasDisplay extends Component{
 	__params__(){
 		return ["x", "y", "width", "height"];
 	}
+	__configs__() {
+		return {
+			imageSmoothingEnabled: false
+		};
+	}
 	init () {
 		this.canvas = document.getElementById(this.id);
 		this.canvas.setAttribute('width', this.width);
 		this.canvas.setAttribute('height', this.height);
 		this.ctx = this.canvas.getContext('2d');
 		this.ctx.font = "16px Helvetica";
+		this.ctx.imageSmoothingEnabled = this.imageSmoothingEnabled;
 		this.camera = this.getComponent("Camera");
 		super.init();
 	}
@@ -396,9 +425,9 @@ class CanvasDisplay extends Component{
 	drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight){
 		this.ctx.drawImage(image, sx, sy, sWidth, sHeight, dx, dy,dWidth, dHeight);
 	}
-	drawTile(sheet, index, x, y){
+	drawTile(x, y, width, height, sheet, index){
 		let tile = sheet.tiles[index];
-		this.ctx.drawImage(sheet.image, tile.x1, tile.y1, sheet.width, sheet.height, x, y, sheet.width, sheet.height);
+		this.ctx.drawImage(sheet.image, tile.x, tile.y, sheet.width, sheet.height, x - this.camera.x, y - this.camera.y, width, height);
 	}
 }
 
@@ -514,29 +543,6 @@ class Network extends Component{
 		this.sprites[data.id].y = data.y;
 	}
 
-}
-
-class Rect extends GameObject{
-    constructor (params) {
-        super(params);
-    }
-    __params__() {
-        return ["x", "y", "width", "height"];
-    }
-
-    contains(point) {
-        return (point.x >= this.x &&
-            point.x <= this.x + this.width &&
-            point.y >= this.y &&
-            point.y <= this.y + this.height);
-    }
-
-    intersects(rect) {
-        return (this.x <= rect.x + rect.width &&
-                this.x + this.width > rect.x &&
-                this.y <= rect.y + rect.height &&
-                this.height + this.y >= rect.y);
-    }
 }
 
 class QuadTree extends Rect {
@@ -748,12 +754,10 @@ class RectCollider extends Collider{
 			this.parent.display.rect(this.gx, this.gy, this.width, this.height, color);
 	}
 }
-class RectSheet{
-	constructor(x1, y1, x2, y2){
-		this.x1 = x1;
-		this.y1 = y1;
-		this.x2 = x2;
-		this.y2 = y2;
+class Point{
+	constructor(x, y){
+		this.x = x;
+		this.y = y;
 	}
 }
 /**
@@ -765,20 +769,35 @@ class SpriteSheet extends GameObject{
 	constructor(params){
 		super(params);
 		this.tiles = [];
-		let rwidth = Math.floor(this.image.width / this.width+this.gap);
-		let cheight = Math.floor(this.image.height / this.height+this.gap);
-		for(let i = 0; i < rwidth; ++i){
-			for(let j = 0; j < cheight; ++j){
-				let x1 = i * this.width + this.gap;
-				let y1 = j * this.height + this.gap;
-				let x2 = x1 + this.width;
-				let y2 = y1 + this.height;
-				this.tiles.push(new RectSheet(x1, y1, x2, y2));
+		let i_count = 1;
+		let j_count = 1;
+		if (this.padding) {
+			while (this.image.width - this.offsetX - i_count++ * (this.width + this.padding) >= this.width);
+			while (this.image.height - this.offsetY - j_count++ * (this.height + this.padding) >= this.width);
+			i_count--;
+			j_count--;
+		} else {
+			i_count = Math.floor((this.image.width - this.offsetX) / this.width);
+			j_count = Math.floor((this.image.height - this.offsetY) / this.height);
+		}
+
+		for(let j = 0; j < j_count; ++j){
+			for(let i = 0; i < i_count; ++i){
+				let x = this.offsetX + (i * this.padding) + i * this.width;
+				let y = this.offsetY + (j * this.padding) + j * this.height;
+				this.tiles.push(new Point(x, y));
 			}
 		}
 	}
 	__params__(){
-		return ["width", "height", "image", "gap"];
+		return ["width", "height", "image"];
+	}
+	__config__(){
+		return {
+			offsetX: 0,
+			offsetY: 0,
+			padding: 0
+		};
 	}
 
 }
@@ -1143,18 +1162,6 @@ class Camera extends Component{
 	}
 
 }
-
-
-var Tiles = [
-	{ color: '#eee', solid: false, angle: 0, friction: 0.0 },
-	{ color: '#333', solid: true, angle: 45, friction: 0.4 },
-	{ color: '#333', solid: true, angle: 135, friction: 0.4 },
-	{ color: '#333', solid: true, angle: 0, friction: 0.4 },
-	{ color: 'red', solid: true, angle: 0, friction: 0.8 },
-	{ color: 'cyan', solid: true, angle: 0, friction: -0.1 },
-	{ color: 'blue', solid: true, angle: 0, friction: 3.8 }
-];
-
 class Matrix {
 	constructor(width, height){
 		this.array = new Uint16Array(width * height);
@@ -1179,12 +1186,10 @@ class Matrix {
 class TileMap extends Sprite{
 	constructor(params){
 		super(params);
-		//this.twidth = 64;
-		//this.theight = 64;
 		this.map = new Matrix(this.width, this.height);
 	}
 	__params__(){
-		return ["x", "y", "width", "height", "twidth", "theight"];
+		return ["x", "y", "width", "height", "twidth", "theight", "sheet", "tiles"];
 	}
 	read(x, y){
 		return this.map.read(x, y);
@@ -1193,6 +1198,9 @@ class TileMap extends Sprite{
 		this.map.write(x, y, value);
 	}
 	load(array){
+		if (array.length !== (this.width * this.height)) {
+			Debug.warn(`Tilemap size mismatch with width: ${this.width} and height ${this.height}`);
+		}
 		this.map.load(array);
 	}
 	init(){
@@ -1212,7 +1220,7 @@ class TileMap extends Sprite{
 	getTile(x, y){
 		x = this.getTileX(x);
 		y = this.getTileY(y);
-		let tile = Tiles[this.read(x, y)];
+		let tile = this.tiles[this.read(x, y)];
 		tile.x = x;
 		tile.y = y;
 		tile.width = this.twidth;
@@ -1248,15 +1256,15 @@ class TileMap extends Sprite{
 		for(var i = rect.x1; i < rect.x2; ++i){
 			for(var j = rect.y1; j < rect.y2; ++j){
 				let tile = this.read(i, j);
-				if(tile == 2) {
-					this.display.fillRect(this.x + (i * this.twidth), this.y + (j * this.theight), this.twidth, this.theight, Tiles[0].color);
-					this.display.fillTriangleUp(this.x + (i * this.twidth), this.y + (j * this.theight), this.twidth, this.theight, Tiles[tile].color);
-				} else if (tile == 3) {
-					this.display.fillRect(this.x + (i * this.twidth), this.y + (j * this.theight), this.twidth, this.theight, Tiles[0].color);
-					this.display.fillTriangleDown(this.x + (i * this.twidth), this.y + (j * this.theight), this.twidth, this.theight, Tiles[tile].color);
-				} else {
-					this.display.fillRect(this.x + (i * this.twidth), this.y + (j * this.theight), this.twidth, this.theight, Tiles[tile].color);
-					this.display.rect(this.x+(i*this.twidth), this.y+(j*this.theight), this.twidth, this.theight, Tiles[0].color);
+				if(tile) {
+					this.display.drawTile(
+						this.x + (i * this.twidth),
+						this.y + (j * this.theight),
+						this.twidth,
+						this.theight,
+						this.sheet,
+						tile - 1
+					);
 				}
 			}
 		}

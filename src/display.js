@@ -39,12 +39,18 @@ class CanvasDisplay extends Component{
 	__params__(){
 		return ["x", "y", "width", "height"];
 	}
+	__configs__() {
+		return {
+			imageSmoothingEnabled: false
+		};
+	}
 	init () {
 		this.canvas = document.getElementById(this.id);
 		this.canvas.setAttribute('width', this.width);
 		this.canvas.setAttribute('height', this.height);
 		this.ctx = this.canvas.getContext('2d');
 		this.ctx.font = "16px Helvetica";
+		this.ctx.imageSmoothingEnabled = this.imageSmoothingEnabled;
 		this.camera = this.getComponent("Camera");
 		super.init();
 	}
@@ -114,9 +120,9 @@ class CanvasDisplay extends Component{
 	drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight){
 		this.ctx.drawImage(image, sx, sy, sWidth, sHeight, dx, dy,dWidth, dHeight);
 	}
-	drawTile(sheet, index, x, y){
+	drawTile(x, y, width, height, sheet, index){
 		let tile = sheet.tiles[index];
-		this.ctx.drawImage(sheet.image, tile.x1, tile.y1, sheet.width, sheet.height, x, y, sheet.width, sheet.height);
+		this.ctx.drawImage(sheet.image, tile.x, tile.y, sheet.width, sheet.height, x - this.camera.x, y - this.camera.y, width, height);
 	}
 }
 
