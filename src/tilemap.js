@@ -23,6 +23,8 @@ class TileMap extends Sprite{
 	constructor(params){
 		super(params);
 		this.map = new Matrix(this.width, this.height);
+		this.mwidth = this.width * this.twidth;
+		this.mheight = this.height * this.theight;
 	}
 	__params__(){
 		return ["x", "y", "width", "height", "twidth", "theight", "sheet", "tiles"];
@@ -48,10 +50,10 @@ class TileMap extends Sprite{
 		this.map.randomize();
 	}
 	getTileX(x){
-		return Math.floor(x / this.twidth);
+		return Math.floor((x / this.twidth) % this.mwidth);
 	}
 	getTileY(y){
-		return Math.floor(y / this.theight);
+		return Math.floor((y / this.theight) % this.mheight);
 	}
 	getTile(x, y){
 		x = this.getTileX(x);
@@ -80,7 +82,7 @@ class TileMap extends Sprite{
 		y1 = Maths.clamp(y1, 0, this.height);
 		x2 = Maths.clamp(x2+x1+1, x1, this.width);
 		y2 = Maths.clamp(y2+y1+1, y1, this.height);
-		return{
+		return {
 			x1: x1,
 			y1: y1,
 			x2: x2,
