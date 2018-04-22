@@ -26,7 +26,13 @@
 </head>
 <body>
 	<canvas id="canvas" oncontextmenu="return false"></canvas>
-	<input id="tile" value="1">
-	<textarea id="map"></textarea>
+	<div>
+		<label>Tile ID</label>
+		<input id="tile" value="1">
+	</div>
+	<div>
+		<textarea id="map"></textarea>
+	</div>
+	<button onclick="e.tilemap.save()">Save</button>
 </body>
 </html>
