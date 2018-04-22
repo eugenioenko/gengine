@@ -1265,7 +1265,8 @@ class TileMap extends Sprite{
 		for (let i = 0; i < this.map.array.length; ++i) {
 			let char = this.map.array[i];
 			char = char.toString();
-			char = char.length > 1 ? char : "0" + char;
+			char = char.length > 1 ? char : "  " + char;
+			char = char.length > 2 ? char : " " + char;
 			result += char + ",";
 			if (++count >= this.width){
 				count = 0;
@@ -1472,17 +1473,25 @@ class PlatformController extends Component {
 		moveDistanceX = Math.floor(moveDistanceX);
 		let coorners = this.getCoorners(sprite.x + moveDistanceX, sprite.y, sprite.width, sprite.height);
 		if (moveDistanceX > 0 && (coorners.downRight.solid || coorners.upRight.solid)) {
+			sprite.velocityX = 0;
+			sprite.accelerationX = 0;
 			moveDistanceX = (coorners.downRight.x * coorners.downLeft.width) - sprite.x - sprite.width - 1;
 		}
 		if (moveDistanceX < 0 && (coorners.downLeft.solid || coorners.upLeft.solid)) {
 			moveDistanceX = sprite.x - ((coorners.downLeft.x + 1) * coorners.downLeft.width) - 1;
 			moveDistanceX *= -1;
+			sprite.velocityX = 0;
+			sprite.accelerationX = 0;
 		}
 		return moveDistanceX;
 	}
 	applyGravity(sprite) {
 		let moveDistanceY = Math.floor(sprite.velocityY);
-		sprite.velocityY += this.gravity * this.time.deltaTime;
+		if (!sprite.jumping) {
+			sprite.velocityY += this.gravity * this.time.deltaTime;
+		} else {
+			sprite.velocityY += this.gravity * 1.2 * this.time.deltaTime;
+		}
 		moveDistanceY = Maths.clamp(moveDistanceY, -this.maxVelocityY, this.maxVelocityY);
 		let coorners = this.getCoorners(sprite.x, sprite.y + moveDistanceY, sprite.width, sprite.height);
 		if (moveDistanceY > 0) {
@@ -1520,11 +1529,11 @@ class Player extends Sprite{
 		this.jumping = false;
 		this.shooting = false;
 
-		this.accelerationForceX = 0.8;
+		this.accelerationForceX = 1.8;
 		this.accelerationX = 0;
 		this.maxSpeedMultX = 9;
 		this.velocityX = 0;
-		this.frictionX = 0.4;
+		this.frictionX = 0.9;
 		this.dirX = 0;
 		this.addCollider(-10, -10, this.width+10, this.height+10);
 	}
@@ -1549,14 +1558,20 @@ class Player extends Sprite{
 		let inputX = this.input.getAxisHorizontal();
 
 		// acceleration movement
-		this.accelerationX = inputX * this.accelerationForceX;
+
+		if (!this.jumping) {
+			this.accelerationX = inputX * this.accelerationForceX;
+		} else {
+			this.accelerationX = inputX * this.accelerationForceX / 6;
+		}
 		this.velocityX += this.accelerationX * this.time.deltaTime;
 		// friction
 		let currentDir = Math.sign(this.velocityX);
-		this.getCoorners(this.x + moveDistanceX, this.y + this.width/2);
-		//let friction = (this.coorners.downRight.friction + this.coorners.downLeft.friction) / 2;
-
-		this.velocityX += -currentDir * this.frictionX * this.time.deltaTime;
+		if (!this.jumping) {
+			this.velocityX += -currentDir * this.frictionX * this.time.deltaTime;
+		} else {
+			this.velocityX += -currentDir * this.frictionX / 10 * this.time.deltaTime;
+		}
 		if (Math.sign(this.velocityX) !== currentDir) {
 			this.velocityX = 0;
 		}

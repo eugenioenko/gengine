@@ -47,7 +47,8 @@ class TileMap extends Sprite{
 		for (let i = 0; i < this.map.array.length; ++i) {
 			let char = this.map.array[i];
 			char = char.toString();
-			char = char.length > 1 ? char : "0" + char;
+			char = char.length > 1 ? char : "  " + char;
+			char = char.length > 2 ? char : " " + char;
 			result += char + ",";
 			if (++count >= this.width){
 				count = 0;
