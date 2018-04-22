@@ -51,17 +51,24 @@ function Game(engine){
 		padding: 1
 	});
 	let tiles = [
-		{ color: '#eee', solid: false, angle: 0, friction: 0.0 },
-		{ color: '#333', solid: true, angle: 45, friction: 0.4 },
-		{ color: '#333', solid: true, angle: 135, friction: 0.4 },
-		{ color: '#333', solid: true, angle: 0, friction: 0.4 },
-		{ color: 'red', solid: true, angle: 0, friction: 0.8 },
-		{ color: 'cyan', solid: true, angle: 0, friction: -0.1 },
-		{ color: 'blue', solid: true, angle: 0, friction: 3.8 }
+		new Tile({ solid: { top: false, bottom: false, right: false, left: false}, angle: 0 }),
+		new Tile({ solid: { top: true, bottom: true, right: true, left: true }, angle: 45 }),
+		new Tile({ solid: { top: true, bottom: true, right: true, left: true }, angle: 45 }),
+		new Tile({ solid: { top: true, bottom: true, right: true, left: true }, angle: 45 }),
+		new Tile({ solid: { top: true, bottom: false, right: false, left: false }, angle: 45 }),
+		new Tile({ solid: { top: true, bottom: false, right: false, left: false }, angle: 45 }),
+		new Tile({ solid: { top: true, bottom: false, right: false, left: false }, angle: 45 }),
+		new Tile({ solid: { top: true, bottom: true, right: false, left: false }, angle: 45 }), //7
+		new Tile({ solid: { top: true, bottom: true, right: true, left: true }, angle: 45 }), //8
 	];
-	tiles[41] = tiles[2];
-	tiles[42] = tiles[2];
-	tiles[43] = tiles[2];
+	for(let i = 9; i < 300; ++i) {
+		tiles[i] = tiles[0]
+	}
+	tiles[41] = tiles[4];
+	tiles[42] = tiles[4];
+	tiles[43] = tiles[4];
+
+
 
 
 	let tilemap = new TileMap({
