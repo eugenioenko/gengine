@@ -9,6 +9,9 @@ class Scene extends Component{
 		this.sprites = [];
 	}
 	init(){
+		this.input = this.getComponent("Input");
+		this.camera = this.getComponent("Camera");
+		this.display = this.getComponent("Display");
 		super.init();
 	}
 	move(){
@@ -20,6 +23,9 @@ class Scene extends Component{
 	draw(){
 		for(let sprite of this.sprites){
 			sprite.draw();
+		}
+		if (this.input.mouse.inside) {
+			this.display.circle(this.camera.x + this.input.mouse.x - 1, this.camera.y + this.input.mouse.y - 1, 4, 'red');
 		}
 	}
 	addSprite(sprite){

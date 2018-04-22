@@ -24,13 +24,13 @@ class Engine extends GameObject{
 	init(){
 		Debug.group('Engine loaded components');
 		this.addComponent("Resources", Resources);
-		this.addComponent("Input", Input);
 		this.addComponent("Camera", Camera, {
 			x: 0,
 			y: 0,
 			width: this.width,
 			height: this.height
 		});
+		this.addComponent("Input", Input);
 		this.addComponent("Time", Time);
 		this.addComponent("Sound", Sound);
 		this.addComponent("Display", CanvasDisplay, {
@@ -41,12 +41,15 @@ class Engine extends GameObject{
 			height: this.height
 		});
 		this.addComponent("Scene", Scene);
+		this.addComponent("Events", Events);
 		Debug.groupEnd();
 		this.time = this.component.Time;
 		this.display = this.component.Display;
 		this.scene = this.component.Scene;
 		this.resources = this.component.Resources;
 		this.sound = this.component.Sound;
+		this.input = this.component.Input;
+		this.input.canvas = this.display.canvas; // TO DO, makes this line go away?
 
 	}
 	/**

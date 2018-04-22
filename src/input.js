@@ -1,15 +1,34 @@
 class Input extends Component{
-	constructor(params){
-		super(params);
+	constructor(params, engine){
+		super(params, engine);
 		this.keyCode_ = {};
+		this.mouse = {
+			x: 0,
+			y: 0,
+			inside: false
+		};
 	}
 	init(){
-		window.addEventListener("keydown", this.keyDown.bind(this), false);
-		window.addEventListener("keyup", this.keyUp.bind(this), false);
+		this.camera = this.getComponent("Camera");
 		super.init();
 	}
 	__params__(){
 		return [];
+	}
+	mouseMove(e) {
+		let rect = this.canvas.getBoundingClientRect();
+		this.mouse.x = e.clientX - rect.left;
+		this.mouse.y = e.clientY - rect.top;
+		if (e.buttons) {
+			this.camera.x -= e.movementX;
+			this.camera.y -= e.movementY;
+		}
+	}
+	mouseEnter(e) {
+		this.mouse.inside = true;
+	}
+	mouseLeave(e) {
+		this.mouse.inside = false;
 	}
 	keyDown(e){
 		this.keyCode_[e.code] = true;

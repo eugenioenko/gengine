@@ -271,17 +271,36 @@ class Time extends Component{
 }
 
 class Input extends Component{
-	constructor(params){
-		super(params);
+	constructor(params, engine){
+		super(params, engine);
 		this.keyCode_ = {};
+		this.mouse = {
+			x: 0,
+			y: 0,
+			inside: false
+		};
 	}
 	init(){
-		window.addEventListener("keydown", this.keyDown.bind(this), false);
-		window.addEventListener("keyup", this.keyUp.bind(this), false);
+		this.camera = this.getComponent("Camera");
 		super.init();
 	}
 	__params__(){
 		return [];
+	}
+	mouseMove(e) {
+		let rect = this.canvas.getBoundingClientRect();
+		this.mouse.x = e.clientX - rect.left;
+		this.mouse.y = e.clientY - rect.top;
+		if (e.buttons) {
+			this.camera.x -= e.movementX;
+			this.camera.y -= e.movementY;
+		}
+	}
+	mouseEnter(e) {
+		this.mouse.inside = true;
+	}
+	mouseLeave(e) {
+		this.mouse.inside = false;
 	}
 	keyDown(e){
 		this.keyCode_[e.code] = true;
@@ -353,6 +372,7 @@ class CanvasDisplay extends Component{
 		this.canvas = document.getElementById(this.id);
 		this.canvas.setAttribute('width', this.width);
 		this.canvas.setAttribute('height', this.height);
+		this.canvas.style.cursor = "none";
 		this.ctx = this.canvas.getContext('2d');
 		this.ctx.font = "16px Helvetica";
 		this.ctx.imageSmoothingEnabled = this.imageSmoothingEnabled;
@@ -449,6 +469,24 @@ class WebGLDisplay extends Display{
 	}
 }
 
+class Events extends Component{
+	constructor(params, engine){
+		super(params, engine);
+	}
+	init(){
+        let input = this.getComponent("Input");
+        let display = this.getComponent("Display");
+        display.canvas.addEventListener("mousemove", input.mouseMove.bind(input), false);
+        display.canvas.addEventListener("mouseenter", input.mouseEnter.bind(input), false);
+        display.canvas.addEventListener("mouseleave", input.mouseLeave.bind(input), false);
+		window.addEventListener("keydown", input.keyDown.bind(input), false);
+		window.addEventListener("keyup", input.keyUp.bind(input), false);
+		super.init();
+	}
+	__params__(){
+		return [];
+	}
+}
 class Network extends Component{
 	constructor(params, engine){
 		super(params, engine);
@@ -886,6 +924,9 @@ class Scene extends Component{
 		this.sprites = [];
 	}
 	init(){
+		this.input = this.getComponent("Input");
+		this.camera = this.getComponent("Camera");
+		this.display = this.getComponent("Display");
 		super.init();
 	}
 	move(){
@@ -897,6 +938,9 @@ class Scene extends Component{
 	draw(){
 		for(let sprite of this.sprites){
 			sprite.draw();
+		}
+		if (this.input.mouse.inside) {
+			this.display.circle(this.camera.x + this.input.mouse.x - 1, this.camera.y + this.input.mouse.y - 1, 4, 'red');
 		}
 	}
 	addSprite(sprite){
@@ -1032,13 +1076,13 @@ class Engine extends GameObject{
 	init(){
 		Debug.group('Engine loaded components');
 		this.addComponent("Resources", Resources);
-		this.addComponent("Input", Input);
 		this.addComponent("Camera", Camera, {
 			x: 0,
 			y: 0,
 			width: this.width,
 			height: this.height
 		});
+		this.addComponent("Input", Input);
 		this.addComponent("Time", Time);
 		this.addComponent("Sound", Sound);
 		this.addComponent("Display", CanvasDisplay, {
@@ -1049,12 +1093,15 @@ class Engine extends GameObject{
 			height: this.height
 		});
 		this.addComponent("Scene", Scene);
+		this.addComponent("Events", Events);
 		Debug.groupEnd();
 		this.time = this.component.Time;
 		this.display = this.component.Display;
 		this.scene = this.component.Scene;
 		this.resources = this.component.Resources;
 		this.sound = this.component.Sound;
+		this.input = this.component.Input;
+		this.input.canvas = this.display.canvas; // TO DO, makes this line go away?
 
 	}
 	/**
@@ -1139,7 +1186,7 @@ class Engine extends GameObject{
 }
 /**
  * Component for managing camera position on the screen.
- * The Camera is the viewport of the game, meaning you see the game world 
+ * The Camera is the viewport of the game, meaning you see the game world
  * through the camera.
  */
 class Camera extends Component{
@@ -1152,15 +1199,15 @@ class Camera extends Component{
 	}
 
 	init(){
-		this.input = this.getComponent("Input");
+		//this.input = this.getComponent("Input");
 		super.init();
 	}
 
 	move(){
-		if(this.input.keyCode("KeyS")) this.y -= this.speed;
+		/*if(this.input.keyCode("KeyS")) this.y -= this.speed;
 		if(this.input.keyCode("KeyW")) this.y += this.speed;
 		if(this.input.keyCode("KeyD")) this.x += this.speed;
-		if(this.input.keyCode("KeyA")) this.x -= this.speed;
+		if(this.input.keyCode("KeyA")) this.x -= this.speed;*/
 	}
 
 }

@@ -48,6 +48,7 @@ class CanvasDisplay extends Component{
 		this.canvas = document.getElementById(this.id);
 		this.canvas.setAttribute('width', this.width);
 		this.canvas.setAttribute('height', this.height);
+		this.canvas.style.cursor = "none";
 		this.ctx = this.canvas.getContext('2d');
 		this.ctx.font = "16px Helvetica";
 		this.ctx.imageSmoothingEnabled = this.imageSmoothingEnabled;
