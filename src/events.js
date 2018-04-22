@@ -8,6 +8,7 @@ class Events extends Component{
         display.canvas.addEventListener("mousemove", input.mouseMove.bind(input), false);
         display.canvas.addEventListener("mouseenter", input.mouseEnter.bind(input), false);
         display.canvas.addEventListener("mouseleave", input.mouseLeave.bind(input), false);
+        display.canvas.addEventListener("click", input.mouseClick.bind(input), false);
 		window.addEventListener("keydown", input.keyDown.bind(input), false);
 		window.addEventListener("keyup", input.keyUp.bind(input), false);
 		super.init();

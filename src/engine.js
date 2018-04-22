@@ -49,8 +49,6 @@ class Engine extends GameObject{
 		this.resources = this.component.Resources;
 		this.sound = this.component.Sound;
 		this.input = this.component.Input;
-		this.input.canvas = this.display.canvas; // TO DO, makes this line go away?
-
 	}
 	/**
 	 * Static function to replace the windows.onload method.

@@ -41,6 +41,22 @@ class TileMap extends Sprite{
 		}
 		this.map.load(array);
 	}
+	save() {
+		let result = '';
+		let count = 0;
+		for (let i = 0; i < this.map.array.length; ++i) {
+			let char = this.map.array[i];
+			char = char.toString();
+			char = char.length > 1 ? char : "0" + char;
+			result += char + ",";
+			if (++count >= this.width){
+				count = 0;
+				result += "\r\n";
+			}
+		}
+		document.getElementById("map").value = result;
+
+	}
 	init(){
 		this.camera = this.getComponent("Camera");
 		this.display = this.getComponent("Display");

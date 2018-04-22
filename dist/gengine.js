@@ -270,6 +270,7 @@ class Time extends Component{
 	}
 }
 
+var global_tile_value = 2;
 class Input extends Component{
 	constructor(params, engine){
 		super(params, engine);
@@ -288,10 +289,10 @@ class Input extends Component{
 		return [];
 	}
 	mouseMove(e) {
-		let rect = this.canvas.getBoundingClientRect();
+		let rect = this.engine.display.canvas.getBoundingClientRect();
 		this.mouse.x = e.clientX - rect.left;
 		this.mouse.y = e.clientY - rect.top;
-		if (e.buttons) {
+		if (e.buttons === 2) {
 			this.camera.x -= e.movementX;
 			this.camera.y -= e.movementY;
 		}
@@ -301,6 +302,11 @@ class Input extends Component{
 	}
 	mouseLeave(e) {
 		this.mouse.inside = false;
+	}
+	mouseClick(e) {
+		let x = this.engine.tilemap.getTileX(this.mouse.x + this.camera.x);
+		let y = this.engine.tilemap.getTileY(this.mouse.y + this.camera.y);
+		this.engine.tilemap.write(x, y, parseInt(document.getElementById("tile").value));
 	}
 	keyDown(e){
 		this.keyCode_[e.code] = true;
@@ -479,6 +485,7 @@ class Events extends Component{
         display.canvas.addEventListener("mousemove", input.mouseMove.bind(input), false);
         display.canvas.addEventListener("mouseenter", input.mouseEnter.bind(input), false);
         display.canvas.addEventListener("mouseleave", input.mouseLeave.bind(input), false);
+        display.canvas.addEventListener("click", input.mouseClick.bind(input), false);
 		window.addEventListener("keydown", input.keyDown.bind(input), false);
 		window.addEventListener("keyup", input.keyUp.bind(input), false);
 		super.init();
@@ -1101,8 +1108,6 @@ class Engine extends GameObject{
 		this.resources = this.component.Resources;
 		this.sound = this.component.Sound;
 		this.input = this.component.Input;
-		this.input.canvas = this.display.canvas; // TO DO, makes this line go away?
-
 	}
 	/**
 	 * Static function to replace the windows.onload method.
@@ -1253,6 +1258,22 @@ class TileMap extends Sprite{
 			Debug.warn(`Tilemap size mismatch with width: ${this.width} and height ${this.height}`);
 		}
 		this.map.load(array);
+	}
+	save() {
+		let result = '';
+		let count = 0;
+		for (let i = 0; i < this.map.array.length; ++i) {
+			let char = this.map.array[i];
+			char = char.toString();
+			char = char.length > 1 ? char : "0" + char;
+			result += char + ",";
+			if (++count >= this.width){
+				count = 0;
+				result += "\r\n";
+			}
+		}
+		document.getElementById("map").value = result;
+
 	}
 	init(){
 		this.camera = this.getComponent("Camera");

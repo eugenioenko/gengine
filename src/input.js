@@ -1,3 +1,4 @@
+var global_tile_value = 2;
 class Input extends Component{
 	constructor(params, engine){
 		super(params, engine);
@@ -16,10 +17,10 @@ class Input extends Component{
 		return [];
 	}
 	mouseMove(e) {
-		let rect = this.canvas.getBoundingClientRect();
+		let rect = this.engine.display.canvas.getBoundingClientRect();
 		this.mouse.x = e.clientX - rect.left;
 		this.mouse.y = e.clientY - rect.top;
-		if (e.buttons) {
+		if (e.buttons === 2) {
 			this.camera.x -= e.movementX;
 			this.camera.y -= e.movementY;
 		}
@@ -29,6 +30,11 @@ class Input extends Component{
 	}
 	mouseLeave(e) {
 		this.mouse.inside = false;
+	}
+	mouseClick(e) {
+		let x = this.engine.tilemap.getTileX(this.mouse.x + this.camera.x);
+		let y = this.engine.tilemap.getTileY(this.mouse.y + this.camera.y);
+		this.engine.tilemap.write(x, y, parseInt(document.getElementById("tile").value));
 	}
 	keyDown(e){
 		this.keyCode_[e.code] = true;
