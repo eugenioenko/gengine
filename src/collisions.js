@@ -3,7 +3,7 @@
  * types of colliders.
  */
 class TestCollision{
-	static CircleVsRect(circle, rect){
+	static CircleVsRect(circle, rect) {
 		let halfRectWidth = rect.width / 2;
 		let halfRectHeight = rect.height / 2;
 		let halfDistX = Math.abs(circle.gx - rect.gx - halfRectWidth);
@@ -17,20 +17,20 @@ class TestCollision{
 		let dy = halfDistY - halfRectHeight;
 		return (dx * dx + dy * dy <= Math.pow(circle.radius,2));
 	}
-	static RectVsCircle(rect, circle){
+	static RectVsCircle(rect, circle) {
 		return this.CircleVsRect(circle, rect);
 	}
-	static RectVsRect(rect1, rect2){
+	static RectVsRect(rect1, rect2) {
 		if (rect1.gx <= rect2.gx + rect2.width &&
 			rect1.gx + rect1.width > rect2.gx &&
 			rect1.gy <= rect2.gy + rect2.height &&
 			rect1.height + rect1.gy >= rect2.gy
-		){
+		) {
 			return true;
 		}
 		return false;
 	}
-	static CircleVsCircle(circle1, circle2){
+	static CircleVsCircle(circle1, circle2) {
 		let dx = circle1.gx - circle2.gx;
 		let dy = circle1.gy - circle2.gy;
 		let distance = Math.sqrt(dx * dx + dy * dy);

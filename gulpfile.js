@@ -35,9 +35,9 @@ gulp.task('combine', function() {
       "src/sprites.js",
       "src/scenes.js",
       "src/sounds.js",
-      "src/buffersounds.js",
       "src/engine.js",
       "src/camera.js",
+      "src/matrix.js",
       "src/tilemap.js",
       "src/resources.js",
       "src/player.js"
@@ -46,4 +46,5 @@ gulp.task('combine', function() {
     .pipe(gulp.dest('./dist'));
 });
 
-gulp.watch('src/*.js', ['lint', 'combine']);
+gulp.watch('src/*.js', [ 'combine']);
+gulp.watch('dist/gengine.js', ['lint']);

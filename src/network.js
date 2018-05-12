@@ -1,8 +1,8 @@
 class Network extends Component{
-	constructor(params, engine){
+	constructor(params, engine) {
 		super(params, engine);
 		this.sprites = {};
-		if(typeof io === "undefined"){
+		if (typeof io === "undefined") {
 			Debug.error('Network requires socketio.js');
 		}
 		this.socket = io(this.url, {
@@ -17,16 +17,16 @@ class Network extends Component{
 		this.socket.on('update_network_player', this.onUpdateNetworkPlayer.bind(this));
 	}
 
-	__params__(){
+	__params__() {
 		return ["url", "player", "dummy"];
 	}
 
-	init(){
+	init() {
 		this.connect();
 		super.init();
 	}
 
-	move(){
+	move() {
 		this.socket.emit('move_player', {
 			x: this.player.x,
 			y: this.player.y,
@@ -34,21 +34,21 @@ class Network extends Component{
 		});
 	}
 
-	draw(){
+	draw() {
 
 	}
 
-	connect(){
+	connect() {
 		Debug.info(`Connecting to the server ${this.url}`);
 		this.socket.connect();
 	}
 
-	disconnect(){
+	disconnect() {
 		Debug.warn(`Disonected from server`);
 		this.socket.disconnect();
 	}
 
-	onConnect(data){
+	onConnect(data) {
 		Debug.success(`Connected to the server`);
 		this.socket.emit('init_player', {
 			id: this.socket.id,
@@ -57,16 +57,16 @@ class Network extends Component{
 		});
 	}
 
-	onDisconnect(data){
+	onDisconnect(data) {
 		this.socket.disconnect();
 	}
 
-	onConnectionError(data){
+	onConnectionError(data) {
 		Debug.warn(`Server connection error`);
 		this.socket.disconnect();
 	}
 
-	createNetworkPlayer(data){
+	createNetworkPlayer(data) {
 		this.sprites[data.id] = new this.dummy({
 			x: data.x,
 			y: data.y,
@@ -75,19 +75,19 @@ class Network extends Component{
 		this.engine.addSprite(this.sprites[data.id]);
 	}
 
-	onEnterNetworkPlayer(data){
+	onEnterNetworkPlayer(data) {
 		this.createNetworkPlayer(data);
 	}
 
-	onLeaveNetworkPlayer(data){
-		if(typeof this.sprites[data.id] !== "undefined"){
+	onLeaveNetworkPlayer(data) {
+		if (typeof this.sprites[data.id] !== "undefined") {
 			this.engine.removeSprite(this.sprites[data.id]);
 			delete this.sprites[data.id];
 		}
 	}
 
-	onUpdateNetworkPlayer(data){
-		if(typeof this.sprites[data.id] === "undefined"){
+	onUpdateNetworkPlayer(data) {
+		if (typeof this.sprites[data.id] === "undefined") {
 			this.createNetworkPlayer(data);
 		}
 		this.sprites[data.id].x = data.x;

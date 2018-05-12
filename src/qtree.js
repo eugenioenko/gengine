@@ -76,14 +76,14 @@ class QuadTree extends Rect {
 
 }
 
-var qtree = new QuadTree({
+let qtree = new QuadTree({
     x: 0,
     y: 0,
     width: 100,
     height: 100,
     capacity: 10
 });
-for(let i = 0; i < 30; ++i){
+for (let i = 0; i < 30; ++i) {
     qtree.insert({
         x: Maths.rand(0, 100),
         y: Maths.rand(0, 100),

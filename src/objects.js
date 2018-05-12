@@ -13,11 +13,11 @@
  *
  */
 class GameObject {
-	constructor(params){
+	constructor(params) {
 		Debug.validateParams(this.constructor.name, params, this.__params__());
 		Object.assign(this, params);
 		const config = this.__config__();
-		for (let key in config){
+		for (let key in config) {
 			if (typeof this[key] === "undefined") {
 				this[key] = config[key];
 			}

@@ -2,16 +2,16 @@
  * Example of a game, this module is used for testing the engine.
  */
 
-var e;
+let e;
 
-function Preload(engine){
+function Preload(engine) {
 	e = engine;
 	engine.resources.add({url: '../../resources/images/mario.png', type: 'img', name: "marioworld"});
 
 }
-var s = {};
+let s = {};
 let t = {};
-function Game(engine){
+function Game(engine) {
 	let sheet = new SpriteSheet({
 		image: engine.resources.get("marioworld"),
 		width: 16,

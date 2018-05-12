@@ -5,21 +5,22 @@
  * be added as need at runtime.
  *
  * When the Engine is ready, it will add a component to itself passing the instance
- * of itself to the Component constructor and then call the init() method of the 
+ * of itself to the Component constructor and then call the init() method of the
  * component.
  */
 class Component extends GameObject{
-	constructor(params, engine){
+	constructor(params, engine) {
 		super(params);
 		this.engine = engine;
+		this.name = params.name;
 	}
 
-	getComponent(name){
+	getComponent(name) {
 		return this.engine.getComponent(name);
 	}
 
-	init(){
-		Debug.success(`${this.constructor.name} initialized`);
+	init() {
+		Debug.success(`${this.name} initialized`);
 	}
 
 	move() { }

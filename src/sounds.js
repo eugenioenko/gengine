@@ -1,26 +1,26 @@
 class Sound extends Component{
-	constructor(params, engine){
+	constructor(params, engine) {
 		super(params, engine);
 	}
-	init(){
+	init() {
 		super.init();
 	}
-	move(){
+	move() {
 		// se ejecuta cada ciclo del gameloop
 		// podria estar vacio
 	}
-	draw(){
+	draw() {
 		// se ejecuta cada ciclo del gameloop
 		// podria estar vacio
 	}
 
-	play(){
+	play() {
 
 	}
-	stop(name){
+	stop(name) {
 
 	}
-	pause(name){
+	pause(name) {
 
 	}
 }

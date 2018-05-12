@@ -28,20 +28,20 @@
 	<canvas id="canvas"></canvas>
 	<script>
 		var e;
-		function preload(engine){
+		function preload(engine) {
 
 			e = engine;
 			engine.resources.add({url: './resources/images/tiles.jpg', type: "img", name: "tiles"});
 
 		}
 
-		function game(engine){
+		function game(engine) {
 
 			class TileSprite extends Sprite{
-				constructor(params){
+				constructor(params) {
 					super(params);
 				}
-				init(){
+				init() {
 					this.spriteSheet = new SpriteSheet({
 						width: 50,
 						height: 50,
@@ -51,8 +51,8 @@
 					this.display = this.getComponent("Display");
 				}
 
-				draw(){
-					for(let i = 1; i < 9; ++i)
+				draw() {
+					for (let i = 1; i < 9; ++i)
 						this.display.drawTile(this.spriteSheet, i, this.x+52*i, this.y+52*i);
 				}
 

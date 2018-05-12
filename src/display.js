@@ -2,12 +2,12 @@
  * Base/example class of the Display component of the Engine.
  */
 class Display extends Component{
-	constructor(params, engine){
+	constructor(params, engine) {
 		super(params, engine);
 		this.scale = 1;
 	}
-	set zoom(value){ }
-	get zoom(){
+	set zoom(value) { }
+	get zoom() {
 		return this.scale;
 	}
 	init() {
@@ -17,13 +17,13 @@ class Display extends Component{
 		this.height = this.canvas.height;
 		super.init();
 	}
-	clear(){ }
+	clear() { }
 
-	fillRect(x, y, width, height, color){ }
-	rect(x, y, width, height, color){
+	fillRect(x, y, width, height, color) { }
+	rect(x, y, width, height, color) {
 		// to do: draws a rectangle
 	}
-	circle(x, y, width, color){ }
+	circle(x, y, width, color) { }
 	move() {
 		this.clear();
 	}
@@ -32,11 +32,11 @@ class Display extends Component{
  * The component for drawing sprites and figures into the canvas screen.
  */
 class CanvasDisplay extends Component{
-	constructor(params, engine){
+	constructor(params, engine) {
 		super(params, engine);
 		this.scale = 1;
 	}
-	__params__(){
+	__params__() {
 		return ["x", "y", "width", "height"];
 	}
 	__configs__() {
@@ -55,28 +55,28 @@ class CanvasDisplay extends Component{
 		this.camera = this.getComponent("Camera");
 		super.init();
 	}
-	set zoom(value){
+	set zoom(value) {
 		this.scale = value;
 		this.ctx.scale(value, value);
 		this.engine.width = this.engine.width / value;
 		this.engine.height = this.engine.height / value;
 	}
-	get zoom(){
+	get zoom() {
 		return this.scale;
 	}
-	clear(){
+	clear() {
 		//this.ctx.clearRect(0, 0, this.width / this.scale, this.height / this.scale);
 		this.ctx.fillStyle = '#0FF';
 		this.ctx.fillRect(0, 0, this.width / this.scale, this.height / this.scale);
 	}
-	fillRect(x, y, width, height, color){
+	fillRect(x, y, width, height, color) {
 		this.ctx.beginPath();
 		this.ctx.fillStyle =  color;
 		this.ctx.rect(-this.camera.x + x, -this.camera.y + y, width, height);
 		this.ctx.closePath();
 		this.ctx.fill();
 	}
-	rect(x, y, width, height, color){
+	rect(x, y, width, height, color) {
 		this.ctx.beginPath();
 		this.ctx.lineWidth = 1;
 		this.ctx.strokeStyle =  color;
@@ -84,7 +84,7 @@ class CanvasDisplay extends Component{
 		this.ctx.closePath();
 		this.ctx.stroke();
 	}
-	circle(x, y, width, color){
+	circle(x, y, width, color) {
 		this.ctx.beginPath();
 		this.ctx.arc(-this.camera.x + x, -this.camera.y + y, width/2, 0, 2 * Math.PI, false);
 		this.ctx.strokeStyle =  color;
@@ -117,20 +117,20 @@ class CanvasDisplay extends Component{
 		this.ctx.fill();
 	}
 
-	fillText(text, x, y){
+	fillText(text, x, y) {
 		this.ctx.fillText(text, x, y);
 	}
-	drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight){
+	drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight) {
 		this.ctx.drawImage(image, sx, sy, sWidth, sHeight, dx, dy,dWidth, dHeight);
 	}
-	drawTile(x, y, width, height, sheet, index){
+	drawTile(x, y, width, height, sheet, index) {
 		let tile = sheet.tiles[index];
 		this.ctx.drawImage(sheet.image, tile.x, tile.y, sheet.width, sheet.height, x - this.camera.x, y - this.camera.y, width, height);
 	}
 }
 
 class WebGLDisplay extends Display{
-	constructor(params){
+	constructor(params) {
 		super(params);
 		this.canvas = document.getElementById(this.id);
 		this.gl = this.canvas.getContext('webgl');

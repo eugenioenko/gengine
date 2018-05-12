@@ -7,19 +7,19 @@ class Maths{
 	 * @param {number} min
 	 * @param {number} max
 	 */
-	static clamp(value, min, max){
+	static clamp(value, min, max) {
 		 return Math.min(Math.max(value, min), max);
 	}
-	static lerp(min, max, t){
+	static lerp(min, max, t) {
 		return min + (max - min) * t;
 	}
-	static rand(min, max){
+	static rand(min, max) {
 		return Math.floor(Math.random() * (max - min + 1)) + min;
 	}
-	static randRange(min, max){
+	static randRange(min, max) {
 		return Math.floor(Math.random() * (max - min + 1)) + min;
 	}
-	static smoothDamp(current, target, $currentVelocity, smoothTime, maxSpeed, deltaTime){
+	static smoothDamp(current, target, $currentVelocity, smoothTime, maxSpeed, deltaTime) {
 		smoothTime = Math.max(0.0001, smoothTime);
 		let num = 2.0 / smoothTime;
 		let num2 = num * deltaTime;
@@ -32,7 +32,7 @@ class Maths{
 		let num7 = ($currentVelocity.cv + num * num4) * deltaTime;
 		$currentVelocity.cv = ($currentVelocity.cv - num * num7) * num3;
 		let num8 = target + (num4 + num7) * num3;
-		if ((num5 - current > 0.0) == (num8 > num5)){
+		if ((num5 - current > 0.0) == (num8 > num5)) {
 			num8 = num5;
 			$currentVelocity.cv = (num8 - num5) / deltaTime;
 		}
@@ -62,43 +62,43 @@ class Maths{
  */
 class Debug{
 
-	static active(){
+	static active() {
 		return window.GENGINE_DEBUG_MODE;
 	}
 
-	static log(message){
-		if(!Debug.active()) return;
+	static log(message) {
+		if (!Debug.active()) return;
 		console.trace();
 		console.log(message);
 	}
 
-	static info(message){
-		if(!Debug.active()) return;
+	static info(message) {
+		if (!Debug.active()) return;
 		console.info(`%c${message}`, 'color: blue');
 	}
-	static success(message){
-		if(!Debug.active()) return;
+	static success(message) {
+		if (!Debug.active()) return;
 		console.info(`%c${message}`, 'color: green');
 	}
 
-	static warn(message){
-		if(!Debug.active()) return;
+	static warn(message) {
+		if (!Debug.active()) return;
 		console.warn(message);
 	}
 
-	static error(message){
-		if(!Debug.active()) return;
+	static error(message) {
+		if (!Debug.active()) return;
 		console.groupEnd();
 		throw new Error(message);
 	}
 
-	static group(name){
-		if(!Debug.active()) return;
+	static group(name) {
+		if (!Debug.active()) return;
 		console.groupCollapsed(name);
 	}
 
-	static groupEnd(){
-		if(!Debug.active()) return;
+	static groupEnd() {
+		if (!Debug.active()) return;
 		console.groupEnd();
 	}
 	/**
@@ -107,10 +107,10 @@ class Debug{
 	 * @param  {object} params   The constructor argument
 	 * @param  {array} required The list of required keys
 	 */
-	static validateParams(name, params, required){
-		if(!Debug.active()) return;
-		for(let key of required){
-			if(typeof params[key] === "undefined"){
+	static validateParams(name, params, required) {
+		if (!Debug.active()) return;
+		for (let key of required) {
+			if (typeof params[key] === "undefined") {
 				Debug.error(`${name} requires of "${key}" in the constructor`);
 			}
 		}
@@ -133,11 +133,11 @@ class Debug{
  *
  */
 class GameObject {
-	constructor(params){
+	constructor(params) {
 		Debug.validateParams(this.constructor.name, params, this.__params__());
 		Object.assign(this, params);
 		const config = this.__config__();
-		for (let key in config){
+		for (let key in config) {
 			if (typeof this[key] === "undefined") {
 				this[key] = config[key];
 			}
@@ -175,19 +175,19 @@ class Rect extends GameObject {
 	}
 }
 class Utils{
-	constructor(){
-		this.autoIncrementGen = (function*(){
+	constructor() {
+		this.autoIncrementGen = (function*() {
 			let count = 0;
-			while(count++ < Number.MAX_SAFE_INTEGER){
+			while(count++ < Number.MAX_SAFE_INTEGER) {
 				yield count;
 			}
 		})();
 
 		this.characters = ['A','a','B','b','C','c','D','d','E','e','F','f','G','g','H','h','I','i','J','j','K','k','L','l','M','m','N','n','O','o','P','p','Q','q','R','r','S','s','T','t','U','u','V','v','W','w','X','x','Y','y','Z','z','$'];
 	}
-	randomId(length=6){
+	randomId(length=6) {
 		let result = '';
-		for(let i = 0; i < length; ++i){
+		for (let i = 0; i < length; ++i) {
 			result += this.characters[Math.floor(Math.random() * this.characters.length)];
 		}
 		return result;
@@ -196,7 +196,7 @@ class Utils{
 	 * Auto Increment generator
 	 * @return {Number} An autoIncremented Number
 	 */
-	autoIncrement(){
+	autoIncrement() {
 		return this.autoIncrementGen.next().value;
 	}
 }
@@ -208,21 +208,22 @@ class Utils{
  * be added as need at runtime.
  *
  * When the Engine is ready, it will add a component to itself passing the instance
- * of itself to the Component constructor and then call the init() method of the 
+ * of itself to the Component constructor and then call the init() method of the
  * component.
  */
 class Component extends GameObject{
-	constructor(params, engine){
+	constructor(params, engine) {
 		super(params);
 		this.engine = engine;
+		this.name = params.name;
 	}
 
-	getComponent(name){
+	getComponent(name) {
 		return this.engine.getComponent(name);
 	}
 
-	init(){
-		Debug.success(`${this.constructor.name} initialized`);
+	init() {
+		Debug.success(`${this.name} initialized`);
 	}
 
 	move() { }
@@ -234,7 +235,7 @@ class Component extends GameObject{
  * time.startTime: seconds elapsed scince the game started
  * time.frameTime: almost the same as startTime, has the elapsed seconds
  * scince the game started but it updates the value by counting the frametime of each gameloop.
- * time.deltaTime: inverse relative value to the fps of the game. When the game runs on 60fps the value is 1. 
+ * time.deltaTime: inverse relative value to the fps of the game. When the game runs on 60fps the value is 1.
  * When the fps drop, the deltaTime value is increased proportionaly to the amount of fps droped.
  * Example:
  * 60fps: deltaTime == 1
@@ -242,7 +243,7 @@ class Component extends GameObject{
  * 15fps: deltaTime == 4
  */
 class Time extends Component{
-	constructor(params, engine){
+	constructor(params, engine) {
 		super(params, engine);
 		this.deltaTime = 0;
 		this.time = 0;
@@ -252,14 +253,14 @@ class Time extends Component{
 		this.startTime = performance.now() / 1000;
 		this.lastTime = this.startTime;
 	}
-	__params__(){
+	__params__() {
 		return [];
 	}
-	init(){
+	init() {
 		this.lastTime = performance.now() / 1000;
 		super.init();
 	}
-	move(){
+	move() {
 		let current = performance.now() / 1000;
 		this.deltaTimeFS = current - this.lastTime;
 		this.deltaTime = this.deltaTimeFS / (1/60);
@@ -272,7 +273,7 @@ class Time extends Component{
 
 var global_tile_value = 2;
 class Input extends Component{
-	constructor(params, engine){
+	constructor(params, engine) {
 		super(params, engine);
 		this.keyCode_ = {};
 		this.mouse = {
@@ -281,11 +282,11 @@ class Input extends Component{
 			inside: false
 		};
 	}
-	init(){
+	init() {
 		this.camera = this.getComponent("Camera");
 		super.init();
 	}
-	__params__(){
+	__params__() {
 		return [];
 	}
 	mouseMove(e) {
@@ -308,16 +309,16 @@ class Input extends Component{
 		let y = this.engine.tilemap.getTileY(this.mouse.y + this.camera.y);
 		this.engine.tilemap.write(x, y, parseInt(document.getElementById("tile").value));
 	}
-	keyDown(e){
+	keyDown(e) {
 		this.keyCode_[e.code] = true;
 	}
-	keyUp(e){
+	keyUp(e) {
 		this.keyCode_[e.code] = false;
 	}
-	keyCode(code){
+	keyCode(code) {
 		return typeof this.keyCode_[code] !== "undefined" ? this.keyCode_[code] : false;
 	}
-	getAxisHorizontal(){
+	getAxisHorizontal() {
 		let result =  this.keyCode("ArrowLeft") ? -1 : 0;
 		result += this.keyCode("ArrowRight") ? 1 : 0;
 		return result;
@@ -332,12 +333,12 @@ class Input extends Component{
  * Base/example class of the Display component of the Engine.
  */
 class Display extends Component{
-	constructor(params, engine){
+	constructor(params, engine) {
 		super(params, engine);
 		this.scale = 1;
 	}
-	set zoom(value){ }
-	get zoom(){
+	set zoom(value) { }
+	get zoom() {
 		return this.scale;
 	}
 	init() {
@@ -347,13 +348,13 @@ class Display extends Component{
 		this.height = this.canvas.height;
 		super.init();
 	}
-	clear(){ }
+	clear() { }
 
-	fillRect(x, y, width, height, color){ }
-	rect(x, y, width, height, color){
+	fillRect(x, y, width, height, color) { }
+	rect(x, y, width, height, color) {
 		// to do: draws a rectangle
 	}
-	circle(x, y, width, color){ }
+	circle(x, y, width, color) { }
 	move() {
 		this.clear();
 	}
@@ -362,11 +363,11 @@ class Display extends Component{
  * The component for drawing sprites and figures into the canvas screen.
  */
 class CanvasDisplay extends Component{
-	constructor(params, engine){
+	constructor(params, engine) {
 		super(params, engine);
 		this.scale = 1;
 	}
-	__params__(){
+	__params__() {
 		return ["x", "y", "width", "height"];
 	}
 	__configs__() {
@@ -385,28 +386,28 @@ class CanvasDisplay extends Component{
 		this.camera = this.getComponent("Camera");
 		super.init();
 	}
-	set zoom(value){
+	set zoom(value) {
 		this.scale = value;
 		this.ctx.scale(value, value);
 		this.engine.width = this.engine.width / value;
 		this.engine.height = this.engine.height / value;
 	}
-	get zoom(){
+	get zoom() {
 		return this.scale;
 	}
-	clear(){
+	clear() {
 		//this.ctx.clearRect(0, 0, this.width / this.scale, this.height / this.scale);
 		this.ctx.fillStyle = '#0FF';
 		this.ctx.fillRect(0, 0, this.width / this.scale, this.height / this.scale);
 	}
-	fillRect(x, y, width, height, color){
+	fillRect(x, y, width, height, color) {
 		this.ctx.beginPath();
 		this.ctx.fillStyle =  color;
 		this.ctx.rect(-this.camera.x + x, -this.camera.y + y, width, height);
 		this.ctx.closePath();
 		this.ctx.fill();
 	}
-	rect(x, y, width, height, color){
+	rect(x, y, width, height, color) {
 		this.ctx.beginPath();
 		this.ctx.lineWidth = 1;
 		this.ctx.strokeStyle =  color;
@@ -414,7 +415,7 @@ class CanvasDisplay extends Component{
 		this.ctx.closePath();
 		this.ctx.stroke();
 	}
-	circle(x, y, width, color){
+	circle(x, y, width, color) {
 		this.ctx.beginPath();
 		this.ctx.arc(-this.camera.x + x, -this.camera.y + y, width/2, 0, 2 * Math.PI, false);
 		this.ctx.strokeStyle =  color;
@@ -447,20 +448,20 @@ class CanvasDisplay extends Component{
 		this.ctx.fill();
 	}
 
-	fillText(text, x, y){
+	fillText(text, x, y) {
 		this.ctx.fillText(text, x, y);
 	}
-	drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight){
+	drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight) {
 		this.ctx.drawImage(image, sx, sy, sWidth, sHeight, dx, dy,dWidth, dHeight);
 	}
-	drawTile(x, y, width, height, sheet, index){
+	drawTile(x, y, width, height, sheet, index) {
 		let tile = sheet.tiles[index];
 		this.ctx.drawImage(sheet.image, tile.x, tile.y, sheet.width, sheet.height, x - this.camera.x, y - this.camera.y, width, height);
 	}
 }
 
 class WebGLDisplay extends Display{
-	constructor(params){
+	constructor(params) {
 		super(params);
 		this.canvas = document.getElementById(this.id);
 		this.gl = this.canvas.getContext('webgl');
@@ -476,10 +477,10 @@ class WebGLDisplay extends Display{
 }
 
 class Events extends Component{
-	constructor(params, engine){
+	constructor(params, engine) {
 		super(params, engine);
 	}
-	init(){
+	init() {
         let input = this.getComponent("Input");
         let display = this.getComponent("Display");
         display.canvas.addEventListener("mousemove", input.mouseMove.bind(input), false);
@@ -490,15 +491,15 @@ class Events extends Component{
 		window.addEventListener("keyup", input.keyUp.bind(input), false);
 		super.init();
 	}
-	__params__(){
+	__params__() {
 		return [];
 	}
 }
 class Network extends Component{
-	constructor(params, engine){
+	constructor(params, engine) {
 		super(params, engine);
 		this.sprites = {};
-		if(typeof io === "undefined"){
+		if (typeof io === "undefined") {
 			Debug.error('Network requires socketio.js');
 		}
 		this.socket = io(this.url, {
@@ -513,16 +514,16 @@ class Network extends Component{
 		this.socket.on('update_network_player', this.onUpdateNetworkPlayer.bind(this));
 	}
 
-	__params__(){
+	__params__() {
 		return ["url", "player", "dummy"];
 	}
 
-	init(){
+	init() {
 		this.connect();
 		super.init();
 	}
 
-	move(){
+	move() {
 		this.socket.emit('move_player', {
 			x: this.player.x,
 			y: this.player.y,
@@ -530,21 +531,21 @@ class Network extends Component{
 		});
 	}
 
-	draw(){
+	draw() {
 
 	}
 
-	connect(){
+	connect() {
 		Debug.info(`Connecting to the server ${this.url}`);
 		this.socket.connect();
 	}
 
-	disconnect(){
+	disconnect() {
 		Debug.warn(`Disonected from server`);
 		this.socket.disconnect();
 	}
 
-	onConnect(data){
+	onConnect(data) {
 		Debug.success(`Connected to the server`);
 		this.socket.emit('init_player', {
 			id: this.socket.id,
@@ -553,16 +554,16 @@ class Network extends Component{
 		});
 	}
 
-	onDisconnect(data){
+	onDisconnect(data) {
 		this.socket.disconnect();
 	}
 
-	onConnectionError(data){
+	onConnectionError(data) {
 		Debug.warn(`Server connection error`);
 		this.socket.disconnect();
 	}
 
-	createNetworkPlayer(data){
+	createNetworkPlayer(data) {
 		this.sprites[data.id] = new this.dummy({
 			x: data.x,
 			y: data.y,
@@ -571,19 +572,19 @@ class Network extends Component{
 		this.engine.addSprite(this.sprites[data.id]);
 	}
 
-	onEnterNetworkPlayer(data){
+	onEnterNetworkPlayer(data) {
 		this.createNetworkPlayer(data);
 	}
 
-	onLeaveNetworkPlayer(data){
-		if(typeof this.sprites[data.id] !== "undefined"){
+	onLeaveNetworkPlayer(data) {
+		if (typeof this.sprites[data.id] !== "undefined") {
 			this.engine.removeSprite(this.sprites[data.id]);
 			delete this.sprites[data.id];
 		}
 	}
 
-	onUpdateNetworkPlayer(data){
-		if(typeof this.sprites[data.id] === "undefined"){
+	onUpdateNetworkPlayer(data) {
+		if (typeof this.sprites[data.id] === "undefined") {
 			this.createNetworkPlayer(data);
 		}
 		this.sprites[data.id].x = data.x;
@@ -670,14 +671,14 @@ class QuadTree extends Rect {
 
 }
 
-var qtree = new QuadTree({
+let qtree = new QuadTree({
     x: 0,
     y: 0,
     width: 100,
     height: 100,
     capacity: 10
 });
-for(let i = 0; i < 30; ++i){
+for (let i = 0; i < 30; ++i) {
     qtree.insert({
         x: Maths.rand(0, 100),
         y: Maths.rand(0, 100),
@@ -690,7 +691,7 @@ for(let i = 0; i < 30; ++i){
  * types of colliders.
  */
 class TestCollision{
-	static CircleVsRect(circle, rect){
+	static CircleVsRect(circle, rect) {
 		let halfRectWidth = rect.width / 2;
 		let halfRectHeight = rect.height / 2;
 		let halfDistX = Math.abs(circle.gx - rect.gx - halfRectWidth);
@@ -704,20 +705,20 @@ class TestCollision{
 		let dy = halfDistY - halfRectHeight;
 		return (dx * dx + dy * dy <= Math.pow(circle.radius,2));
 	}
-	static RectVsCircle(rect, circle){
+	static RectVsCircle(rect, circle) {
 		return this.CircleVsRect(circle, rect);
 	}
-	static RectVsRect(rect1, rect2){
+	static RectVsRect(rect1, rect2) {
 		if (rect1.gx <= rect2.gx + rect2.width &&
 			rect1.gx + rect1.width > rect2.gx &&
 			rect1.gy <= rect2.gy + rect2.height &&
 			rect1.height + rect1.gy >= rect2.gy
-		){
+		) {
 			return true;
 		}
 		return false;
 	}
-	static CircleVsCircle(circle1, circle2){
+	static CircleVsCircle(circle1, circle2) {
 		let dx = circle1.gx - circle2.gx;
 		let dy = circle1.gy - circle2.gy;
 		let distance = Math.sqrt(dx * dx + dy * dy);
@@ -732,77 +733,77 @@ class TestCollision{
  * The position of the collider is relative to its parent sprite.
  * A sprite can have "infinite" number of colliders.
  */
-class Collider extends GameObject{
-	constructor(params){
+class Collider extends GameObject {
+	constructor(params) {
 		super(params);
 	}
-	test(collider){
+	test(collider) {
 		// to do
 	}
-	get gx(){
+	get gx() {
 		return this.parent.x + this.x;
 	}
-	get gy(){
+	get gy() {
 		return this.parent.y + this.y;
 	}
-	debugDraw(color){
+	debugDraw(color) {
 		color = typeof color === "undefined" ? "red" : color;
-		if(this.parent && this.parent.display)
+		if (this.parent && this.parent.display)
 			this.parent.display.rect(this.x, this.y, this.width, this.height, color);
 	}
 }
 /**
  * CircleCollider is a Collider with a circular shape.
  */
-class CircleCollider extends Collider{
-	constructor(params){
+class CircleCollider extends Collider {
+	constructor(params) {
 		super(params);
 		this.radius = this.width / 2;
 	}
-	test(collider){
-		if(collider instanceof CircleCollider){
+	test(collider) {
+		if (collider instanceof CircleCollider) {
 			return TestCollision.CircleVsCircle(this, collider);
 		}
-		if(collider instanceof RectCollider){
+		if (collider instanceof RectCollider) {
 			return TestCollision.CircleVsRect(this, collider);
 		}
 		return false; //posible bug with not knowing which collider to choose
 	}
-	debugDraw(color){
+	debugDraw(color) {
 		color = typeof color === "undefined" ? "red" : color;
-		if(this.parent && this.parent.display)
+		if (this.parent && this.parent.display)
 			this.parent.display.circle(this.gx, this.gy, this.width, color);
 	}
 }
 /**
  * RectCollider is a collider with a rectange/square shape.
  */
-class RectCollider extends Collider{
-	constructor(params){
+class RectCollider extends Collider {
+	constructor(params) {
 		super(params);
 	}
 	__params__() {
 		return ["parent", "x", "y", "width", "height"];
 	}
-	test(collider){
-		if(collider instanceof CircleCollider){
+	test(collider) {
+		if (collider instanceof CircleCollider) {
 			return TestCollision.CircleVsRect(collider, this);
 		}
-		if(collider instanceof RectCollider){
+		if (collider instanceof RectCollider) {
 			return TestCollision.RectVsRect(this, collider);
 		}
 
 		Debug.error("Unknown collider " + typeof collider);
 		return false; //if unknow collider will return false, posible bug
 	}
-	debugDraw(color){
+	debugDraw(color) {
 		color = typeof color === "undefined" ? "red" : color;
-		if(this.parent && this.parent.display)
+		if (this.parent && this.parent.display)
 			this.parent.display.rect(this.gx, this.gy, this.width, this.height, color);
 	}
 }
 class Point{
-	constructor(x, y){
+	constructor(x, y) {
 		this.x = x;
 		this.y = y;
 	}
@@ -813,33 +814,33 @@ class Point{
  * the image depending on the width/height of the frame/tile on the sheet.
  */
 class SpriteSheet extends GameObject{
-	constructor(params){
+	constructor(params) {
 		super(params);
 		this.tiles = [];
-		let i_count = 1;
-		let j_count = 1;
+		let iCount = 1;
+		let jCount = 1;
 		if (this.padding) {
-			while (this.image.width - this.offsetX - i_count++ * (this.width + this.padding) >= this.width);
-			while (this.image.height - this.offsetY - j_count++ * (this.height + this.padding) >= this.width);
-			i_count--;
-			j_count--;
+			while (this.image.width - this.offsetX - iCount++ * (this.width + this.padding) >= this.width);
+			while (this.image.height - this.offsetY - jCount++ * (this.height + this.padding) >= this.width);
+			iCount--;
+			jCount--;
 		} else {
-			i_count = Math.floor((this.image.width - this.offsetX) / this.width);
-			j_count = Math.floor((this.image.height - this.offsetY) / this.height);
+			iCount = Math.floor((this.image.width - this.offsetX) / this.width);
+			jCount = Math.floor((this.image.height - this.offsetY) / this.height);
 		}
 
-		for(let j = 0; j < j_count; ++j){
-			for(let i = 0; i < i_count; ++i){
+		for (let j = 0; j < jCount; ++j) {
+			for (let i = 0; i < iCount; ++i) {
 				let x = this.offsetX + (i * this.padding) + i * this.width;
 				let y = this.offsetY + (j * this.padding) + j * this.height;
 				this.tiles.push(new Point(x, y));
 			}
 		}
 	}
-	__params__(){
+	__params__() {
 		return ["width", "height", "image"];
 	}
-	__config__(){
+	__config__() {
 		return {
 			offsetX: 0,
 			offsetY: 0,
@@ -853,18 +854,18 @@ class SpriteSheet extends GameObject{
  * Sprites are object which per each loop of the game move and draw.
  */
 class Sprite extends GameObject{
-	constructor(params){
+	constructor(params) {
 		super(params);
 		this.colliders = [];
 		this.colliding = false;
 	}
-	__params__(){
+	__params__() {
 		return ["x", "y", "width", "height"];
 	}
-	getComponent(name){
+	getComponent(name) {
 		return this.engine.getComponent(name);
 	}
-	addCollider(x, y, width, height){
+	addCollider(x, y, width, height) {
 		this.colliders.push(new RectCollider({
 			parent: this,
 			x: x,
@@ -873,21 +874,21 @@ class Sprite extends GameObject{
 			height:height
 		}));
 	}
-	debugDraw(color = "red"){
-		if(this.parent && this.parent.display)
+	debugDraw(color = "red") {
+		if (this.parent && this.parent.display)
 			this.parent.display.rect(this.x, this.y, this.width, this.height, color);
 	}
 	/**
 	 * Tests for possible collision between two sprites and if
 	 * that happens, tests for individual colliders;
 	 */
-	testCollision(sprite){
-		if(!TestCollision.RectVsRect(this, sprite)){
+	testCollision(sprite) {
+		if (!TestCollision.RectVsRect(this, sprite)) {
 			return false;
 		}
-		for(let collider1 of this.colliders)
-			for(let collider2 of sprite.colliders)
-				if(collider1.test(collider2))
+		for (let collider1 of this.colliders)
+			for (let collider2 of sprite.colliders)
+				if (collider1.test(collider2))
 					return true;
 		return false;
 	}
@@ -895,27 +896,27 @@ class Sprite extends GameObject{
 	/**
 	 * Method called when the sprite is added to a scene after creation
 	 */
-	init(){ }
+	init() { }
 	/**
 	 * Method executed each game loop
 	 */
-	move(){ }
+	move() { }
 	/**
 	 * Method executed each loop of the game
 	 */
-	draw(){ }
+	draw() { }
 	/**
 	 * Callback method executed when the sprite collided with another sprite.
 	 * @param {sprite} the other sprite whith whom the collision ocurred
 	 */
-	collision(sprite){ }
+	collision(sprite) { }
 
 	/**
 	 * This a "destructor", when a sprite needs to be removed from a scene, executed destroy.
 	 * @important on derrived Sprite classes, don't forget to execute super.destroy() at the end.
 	 * otherwise the sprite won't be removed.
 	 */
-	destroy(){
+	destroy() {
 		this.engine.scene.removeSprite(this);
 	}
 }
@@ -926,50 +927,50 @@ class Sprite extends GameObject{
  * the engine, that scene sprites would be draw, moved and collided on the stage.
  */
 class Scene extends Component{
-	constructor(params, engine){
+	constructor(params, engine) {
 		super(params, engine);
 		this.sprites = [];
 	}
-	init(){
+	init() {
 		this.input = this.getComponent("Input");
 		this.camera = this.getComponent("Camera");
 		this.display = this.getComponent("Display");
 		super.init();
 	}
-	move(){
+	move() {
 		this.collision();
-		for(let sprite of this.sprites){
+		for (let sprite of this.sprites) {
 			sprite.move();
 		}
 	}
-	draw(){
-		for(let sprite of this.sprites){
+	draw() {
+		for (let sprite of this.sprites) {
 			sprite.draw();
 		}
 		if (this.input.mouse.inside) {
 			this.display.circle(this.camera.x + this.input.mouse.x - 1, this.camera.y + this.input.mouse.y - 1, 4, 'red');
 		}
 	}
-	addSprite(sprite){
+	addSprite(sprite) {
 		sprite.engine = this.engine;
 		sprite.init();
 		this.sprites.push(sprite);
 		return;
 	}
 
-	removeSprite(sprite){
+	removeSprite(sprite) {
 		let index = this.sprites.indexOf(sprite);
-		if(index != -1){
+		if (index !== -1) {
 			this.sprites.splice(index, 1);
 		}
 	}
 
-	collision(){
-		for(let i = 0; i < this.sprites.length; ++i){
-			for(let j = i +1; j < this.sprites.length; ++j){
+	collision() {
+		for (let i = 0; i < this.sprites.length; ++i) {
+			for (let j = i +1; j < this.sprites.length; ++j) {
 				let sprite1 = this.sprites[i];
 				let sprite2 = this.sprites[j];
-				if(sprite1.testCollision(sprite2)){
+				if (sprite1.testCollision(sprite2)) {
 					sprite1.collision(sprite2);
 					sprite2.collision(sprite1);
 				}
@@ -980,82 +981,30 @@ class Scene extends Component{
 
 }
 class Sound extends Component{
-	constructor(params, engine){
+	constructor(params, engine) {
 		super(params, engine);
 	}
-	init(){
+	init() {
 		super.init();
 	}
-	move(){
+	move() {
 		// se ejecuta cada ciclo del gameloop
 		// podria estar vacio
 	}
-	draw(){
+	draw() {
 		// se ejecuta cada ciclo del gameloop
 		// podria estar vacio
 	}
 
-	play(){
+	play() {
 
 	}
-	stop(name){
+	stop(name) {
 
 	}
-	pause(name){
+	pause(name) {
 
 	}
-}
-class BufferSounds extends GameObject {
-
-  constructor(params) {
-    super(params);
-    this.buffer = [];
-  }
-  __params__(){
-    return ['urls'];
-  }
-  init(){
-      super.init();
-      this.getContext();
-      var that = this;
-
-      for(let url of this.urls){
-        that.load(url);
-      }
-
-  }
-
-  load(url) {
-    var request = new XMLHttpRequest();
-    request.open('GET', url, true);
-    request.responseType = 'arraybuffer';
-    var that = this;
-
-    request.onload = function() {
-      that.context.decodeAudioData(request.response, function(buffer) {
-
-        that.buffer.push(buffer);
-      }, that.error);
-    };
-    request.send();
-  }
-  getContext(){
-      try {
-        window.AudioContext = window.AudioContext||window.webkitAudioContext||window.mozAudioContext||window.oAudioContext||window.msAudioContext;
-        this.context = new AudioContext();
-      } catch(e) {
-        alert('Este navegador no soporta la API de audio');
-      }
-  }
-
-  error(error){
-    Debug.error('BufferSounds: '+error);
-  }
-
-  getSoundByIndex(index) {
-    return this.buffer[index];
-  }
-
 }
 /**
  * Engine is the main object of the game engine.
@@ -1067,7 +1016,7 @@ class BufferSounds extends GameObject {
  */
 class Engine extends GameObject{
 
-	constructor(params){
+	constructor(params) {
 		super(params);
 		this.x = 0;
 		this.y = 0;
@@ -1076,11 +1025,11 @@ class Engine extends GameObject{
 		this.objects = {};
 		this.gameLoop = this.loop.bind(this);
 	}
-	__params__(){
+	__params__() {
 		return ["canvas", "width", "height"];
 	}
 
-	init(){
+	init() {
 		Debug.group('Engine loaded components');
 		this.addComponent("Resources", Resources);
 		this.addComponent("Camera", Camera, {
@@ -1115,15 +1064,15 @@ class Engine extends GameObject{
 	 * the preloader and when preloader loaded all the resources, create the game
 	 * and execute the gameloop.
 	 */
-	static ready(params){
+	static ready(params) {
 		Debug.validateParams('Engine.ready', params, ["canvas", "width", "height", "preload", "create"]);
-		(function(){
+		(function() {
 			var engine = new Engine({
 				canvas: params.canvas,
 				width: params.width,
 				height: params.height
 			});
-			window.addEventListener('load', function(){
+			window.addEventListener('load', function() {
 				engine.init();
 				params.preload(engine);
 				engine.resources.preload(params.create); // important: preload on complete calls create function
@@ -1132,9 +1081,9 @@ class Engine extends GameObject{
 		})();
 	}
 
-	addComponent(name, component, params = {}){
-		if(Debug.active()){
-			if(typeof this.component[name] !== "undefined"){
+	addComponent(name, component, params = {}) {
+		if (Debug.active()) {
+			if (typeof this.component[name] !== "undefined") {
 				Debug.error(`Component ${name} is already defined`);
 			}
 		}
@@ -1144,37 +1093,37 @@ class Engine extends GameObject{
 		this.components.push(this.component[name]);
 	}
 
-	getComponent(name){
-		if(Debug.active()){
-			if(typeof this.component[name] === "undefined"){
+	getComponent(name) {
+		if (Debug.active()) {
+			if (typeof this.component[name] === "undefined") {
 				Debug.error(`Component ${name} is not registred`);
 			}
 		}
 		return this.component[name];
 	}
 
-	addSprite(sprite){
+	addSprite(sprite) {
 		this.scene.addSprite(sprite);
 	}
 
-	removeSprite(sprite){
+	removeSprite(sprite) {
 		this.scene.removeSprite(sprite);
 	}
 
-	move(){
-		for(let component of this.components){
+	move() {
+		for (let component of this.components) {
 			component.move();
 		}
 	}
 
-	draw(){
+	draw() {
 		this.display.clear();
-		for(let component of this.components){
+		for (let component of this.components) {
 			component.draw();
 		}
 	}
 
-	loop(){
+	loop() {
 		this.move();
 		this.fpsDelayCount = 0;
 		this.draw();
@@ -1182,8 +1131,8 @@ class Engine extends GameObject{
 		window.requestAnimationFrame(this.gameLoop);
 	}
 
-	debugInfo(){
-		if(!Debug.active()) return;
+	debugInfo() {
+		if (!Debug.active()) return;
 		this.display.fillText((this.time.time).toFixed(2), 20, 20);
 		this.display.fillText((this.time.deltaTime).toFixed(4), 20, 40);
 		this.display.fillText(this.time.fps.toFixed(2), 20, 60);
@@ -1195,48 +1144,49 @@ class Engine extends GameObject{
  * through the camera.
  */
 class Camera extends Component{
-	constructor(params, engine){
+	constructor(params, engine) {
 		super(params, engine);
 		this.speed = 10;
 	}
-	__params__(){
+	__params__() {
 		return ["x", "y", "width", "height"];
 	}
 
-	init(){
+	init() {
 		//this.input = this.getComponent("Input");
 		super.init();
 	}
 
-	move(){
-		/*if(this.input.keyCode("KeyS")) this.y -= this.speed;
-		if(this.input.keyCode("KeyW")) this.y += this.speed;
-		if(this.input.keyCode("KeyD")) this.x += this.speed;
-		if(this.input.keyCode("KeyA")) this.x -= this.speed;*/
+	move() {
+		/*if (this.input.keyCode("KeyS")) this.y -= this.speed;
+		if (this.input.keyCode("KeyW")) this.y += this.speed;
+		if (this.input.keyCode("KeyD")) this.x += this.speed;
+		if (this.input.keyCode("KeyA")) this.x -= this.speed;*/
 	}
 
 }
 class Matrix {
-	constructor(width, height){
+	constructor(width, height) {
 		this.array = new Uint16Array(width * height);
 		this.width = width;
 		this.height = height;
 	}
-	read(x, y){
+	read(x, y) {
 		return this.array[y * this.width + x];
 	}
-	write(x, y, value){
+	write(x, y, value) {
 		this.array[y * this.width + x] = value;
 	}
-	load(array){
+	load(array) {
 		this.array = new Uint16Array(array);
 	}
-	randomize(){
-		for(let i = 0; i < this.array.length; ++i){
+	randomize() {
+		for (let i = 0; i < this.array.length; ++i) {
 			this.array[i] = Maths.rand(0, 3);
 		}
 	}
 }
+
 
 class Tile extends GameObject {
 
@@ -1257,22 +1207,26 @@ class Tile extends GameObject {
 
 }
 class TileMap extends Sprite {
+
 	constructor(params) {
 		super(params);
 		this.map = new Matrix(this.width, this.height);
 		this.mwidth = this.width * this.twidth;
 		this.mheight = this.height * this.theight;
 	}
-	__params__(){
+
+	__params__() {
 		return ["x", "y", "width", "height", "twidth", "theight", "sheet", "tiles"];
 	}
-	read(x, y){
+	read(x, y) {
 		return this.map.read(x, y);
 	}
-	write(x, y, value){
+
+	write(x, y, value) {
 		this.map.write(x, y, value);
 	}
-	load(array){
+
+	load(array) {
 		if (array.length !== (this.width * this.height)) {
 			Debug.warn(`Tilemap size mismatch with width: ${this.width} and height ${this.height}`);
 		}
@@ -1287,7 +1241,7 @@ class TileMap extends Sprite {
 			char = char.length > 1 ? char : "  " + char;
 			char = char.length > 2 ? char : " " + char;
 			result += char + ",";
-			if (++count >= this.width){
+			if (++count >= this.width) {
 				count = 0;
 				result += "\r\n";
 			}
@@ -1295,21 +1249,24 @@ class TileMap extends Sprite {
 		document.getElementById("map").value = result;
 
 	}
-	init(){
+
+	init() {
 		this.camera = this.getComponent("Camera");
 		this.display = this.getComponent("Display");
 		//this.map.randomize();
 	}
-	randomize(){
+	randomize() {
 		this.map.randomize();
 	}
-	getTileX(x){
+	getTileX(x) {
 		return Math.floor((x / this.twidth) % this.mwidth);
 	}
-	getTileY(y){
+
+	getTileY(y) {
 		return Math.floor((y / this.theight) % this.mheight);
 	}
-	getTile(x, y){
+
+	getTile(x, y) {
 		x = this.getTileX(x);
 		y = this.getTileY(y);
 		let tile = this.tiles[this.read(x, y)] || this.tiles[0];
@@ -1319,7 +1276,8 @@ class TileMap extends Sprite {
 		tile.height = this.theight;
 		return tile;
 	}
-	getCoorners(x, y, width, height){
+
+	getCoorners(x, y, width, height) {
 		return {
 			upLeft: this.getTile(x, y),
 			upRight: this.getTile(x+width, y),
@@ -1327,7 +1285,8 @@ class TileMap extends Sprite {
 			downRight: this.getTile(x+width, y+height)
 		};
 	}
-	getDrawRect(){
+
+	getDrawRect() {
 		let x1 = this.getTileX(this.camera.x);
 		let y1 = this.getTileY(this.camera.y);
 		let x2 = Math.ceil(this.camera.width / this.twidth);
@@ -1343,12 +1302,13 @@ class TileMap extends Sprite {
 			y2: y2
 		};
 	}
-	draw(){
+
+	draw() {
 		let rect = this.getDrawRect();
-		for(var i = rect.x1; i < rect.x2; ++i){
-			for(var j = rect.y1; j < rect.y2; ++j){
+		for (let i = rect.x1; i < rect.x2; ++i) {
+			for (let j = rect.y1; j < rect.y2; ++j) {
 				let tile = this.read(i, j);
-				if(tile) {
+				if (tile) {
 					this.display.drawTile(
 						this.x + (i * this.twidth),
 						this.y + (j * this.theight),
@@ -1362,40 +1322,41 @@ class TileMap extends Sprite {
 		}
 		return;
 	}
-	getCorners(x, y, sprite){
+
+	getCorners(x, y, sprite) {
 
 	}
 }
 
 /**
- * A RecourceItem is a media object like image, audio. It is used by the Resources class 
+ * A RecourceItem is a media object like image, audio. It is used by the Resources class
  * during the preload phase of the engine loading.
  */
 class ResourceItem {
 
-	constructor(params, event={success: 'load', error: 'error'}){
+	constructor(params, event={success: 'load', error: 'error'}) {
 		Debug.validateParams('Resources.add', params, ["url", "type", "name"]);
 		Object.assign(this, params);
 		this.event = event;
 		this.item = {};
 	}
 
-	load(success, error){
+	load(success, error) {
 		this.item = document.createElement(this.type);
 		this.item.src = this.url;
-		(function(that){
-			that.item.addEventListener(that.event.success, listenSuccess);
-			that.item.addEventListener(that.event.error, listenError);
-			function listenSuccess(){
+		(function(that) {
+			function listenSuccess() {
 				Debug.success(`Loaded resource ${that.name}`);
 				that.item.removeEventListener(that.event.success, listenSuccess);
 				success();
 			}
-			function listenError(){
+			function listenError() {
 				Debug.success(`Loaded resource ${that.name}`);
 				that.item.removeEventListener(that.event.error, listenError);
 				error();
 			}
+			that.item.addEventListener(that.event.success, listenSuccess);
+			that.item.addEventListener(that.event.error, listenError);
 		})(this);
 	}
 
@@ -1406,7 +1367,7 @@ class ResourceItem {
  */
 class Resources extends Component{
 
-	constructor(params, engine){
+	constructor(params, engine) {
 		super(params, engine);
 		this.items = {};
 		this.length = 0;
@@ -1424,28 +1385,28 @@ class Resources extends Component{
 		};
 	}
 
-	init(){
+	init() {
 		super.init();
 	}
 
-	add(params){
+	add(params) {
 		// resources will be always overrided if existed before, problem in the future?
 		this.items[params.name] = new ResourceItem(params, this.events[params.type]);
 		this.length++;
 	}
-	get(name){
+	get(name) {
 		return this.items[name].item;
 	}
-	remove(name){
+	remove(name) {
 		delete this.items.name;
 	}
 
-	success(){
+	success() {
 		this.loaded++;
 		this.checkAllResourcesLoaded();
 	}
 
-	error(){
+	error() {
 		// game continues even if resource failed to load.
 		// better implementation pending.
 		this.errors++;
@@ -1453,10 +1414,10 @@ class Resources extends Component{
 		this.checkAllResourcesLoaded();
 	}
 
-	checkAllResourcesLoaded(){
+	checkAllResourcesLoaded() {
 
-		if(this.loaded == this.length){
-			if(this.errors){
+		if (this.loaded === this.length) {
+			if (this.errors) {
 				Debug.warn(`${this.errors} resources failed to load`);
 			}
 			Debug.groupEnd();
@@ -1466,11 +1427,11 @@ class Resources extends Component{
 			this.callback(this.engine);
 		}
 	}
-	preload(callback){
+	preload(callback) {
 		this.callback = callback;
 		let names = Object.keys(this.items);
 		Debug.group('Preloading Resources');
-		for(let name of names){
+		for (let name of names) {
 			this.items[name].load(this.success.bind(this), this.error.bind(this));
 		}
 
@@ -1485,7 +1446,7 @@ class PlatformController extends Component {
 	__params__() {
 		return ["tilemap"];
 	}
-	getCoorners(x1, y1, width, height){
+	getCoorners(x1, y1, width, height) {
 		return this.tilemap.getCoorners(x1, y1, width, height);
 	}
 	checkForWalls(sprite, moveDistanceX) {
@@ -1535,7 +1496,7 @@ class PlatformController extends Component {
 	}
 }
 class Player extends Sprite{
-	constructor(params){
+	constructor(params) {
 		super(params);
 		this.color = "blue";
 		this.coorners = {};
@@ -1558,10 +1519,10 @@ class Player extends Sprite{
 		this.dirX = 0;
 		this.addCollider(-10, -10, this.width+10, this.height+10);
 	}
-	getCoorners(x, y){
+	getCoorners(x, y) {
 		return this.controller.getCoorners(x, y, this.width, this.height);
 	}
-	init(){
+	init() {
 		this.input = this.getComponent("Input");
 		this.display = this.getComponent("Display");
 		this.time = this.getComponent("Time");
@@ -1573,7 +1534,7 @@ class Player extends Sprite{
 		this.camera.x = Math.floor(this.x - this.camera.width / 2);
 		this.camera.y = Math.floor(this.y - this.camera.height / 2);
 	}
-	move(){
+	move() {
 		// left right movement
 		let moveDistanceX = 0;
 		let inputX = this.input.getAxisHorizontal();
@@ -1613,21 +1574,21 @@ class Player extends Sprite{
 		this.y += moveDistanceY;
 		this.camera.y += moveDistanceY;
 		// jump pressed and not jumping
-		if(this.input.keyCode("ArrowUp") && !this.jumping){
+		if (this.input.keyCode("ArrowUp") && !this.jumping) {
 			this.jumping = true;
 			this.velocityY = -this.jumpForce;
 		}
 		// jump released and jumping
-		if(!this.input.keyCode("ArrowUp") && this.jumping){
-			if(this.velocityY < -this.jumpForce/2){
+		if (!this.input.keyCode("ArrowUp") && this.jumping) {
+			if (this.velocityY < -this.jumpForce/2) {
 				this.velocityY = -this.jumpForce/2;
 			}
 		}
 	}
-	draw(){
+	draw() {
 		this.display.fillRect(this.x, this.y, this.width, this.height, this.color);
 	}
-	collision(sprite){
+	collision(sprite) {
 
 	}
 }

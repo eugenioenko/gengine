@@ -1,8 +1,8 @@
 class Events extends Component{
-	constructor(params, engine){
+	constructor(params, engine) {
 		super(params, engine);
 	}
-	init(){
+	init() {
         let input = this.getComponent("Input");
         let display = this.getComponent("Display");
         display.canvas.addEventListener("mousemove", input.mouseMove.bind(input), false);
@@ -13,7 +13,7 @@ class Events extends Component{
 		window.addEventListener("keyup", input.keyUp.bind(input), false);
 		super.init();
 	}
-	__params__(){
+	__params__() {
 		return [];
 	}
 }

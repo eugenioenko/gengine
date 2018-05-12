@@ -1,6 +1,6 @@
 var global_tile_value = 2;
 class Input extends Component{
-	constructor(params, engine){
+	constructor(params, engine) {
 		super(params, engine);
 		this.keyCode_ = {};
 		this.mouse = {
@@ -9,11 +9,11 @@ class Input extends Component{
 			inside: false
 		};
 	}
-	init(){
+	init() {
 		this.camera = this.getComponent("Camera");
 		super.init();
 	}
-	__params__(){
+	__params__() {
 		return [];
 	}
 	mouseMove(e) {
@@ -36,16 +36,16 @@ class Input extends Component{
 		let y = this.engine.tilemap.getTileY(this.mouse.y + this.camera.y);
 		this.engine.tilemap.write(x, y, parseInt(document.getElementById("tile").value));
 	}
-	keyDown(e){
+	keyDown(e) {
 		this.keyCode_[e.code] = true;
 	}
-	keyUp(e){
+	keyUp(e) {
 		this.keyCode_[e.code] = false;
 	}
-	keyCode(code){
+	keyCode(code) {
 		return typeof this.keyCode_[code] !== "undefined" ? this.keyCode_[code] : false;
 	}
-	getAxisHorizontal(){
+	getAxisHorizontal() {
 		let result =  this.keyCode("ArrowLeft") ? -1 : 0;
 		result += this.keyCode("ArrowRight") ? 1 : 0;
 		return result;

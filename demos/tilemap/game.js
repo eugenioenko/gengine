@@ -4,13 +4,13 @@
 
 var e;
 
-function Preload(engine){
+function Preload(engine) {
 	e = engine;
 	engine.resources.add({ url: 'resources/images/mario.png', type: 'img', name: "marioworld" });
 
 }
 
-function Game(engine){
+function Game(engine) {
 	var map = [
   1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  9,
   1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
@@ -61,7 +61,7 @@ function Game(engine){
 		new Tile({ solid: { top: true, bottom: true, right: false, left: false }, angle: 45 }), //7
 		new Tile({ solid: { top: true, bottom: true, right: true, left: true }, angle: 45 }), //8
 	];
-	for(let i = 9; i < 300; ++i) {
+	for (let i = 9; i < 300; ++i) {
 		tiles[i] = tiles[0]
 	}
 	tiles[41] = tiles[4];

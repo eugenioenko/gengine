@@ -1,4 +1,4 @@
-var io = require('socket.io')();
+let io = require('socket.io')();
 
 console.log('Server is listening');
 

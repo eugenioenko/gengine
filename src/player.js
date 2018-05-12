@@ -7,7 +7,7 @@ class PlatformController extends Component {
 	__params__() {
 		return ["tilemap"];
 	}
-	getCoorners(x1, y1, width, height){
+	getCoorners(x1, y1, width, height) {
 		return this.tilemap.getCoorners(x1, y1, width, height);
 	}
 	checkForWalls(sprite, moveDistanceX) {
@@ -57,7 +57,7 @@ class PlatformController extends Component {
 	}
 }
 class Player extends Sprite{
-	constructor(params){
+	constructor(params) {
 		super(params);
 		this.color = "blue";
 		this.coorners = {};
@@ -80,10 +80,10 @@ class Player extends Sprite{
 		this.dirX = 0;
 		this.addCollider(-10, -10, this.width+10, this.height+10);
 	}
-	getCoorners(x, y){
+	getCoorners(x, y) {
 		return this.controller.getCoorners(x, y, this.width, this.height);
 	}
-	init(){
+	init() {
 		this.input = this.getComponent("Input");
 		this.display = this.getComponent("Display");
 		this.time = this.getComponent("Time");
@@ -95,7 +95,7 @@ class Player extends Sprite{
 		this.camera.x = Math.floor(this.x - this.camera.width / 2);
 		this.camera.y = Math.floor(this.y - this.camera.height / 2);
 	}
-	move(){
+	move() {
 		// left right movement
 		let moveDistanceX = 0;
 		let inputX = this.input.getAxisHorizontal();
@@ -135,21 +135,21 @@ class Player extends Sprite{
 		this.y += moveDistanceY;
 		this.camera.y += moveDistanceY;
 		// jump pressed and not jumping
-		if(this.input.keyCode("ArrowUp") && !this.jumping){
+		if (this.input.keyCode("ArrowUp") && !this.jumping) {
 			this.jumping = true;
 			this.velocityY = -this.jumpForce;
 		}
 		// jump released and jumping
-		if(!this.input.keyCode("ArrowUp") && this.jumping){
-			if(this.velocityY < -this.jumpForce/2){
+		if (!this.input.keyCode("ArrowUp") && this.jumping) {
+			if (this.velocityY < -this.jumpForce/2) {
 				this.velocityY = -this.jumpForce/2;
 			}
 		}
 	}
-	draw(){
+	draw() {
 		this.display.fillRect(this.x, this.y, this.width, this.height, this.color);
 	}
-	collision(sprite){
+	collision(sprite) {
 
 	}
 }
