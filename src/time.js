@@ -1,3 +1,4 @@
+/* exported Time */
 /**
  * Manages the time of the game.
  * time.startTime: seconds elapsed scince the game started
@@ -10,7 +11,8 @@
  * 30fps: deltaTime == 2
  * 15fps: deltaTime == 4
  */
-class Time extends Component{
+class Time extends Component {
+
 	constructor(params, engine) {
 		super(params, engine);
 		this.deltaTime = 0;
@@ -21,13 +23,16 @@ class Time extends Component{
 		this.startTime = performance.now() / 1000;
 		this.lastTime = this.startTime;
 	}
+
 	__params__() {
 		return [];
 	}
+
 	init() {
 		this.lastTime = performance.now() / 1000;
 		super.init();
 	}
+
 	move() {
 		let current = performance.now() / 1000;
 		this.deltaTimeFS = current - this.lastTime;

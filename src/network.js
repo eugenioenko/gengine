@@ -1,3 +1,4 @@
+/* exported Network */
 class Network extends Component{
 	constructor(params, engine) {
 		super(params, engine);
@@ -48,7 +49,7 @@ class Network extends Component{
 		this.socket.disconnect();
 	}
 
-	onConnect(data) {
+	onConnect(data) {  // jshint ignore:line
 		Debug.success(`Connected to the server`);
 		this.socket.emit('init_player', {
 			id: this.socket.id,
@@ -57,11 +58,11 @@ class Network extends Component{
 		});
 	}
 
-	onDisconnect(data) {
+	onDisconnect(data) {  // jshint ignore:line
 		this.socket.disconnect();
 	}
 
-	onConnectionError(data) {
+	onConnectionError(data) {  // jshint ignore:line
 		Debug.warn(`Server connection error`);
 		this.socket.disconnect();
 	}

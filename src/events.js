@@ -1,7 +1,10 @@
-class Events extends Component{
+/* exported Events */
+class Events extends Component {
+
 	constructor(params, engine) {
 		super(params, engine);
 	}
+
 	init() {
         let input = this.getComponent("Input");
         let display = this.getComponent("Display");
@@ -13,7 +16,9 @@ class Events extends Component{
 		window.addEventListener("keyup", input.keyUp.bind(input), false);
 		super.init();
 	}
+
 	__params__() {
 		return [];
 	}
+
 }

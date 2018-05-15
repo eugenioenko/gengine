@@ -1,4 +1,4 @@
-
+/* exported Tile, TileMap */
 class Tile extends GameObject {
 
 	constructor(params) {
@@ -69,6 +69,7 @@ class TileMap extends Sprite {
 	randomize() {
 		this.map.randomize();
 	}
+
 	getTileX(x) {
 		return Math.floor((x / this.twidth) % this.mwidth);
 	}

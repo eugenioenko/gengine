@@ -1,3 +1,4 @@
+/* exported Debug */
 /**
  * Class with static methods to facilitate the messages on the javascript console.
  * All the methods of Debug class will only run if the debug mode is on.
@@ -7,7 +8,7 @@
  * While developing your project, its recomended to have the debug mode on to get
  * some messages of the state of the engine.
  */
-class Debug{
+class Debug {
 
 	static active() {
 		return window.GENGINE_DEBUG_MODE;
@@ -48,6 +49,7 @@ class Debug{
 		if (!Debug.active()) return;
 		console.groupEnd();
 	}
+
 	/**
 	 * Validates that the object literal of the constructor
 	 * has the elements of the required array

@@ -1,3 +1,4 @@
+/* exported GameObject, Rect */
 /**
  * Base Object of mostly all the classes of the engine.
  * It creates a structure so that when instances of objects are created,
@@ -13,6 +14,7 @@
  *
  */
 class GameObject {
+
 	constructor(params) {
 		Debug.validateParams(this.constructor.name, params, this.__params__());
 		Object.assign(this, params);
@@ -23,19 +25,24 @@ class GameObject {
 			}
 		}
 	}
+
 	__params__() {
 		return [];
 	}
+
 	__config__() {
 		return {};
 	}
+
 	init() { }
 }
 
 class Rect extends GameObject {
+
 	constructor(params) {
 		super(params);
 	}
+
 	__params__() {
 		return ["x", "y", "width", "height"];
 	}

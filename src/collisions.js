@@ -1,8 +1,10 @@
+/* exported TestCollision */
 /**
  * A class with static methods which test for collision between different
  * types of colliders.
  */
-class TestCollision{
+class TestCollision {
+
 	static CircleVsRect(circle, rect) {
 		let halfRectWidth = rect.width / 2;
 		let halfRectHeight = rect.height / 2;
@@ -17,9 +19,11 @@ class TestCollision{
 		let dy = halfDistY - halfRectHeight;
 		return (dx * dx + dy * dy <= Math.pow(circle.radius,2));
 	}
+
 	static RectVsCircle(rect, circle) {
 		return this.CircleVsRect(circle, rect);
 	}
+
 	static RectVsRect(rect1, rect2) {
 		if (rect1.gx <= rect2.gx + rect2.width &&
 			rect1.gx + rect1.width > rect2.gx &&
@@ -30,6 +34,7 @@ class TestCollision{
 		}
 		return false;
 	}
+
 	static CircleVsCircle(circle1, circle2) {
 		let dx = circle1.gx - circle2.gx;
 		let dy = circle1.gy - circle2.gy;

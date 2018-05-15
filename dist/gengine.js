@@ -1,5 +1,5 @@
 "use strict"; // jshint ignore:line
-
+/* exported Maths */
 class Maths{
 	/**
 	 * Clamps a value between min and max
@@ -10,15 +10,19 @@ class Maths{
 	static clamp(value, min, max) {
 		 return Math.min(Math.max(value, min), max);
 	}
+
 	static lerp(min, max, t) {
 		return min + (max - min) * t;
 	}
+
 	static rand(min, max) {
 		return Math.floor(Math.random() * (max - min + 1)) + min;
 	}
+
 	static randRange(min, max) {
 		return Math.floor(Math.random() * (max - min + 1)) + min;
 	}
+
 	static smoothDamp(current, target, $currentVelocity, smoothTime, maxSpeed, deltaTime) {
 		smoothTime = Math.max(0.0001, smoothTime);
 		let num = 2.0 / smoothTime;
@@ -32,7 +36,7 @@ class Maths{
 		let num7 = ($currentVelocity.cv + num * num4) * deltaTime;
 		$currentVelocity.cv = ($currentVelocity.cv - num * num7) * num3;
 		let num8 = target + (num4 + num7) * num3;
-		if ((num5 - current > 0.0) == (num8 > num5)) {
+		if ((num5 - current > 0.0) === (num8 > num5)) {
 			num8 = num5;
 			$currentVelocity.cv = (num8 - num5) / deltaTime;
 		}
@@ -51,6 +55,7 @@ class Maths{
 	}
 }
 
+/* exported Debug */
 /**
  * Class with static methods to facilitate the messages on the javascript console.
  * All the methods of Debug class will only run if the debug mode is on.
@@ -60,7 +65,7 @@ class Maths{
  * While developing your project, its recomended to have the debug mode on to get
  * some messages of the state of the engine.
  */
-class Debug{
+class Debug {
 
 	static active() {
 		return window.GENGINE_DEBUG_MODE;
@@ -101,6 +106,7 @@ class Debug{
 		if (!Debug.active()) return;
 		console.groupEnd();
 	}
+
 	/**
 	 * Validates that the object literal of the constructor
 	 * has the elements of the required array
@@ -118,6 +124,7 @@ class Debug{
 
 }
 
+/* exported GameObject, Rect */
 /**
  * Base Object of mostly all the classes of the engine.
  * It creates a structure so that when instances of objects are created,
@@ -133,6 +140,7 @@ class Debug{
  *
  */
 class GameObject {
+
 	constructor(params) {
 		Debug.validateParams(this.constructor.name, params, this.__params__());
 		Object.assign(this, params);
@@ -143,19 +151,24 @@ class GameObject {
 			}
 		}
 	}
+
 	__params__() {
 		return [];
 	}
+
 	__config__() {
 		return {};
 	}
+
 	init() { }
 }
 
 class Rect extends GameObject {
+
 	constructor(params) {
 		super(params);
 	}
+
 	__params__() {
 		return ["x", "y", "width", "height"];
 	}
@@ -174,8 +187,11 @@ class Rect extends GameObject {
 			this.height + this.y >= rect.y);
 	}
 }
+
+/* exported Utils */
 class Utils{
 	constructor() {
+
 		this.autoIncrementGen = (function*() {
 			let count = 0;
 			while(count++ < Number.MAX_SAFE_INTEGER) {
@@ -183,8 +199,13 @@ class Utils{
 			}
 		})();
 
-		this.characters = ['A','a','B','b','C','c','D','d','E','e','F','f','G','g','H','h','I','i','J','j','K','k','L','l','M','m','N','n','O','o','P','p','Q','q','R','r','S','s','T','t','U','u','V','v','W','w','X','x','Y','y','Z','z','$'];
+		this.characters = [
+			'A','a','B','b','C','c','D','d','E','e','F','f','G','g','H','h','I','i',
+			'J','j','K','k','L','l','M','m','N','n','O','o','P','p','Q','q','R','r',
+			'S','s','T','t','U','u','V','v','W','w','X','x','Y','y','Z','z','$'
+		];
 	}
+
 	randomId(length=6) {
 		let result = '';
 		for (let i = 0; i < length; ++i) {
@@ -192,6 +213,7 @@ class Utils{
 		}
 		return result;
 	}
+
 	/**
 	 * Auto Increment generator
 	 * @return {Number} An autoIncremented Number
@@ -199,8 +221,10 @@ class Utils{
 	autoIncrement() {
 		return this.autoIncrementGen.next().value;
 	}
+
 }
 
+/* exported Component */
 /**
  * A Base class of a Gengine component.
  * A component is a piece of the Engine and the Engine consists of multiple
@@ -211,7 +235,8 @@ class Utils{
  * of itself to the Component constructor and then call the init() method of the
  * component.
  */
-class Component extends GameObject{
+class Component extends GameObject {
+
 	constructor(params, engine) {
 		super(params);
 		this.engine = engine;
@@ -230,6 +255,8 @@ class Component extends GameObject{
 
 	draw() { }
 }
+
+/* exported Time */
 /**
  * Manages the time of the game.
  * time.startTime: seconds elapsed scince the game started
@@ -242,7 +269,8 @@ class Component extends GameObject{
  * 30fps: deltaTime == 2
  * 15fps: deltaTime == 4
  */
-class Time extends Component{
+class Time extends Component {
+
 	constructor(params, engine) {
 		super(params, engine);
 		this.deltaTime = 0;
@@ -253,13 +281,16 @@ class Time extends Component{
 		this.startTime = performance.now() / 1000;
 		this.lastTime = this.startTime;
 	}
+
 	__params__() {
 		return [];
 	}
+
 	init() {
 		this.lastTime = performance.now() / 1000;
 		super.init();
 	}
+
 	move() {
 		let current = performance.now() / 1000;
 		this.deltaTimeFS = current - this.lastTime;
@@ -271,8 +302,10 @@ class Time extends Component{
 	}
 }
 
-var global_tile_value = 2;
-class Input extends Component{
+let global_tile_value = 2;
+/* exported Input */
+class Input extends Component {
+
 	constructor(params, engine) {
 		super(params, engine);
 		this.keyCode_ = {};
@@ -282,6 +315,7 @@ class Input extends Component{
 			inside: false
 		};
 	}
+
 	init() {
 		this.camera = this.getComponent("Camera");
 		super.init();
@@ -289,6 +323,7 @@ class Input extends Component{
 	__params__() {
 		return [];
 	}
+
 	mouseMove(e) {
 		let rect = this.engine.display.canvas.getBoundingClientRect();
 		this.mouse.x = e.clientX - rect.left;
@@ -298,49 +333,63 @@ class Input extends Component{
 			this.camera.y -= e.movementY;
 		}
 	}
-	mouseEnter(e) {
+
+	mouseEnter() {
 		this.mouse.inside = true;
 	}
-	mouseLeave(e) {
+
+	mouseLeave() {
 		this.mouse.inside = false;
 	}
-	mouseClick(e) {
+
+	mouseClick() {
 		let x = this.engine.tilemap.getTileX(this.mouse.x + this.camera.x);
 		let y = this.engine.tilemap.getTileY(this.mouse.y + this.camera.y);
 		this.engine.tilemap.write(x, y, parseInt(document.getElementById("tile").value));
 	}
+
 	keyDown(e) {
 		this.keyCode_[e.code] = true;
 	}
+
 	keyUp(e) {
 		this.keyCode_[e.code] = false;
 	}
+
 	keyCode(code) {
 		return typeof this.keyCode_[code] !== "undefined" ? this.keyCode_[code] : false;
 	}
+
 	getAxisHorizontal() {
 		let result =  this.keyCode("ArrowLeft") ? -1 : 0;
 		result += this.keyCode("ArrowRight") ? 1 : 0;
 		return result;
 	}
+
 	getAxisVertical() {
 		let result = this.keyCode("ArrowUp") ? -1 : 0;
 		result += this.keyCode("ArrowDown") ? 1 : 0;
 		return result;
 	}
 }
+
+/* exported Display, CanvasDisplay, WebGLDisplay */
 /**
  * Base/example class of the Display component of the Engine.
  */
 class Display extends Component{
+
 	constructor(params, engine) {
 		super(params, engine);
 		this.scale = 1;
 	}
+
 	set zoom(value) { }
+
 	get zoom() {
 		return this.scale;
 	}
+
 	init() {
 		this.canvas = document.getElementById(this.id);
 		this.camera = this.getComponent("Camera");
@@ -348,13 +397,17 @@ class Display extends Component{
 		this.height = this.canvas.height;
 		super.init();
 	}
+
 	clear() { }
 
 	fillRect(x, y, width, height, color) { }
+
 	rect(x, y, width, height, color) {
 		// to do: draws a rectangle
 	}
+
 	circle(x, y, width, color) { }
+
 	move() {
 		this.clear();
 	}
@@ -367,14 +420,17 @@ class CanvasDisplay extends Component{
 		super(params, engine);
 		this.scale = 1;
 	}
+
 	__params__() {
 		return ["x", "y", "width", "height"];
 	}
+
 	__configs__() {
 		return {
 			imageSmoothingEnabled: false
 		};
 	}
+
 	init () {
 		this.canvas = document.getElementById(this.id);
 		this.canvas.setAttribute('width', this.width);
@@ -386,20 +442,24 @@ class CanvasDisplay extends Component{
 		this.camera = this.getComponent("Camera");
 		super.init();
 	}
+
 	set zoom(value) {
 		this.scale = value;
 		this.ctx.scale(value, value);
 		this.engine.width = this.engine.width / value;
 		this.engine.height = this.engine.height / value;
 	}
+
 	get zoom() {
 		return this.scale;
 	}
+
 	clear() {
 		//this.ctx.clearRect(0, 0, this.width / this.scale, this.height / this.scale);
 		this.ctx.fillStyle = '#0FF';
 		this.ctx.fillRect(0, 0, this.width / this.scale, this.height / this.scale);
 	}
+
 	fillRect(x, y, width, height, color) {
 		this.ctx.beginPath();
 		this.ctx.fillStyle =  color;
@@ -407,6 +467,7 @@ class CanvasDisplay extends Component{
 		this.ctx.closePath();
 		this.ctx.fill();
 	}
+
 	rect(x, y, width, height, color) {
 		this.ctx.beginPath();
 		this.ctx.lineWidth = 1;
@@ -415,6 +476,7 @@ class CanvasDisplay extends Component{
 		this.ctx.closePath();
 		this.ctx.stroke();
 	}
+
 	circle(x, y, width, color) {
 		this.ctx.beginPath();
 		this.ctx.arc(-this.camera.x + x, -this.camera.y + y, width/2, 0, 2 * Math.PI, false);
@@ -422,6 +484,7 @@ class CanvasDisplay extends Component{
 		this.ctx.closePath();
 		this.ctx.stroke();
 	}
+
 	fillTriangleUp(x, y, width, height, color) {
 		x = -this.camera.x + x;
 		y = -this.camera.y + y;
@@ -451,16 +514,19 @@ class CanvasDisplay extends Component{
 	fillText(text, x, y) {
 		this.ctx.fillText(text, x, y);
 	}
+
 	drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight) {
 		this.ctx.drawImage(image, sx, sy, sWidth, sHeight, dx, dy,dWidth, dHeight);
 	}
+
 	drawTile(x, y, width, height, sheet, index) {
 		let tile = sheet.tiles[index];
 		this.ctx.drawImage(sheet.image, tile.x, tile.y, sheet.width, sheet.height, x - this.camera.x, y - this.camera.y, width, height);
 	}
 }
 
-class WebGLDisplay extends Display{
+class WebGLDisplay extends Display {
+
 	constructor(params) {
 		super(params);
 		this.canvas = document.getElementById(this.id);
@@ -476,10 +542,13 @@ class WebGLDisplay extends Display{
 	}
 }
 
-class Events extends Component{
+/* exported Events */
+class Events extends Component {
+
 	constructor(params, engine) {
 		super(params, engine);
 	}
+
 	init() {
         let input = this.getComponent("Input");
         let display = this.getComponent("Display");
@@ -491,10 +560,14 @@ class Events extends Component{
 		window.addEventListener("keyup", input.keyUp.bind(input), false);
 		super.init();
 	}
+
 	__params__() {
 		return [];
 	}
+
 }
+
+/* exported Network */
 class Network extends Component{
 	constructor(params, engine) {
 		super(params, engine);
@@ -545,7 +618,7 @@ class Network extends Component{
 		this.socket.disconnect();
 	}
 
-	onConnect(data) {
+	onConnect(data) {  // jshint ignore:line
 		Debug.success(`Connected to the server`);
 		this.socket.emit('init_player', {
 			id: this.socket.id,
@@ -554,11 +627,11 @@ class Network extends Component{
 		});
 	}
 
-	onDisconnect(data) {
+	onDisconnect(data) {  // jshint ignore:line
 		this.socket.disconnect();
 	}
 
-	onConnectionError(data) {
+	onConnectionError(data) {  // jshint ignore:line
 		Debug.warn(`Server connection error`);
 		this.socket.disconnect();
 	}
@@ -593,7 +666,9 @@ class Network extends Component{
 
 }
 
+/* exported QuadTree */
 class QuadTree extends Rect {
+
     constructor (params) {
         super(params);
         this.sectors = [];
@@ -686,11 +761,14 @@ for (let i = 0; i < 30; ++i) {
         height: 10
     });
 }
+
+/* exported TestCollision */
 /**
  * A class with static methods which test for collision between different
  * types of colliders.
  */
-class TestCollision{
+class TestCollision {
+
 	static CircleVsRect(circle, rect) {
 		let halfRectWidth = rect.width / 2;
 		let halfRectHeight = rect.height / 2;
@@ -705,9 +783,11 @@ class TestCollision{
 		let dy = halfDistY - halfRectHeight;
 		return (dx * dx + dy * dy <= Math.pow(circle.radius,2));
 	}
+
 	static RectVsCircle(rect, circle) {
 		return this.CircleVsRect(circle, rect);
 	}
+
 	static RectVsRect(rect1, rect2) {
 		if (rect1.gx <= rect2.gx + rect2.width &&
 			rect1.gx + rect1.width > rect2.gx &&
@@ -718,6 +798,7 @@ class TestCollision{
 		}
 		return false;
 	}
+
 	static CircleVsCircle(circle1, circle2) {
 		let dx = circle1.gx - circle2.gx;
 		let dy = circle1.gy - circle2.gy;
@@ -728,24 +809,31 @@ class TestCollision{
 		return false;
 	}
 }
+
+/* exported Collider, CircleCollider, RectCollider */
 /**
  * Collider represents a rect/circle which can collide with another collider.
  * The position of the collider is relative to its parent sprite.
  * A sprite can have "infinite" number of colliders.
  */
 class Collider extends GameObject {
+
 	constructor(params) {
 		super(params);
 	}
-	test(collider) {
+
+	test(collider) {  // jshint ignore:line
 		// to do
 	}
+
 	get gx() {
 		return this.parent.x + this.x;
 	}
+
 	get gy() {
 		return this.parent.y + this.y;
 	}
+
 	debugDraw(color) {
 		color = typeof color === "undefined" ? "red" : color;
 		if (this.parent && this.parent.display)
@@ -756,10 +844,12 @@ class Collider extends GameObject {
  * CircleCollider is a Collider with a circular shape.
  */
 class CircleCollider extends Collider {
+
 	constructor(params) {
 		super(params);
 		this.radius = this.width / 2;
 	}
+
 	test(collider) {
 		if (collider instanceof CircleCollider) {
 			return TestCollision.CircleVsCircle(this, collider);
@@ -769,6 +859,7 @@ class CircleCollider extends Collider {
 		}
 		return false; //posible bug with not knowing which collider to choose
 	}
+
 	debugDraw(color) {
 		color = typeof color === "undefined" ? "red" : color;
 		if (this.parent && this.parent.display)
@@ -779,12 +870,15 @@ class CircleCollider extends Collider {
  * RectCollider is a collider with a rectange/square shape.
  */
 class RectCollider extends Collider {
+
 	constructor(params) {
 		super(params);
 	}
+
 	__params__() {
 		return ["parent", "x", "y", "width", "height"];
 	}
+
 	test(collider) {
 		if (collider instanceof CircleCollider) {
 			return TestCollision.CircleVsRect(collider, this);
@@ -796,12 +890,15 @@ class RectCollider extends Collider {
 		Debug.error("Unknown collider " + typeof collider);
 		return false; //if unknow collider will return false, posible bug
 	}
+
 	debugDraw(color) {
 		color = typeof color === "undefined" ? "red" : color;
 		if (this.parent && this.parent.display)
 			this.parent.display.rect(this.gx, this.gy, this.width, this.height, color);
 	}
 }
+
+/* exported Point, SpriteSheet */
 class Point{
 	constructor(x, y) {
 		this.x = x;
@@ -813,7 +910,8 @@ class Point{
  * When created, the Spritesheet will create the coordinates of each sprite/tile on
  * the image depending on the width/height of the frame/tile on the sheet.
  */
-class SpriteSheet extends GameObject{
+class SpriteSheet extends GameObject {
+
 	constructor(params) {
 		super(params);
 		this.tiles = [];
@@ -837,9 +935,11 @@ class SpriteSheet extends GameObject{
 			}
 		}
 	}
+
 	__params__() {
 		return ["width", "height", "image"];
 	}
+
 	__config__() {
 		return {
 			offsetX: 0,
@@ -847,24 +947,29 @@ class SpriteSheet extends GameObject{
 			padding: 0
 		};
 	}
-
 }
+
+/* exported Sprite */
 /**
  * Base Sprite component. Every Sprite of the engine should derive from this class.
  * Sprites are object which per each loop of the game move and draw.
  */
-class Sprite extends GameObject{
+class Sprite extends GameObject {
+
 	constructor(params) {
 		super(params);
 		this.colliders = [];
 		this.colliding = false;
 	}
+
 	__params__() {
 		return ["x", "y", "width", "height"];
 	}
+
 	getComponent(name) {
 		return this.engine.getComponent(name);
 	}
+
 	addCollider(x, y, width, height) {
 		this.colliders.push(new RectCollider({
 			parent: this,
@@ -874,10 +979,12 @@ class Sprite extends GameObject{
 			height:height
 		}));
 	}
+
 	debugDraw(color = "red") {
 		if (this.parent && this.parent.display)
 			this.parent.display.rect(this.x, this.y, this.width, this.height, color);
 	}
+
 	/**
 	 * Tests for possible collision between two sprites and if
 	 * that happens, tests for individual colliders;
@@ -897,14 +1004,17 @@ class Sprite extends GameObject{
 	 * Method called when the sprite is added to a scene after creation
 	 */
 	init() { }
+
 	/**
 	 * Method executed each game loop
 	 */
 	move() { }
+
 	/**
 	 * Method executed each loop of the game
 	 */
 	draw() { }
+
 	/**
 	 * Callback method executed when the sprite collided with another sprite.
 	 * @param {sprite} the other sprite whith whom the collision ocurred
@@ -921,28 +1031,32 @@ class Sprite extends GameObject{
 	}
 }
 
+/* exported Scene */
 /**
  * Scene is a collection of sprites of a game level or a game scene.
  * The engine can have a single scene or multiple. Depending on the active scene of
  * the engine, that scene sprites would be draw, moved and collided on the stage.
  */
-class Scene extends Component{
+class Scene extends Component {
 	constructor(params, engine) {
 		super(params, engine);
 		this.sprites = [];
 	}
+
 	init() {
 		this.input = this.getComponent("Input");
 		this.camera = this.getComponent("Camera");
 		this.display = this.getComponent("Display");
 		super.init();
 	}
+
 	move() {
 		this.collision();
 		for (let sprite of this.sprites) {
 			sprite.move();
 		}
 	}
+
 	draw() {
 		for (let sprite of this.sprites) {
 			sprite.draw();
@@ -951,6 +1065,7 @@ class Scene extends Component{
 			this.display.circle(this.camera.x + this.input.mouse.x - 1, this.camera.y + this.input.mouse.y - 1, 4, 'red');
 		}
 	}
+
 	addSprite(sprite) {
 		sprite.engine = this.engine;
 		sprite.init();
@@ -977,20 +1092,23 @@ class Scene extends Component{
 			}
 		}
 	}
-
-
 }
+
+/* exported Sound */
 class Sound extends Component{
 	constructor(params, engine) {
 		super(params, engine);
 	}
+
 	init() {
 		super.init();
 	}
+
 	move() {
 		// se ejecuta cada ciclo del gameloop
 		// podria estar vacio
 	}
+
 	draw() {
 		// se ejecuta cada ciclo del gameloop
 		// podria estar vacio
@@ -999,13 +1117,17 @@ class Sound extends Component{
 	play() {
 
 	}
-	stop(name) {
+
+	stop(name) {  // jshint ignore:line
 
 	}
-	pause(name) {
+
+	pause(name) {  // jshint ignore:line
 
 	}
 }
+
+/* exported Engine */
 /**
  * Engine is the main object of the game engine.
  * Engine consist of a group of different components which manage different tasks.
@@ -1014,7 +1136,7 @@ class Sound extends Component{
  * into it, call the preloader method, execute the game creation function
  * and then start executing the game loop.
  */
-class Engine extends GameObject{
+class Engine extends GameObject {
 
 	constructor(params) {
 		super(params);
@@ -1025,6 +1147,7 @@ class Engine extends GameObject{
 		this.objects = {};
 		this.gameLoop = this.loop.bind(this);
 	}
+
 	__params__() {
 		return ["canvas", "width", "height"];
 	}
@@ -1067,7 +1190,7 @@ class Engine extends GameObject{
 	static ready(params) {
 		Debug.validateParams('Engine.ready', params, ["canvas", "width", "height", "preload", "create"]);
 		(function() {
-			var engine = new Engine({
+			let engine = new Engine({
 				canvas: params.canvas,
 				width: params.width,
 				height: params.height
@@ -1081,14 +1204,14 @@ class Engine extends GameObject{
 		})();
 	}
 
-	addComponent(name, component, params = {}) {
+	addComponent(name, Component, params = {}) {
 		if (Debug.active()) {
 			if (typeof this.component[name] !== "undefined") {
 				Debug.error(`Component ${name} is already defined`);
 			}
 		}
 		params.name = name;
-		this.component[name] = new component(params, this);
+		this.component[name] = new Component(params, this);
 		this.component[name].init();
 		this.components.push(this.component[name]);
 	}
@@ -1138,12 +1261,16 @@ class Engine extends GameObject{
 		this.display.fillText(this.time.fps.toFixed(2), 20, 60);
 	}
 }
+
+/* exported Camera */
 /**
  * Component for managing camera position on the screen.
  * The Camera is the viewport of the game, meaning you see the game world
  * through the camera.
+ * exported Camera
  */
-class Camera extends Component{
+class Camera extends Component {
+
 	constructor(params, engine) {
 		super(params, engine);
 		this.speed = 10;
@@ -1165,29 +1292,37 @@ class Camera extends Component{
 	}
 
 }
+
+/* exported Matrix */
 class Matrix {
+
 	constructor(width, height) {
 		this.array = new Uint16Array(width * height);
 		this.width = width;
 		this.height = height;
 	}
+
 	read(x, y) {
 		return this.array[y * this.width + x];
 	}
+
 	write(x, y, value) {
 		this.array[y * this.width + x] = value;
 	}
+
 	load(array) {
 		this.array = new Uint16Array(array);
 	}
+
 	randomize() {
 		for (let i = 0; i < this.array.length; ++i) {
 			this.array[i] = Maths.rand(0, 3);
 		}
 	}
+
 }
 
-
+/* exported Tile, TileMap */
 class Tile extends GameObject {
 
 	constructor(params) {
@@ -1258,6 +1393,7 @@ class TileMap extends Sprite {
 	randomize() {
 		this.map.randomize();
 	}
+
 	getTileX(x) {
 		return Math.floor((x / this.twidth) % this.mwidth);
 	}
@@ -1328,12 +1464,12 @@ class TileMap extends Sprite {
 	}
 }
 
+/* exported ResourceItem, Resources */
 /**
  * A RecourceItem is a media object like image, audio. It is used by the Resources class
  * during the preload phase of the engine loading.
  */
 class ResourceItem {
-
 	constructor(params, event={success: 'load', error: 'error'}) {
 		Debug.validateParams('Resources.add', params, ["url", "type", "name"]);
 		Object.assign(this, params);
@@ -1366,7 +1502,6 @@ class ResourceItem {
  * It handles adding and getting the resources by a name and also the preload phase of the engine loading.
  */
 class Resources extends Component{
-
 	constructor(params, engine) {
 		super(params, engine);
 		this.items = {};
@@ -1394,11 +1529,13 @@ class Resources extends Component{
 		this.items[params.name] = new ResourceItem(params, this.events[params.type]);
 		this.length++;
 	}
+
 	get(name) {
 		return this.items[name].item;
 	}
+
 	remove(name) {
-		delete this.items.name;
+		delete this.items[name];
 	}
 
 	success() {
@@ -1427,6 +1564,7 @@ class Resources extends Component{
 			this.callback(this.engine);
 		}
 	}
+
 	preload(callback) {
 		this.callback = callback;
 		let names = Object.keys(this.items);
@@ -1437,18 +1575,24 @@ class Resources extends Component{
 
 	}
 }
+
+/* exported PlatformController, Player */
 class PlatformController extends Component {
+
 	constructor(params, engine) {
 		super(params, engine);
 		this.maxVelocityY = 10;
 		this.gravity = 0.5;
 	}
+
 	__params__() {
 		return ["tilemap"];
 	}
+
 	getCoorners(x1, y1, width, height) {
 		return this.tilemap.getCoorners(x1, y1, width, height);
 	}
+
 	checkForWalls(sprite, moveDistanceX) {
 		moveDistanceX = Math.floor(moveDistanceX);
 		let coorners = this.getCoorners(sprite.x + moveDistanceX, sprite.y, sprite.width, sprite.height);
@@ -1467,6 +1611,7 @@ class PlatformController extends Component {
 		}
 		return moveDistanceX;
 	}
+
 	applyGravity(sprite) {
 		let moveDistanceY = Math.floor(sprite.velocityY);
 		if (!sprite.jumping) {
@@ -1490,12 +1635,15 @@ class PlatformController extends Component {
 		}
 		return moveDistanceY;
 	}
+
 	init() {
 		super.init();
 		this.time = this.getComponent("Time");
 	}
 }
-class Player extends Sprite{
+
+class Player extends Sprite {
+
 	constructor(params) {
 		super(params);
 		this.color = "blue";
@@ -1519,9 +1667,11 @@ class Player extends Sprite{
 		this.dirX = 0;
 		this.addCollider(-10, -10, this.width+10, this.height+10);
 	}
+
 	getCoorners(x, y) {
 		return this.controller.getCoorners(x, y, this.width, this.height);
 	}
+
 	init() {
 		this.input = this.getComponent("Input");
 		this.display = this.getComponent("Display");
@@ -1534,6 +1684,7 @@ class Player extends Sprite{
 		this.camera.x = Math.floor(this.x - this.camera.width / 2);
 		this.camera.y = Math.floor(this.y - this.camera.height / 2);
 	}
+
 	move() {
 		// left right movement
 		let moveDistanceX = 0;
@@ -1585,10 +1736,12 @@ class Player extends Sprite{
 			}
 		}
 	}
+
 	draw() {
 		this.display.fillRect(this.x, this.y, this.width, this.height, this.color);
 	}
-	collision(sprite) {
+
+	collision(sprite) {  // jshint ignore:line
 
 	}
 }

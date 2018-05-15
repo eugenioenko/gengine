@@ -1,14 +1,18 @@
+/* exported Sound */
 class Sound extends Component{
 	constructor(params, engine) {
 		super(params, engine);
 	}
+
 	init() {
 		super.init();
 	}
+
 	move() {
 		// se ejecuta cada ciclo del gameloop
 		// podria estar vacio
 	}
+
 	draw() {
 		// se ejecuta cada ciclo del gameloop
 		// podria estar vacio
@@ -17,10 +21,12 @@ class Sound extends Component{
 	play() {
 
 	}
-	stop(name) {
+
+	stop(name) {  // jshint ignore:line
 
 	}
-	pause(name) {
+
+	pause(name) {  // jshint ignore:line
 
 	}
 }

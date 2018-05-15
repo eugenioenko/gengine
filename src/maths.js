@@ -1,5 +1,5 @@
 "use strict"; // jshint ignore:line
-
+/* exported Maths */
 class Maths{
 	/**
 	 * Clamps a value between min and max
@@ -10,15 +10,19 @@ class Maths{
 	static clamp(value, min, max) {
 		 return Math.min(Math.max(value, min), max);
 	}
+
 	static lerp(min, max, t) {
 		return min + (max - min) * t;
 	}
+
 	static rand(min, max) {
 		return Math.floor(Math.random() * (max - min + 1)) + min;
 	}
+
 	static randRange(min, max) {
 		return Math.floor(Math.random() * (max - min + 1)) + min;
 	}
+
 	static smoothDamp(current, target, $currentVelocity, smoothTime, maxSpeed, deltaTime) {
 		smoothTime = Math.max(0.0001, smoothTime);
 		let num = 2.0 / smoothTime;
@@ -32,7 +36,7 @@ class Maths{
 		let num7 = ($currentVelocity.cv + num * num4) * deltaTime;
 		$currentVelocity.cv = ($currentVelocity.cv - num * num7) * num3;
 		let num8 = target + (num4 + num7) * num3;
-		if ((num5 - current > 0.0) == (num8 > num5)) {
+		if ((num5 - current > 0.0) === (num8 > num5)) {
 			num8 = num5;
 			$currentVelocity.cv = (num8 - num5) / deltaTime;
 		}

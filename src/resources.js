@@ -1,9 +1,9 @@
+/* exported ResourceItem, Resources */
 /**
  * A RecourceItem is a media object like image, audio. It is used by the Resources class
  * during the preload phase of the engine loading.
  */
 class ResourceItem {
-
 	constructor(params, event={success: 'load', error: 'error'}) {
 		Debug.validateParams('Resources.add', params, ["url", "type", "name"]);
 		Object.assign(this, params);
@@ -36,7 +36,6 @@ class ResourceItem {
  * It handles adding and getting the resources by a name and also the preload phase of the engine loading.
  */
 class Resources extends Component{
-
 	constructor(params, engine) {
 		super(params, engine);
 		this.items = {};
@@ -64,11 +63,13 @@ class Resources extends Component{
 		this.items[params.name] = new ResourceItem(params, this.events[params.type]);
 		this.length++;
 	}
+
 	get(name) {
 		return this.items[name].item;
 	}
+
 	remove(name) {
-		delete this.items.name;
+		delete this.items[name];
 	}
 
 	success() {
@@ -97,6 +98,7 @@ class Resources extends Component{
 			this.callback(this.engine);
 		}
 	}
+
 	preload(callback) {
 		this.callback = callback;
 		let names = Object.keys(this.items);

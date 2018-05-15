@@ -1,3 +1,4 @@
+/* exported Engine */
 /**
  * Engine is the main object of the game engine.
  * Engine consist of a group of different components which manage different tasks.
@@ -6,7 +7,7 @@
  * into it, call the preloader method, execute the game creation function
  * and then start executing the game loop.
  */
-class Engine extends GameObject{
+class Engine extends GameObject {
 
 	constructor(params) {
 		super(params);
@@ -17,6 +18,7 @@ class Engine extends GameObject{
 		this.objects = {};
 		this.gameLoop = this.loop.bind(this);
 	}
+
 	__params__() {
 		return ["canvas", "width", "height"];
 	}
@@ -59,7 +61,7 @@ class Engine extends GameObject{
 	static ready(params) {
 		Debug.validateParams('Engine.ready', params, ["canvas", "width", "height", "preload", "create"]);
 		(function() {
-			var engine = new Engine({
+			let engine = new Engine({
 				canvas: params.canvas,
 				width: params.width,
 				height: params.height
@@ -73,14 +75,14 @@ class Engine extends GameObject{
 		})();
 	}
 
-	addComponent(name, component, params = {}) {
+	addComponent(name, Component, params = {}) {
 		if (Debug.active()) {
 			if (typeof this.component[name] !== "undefined") {
 				Debug.error(`Component ${name} is already defined`);
 			}
 		}
 		params.name = name;
-		this.component[name] = new component(params, this);
+		this.component[name] = new Component(params, this);
 		this.component[name].init();
 		this.components.push(this.component[name]);
 	}

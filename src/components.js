@@ -1,3 +1,4 @@
+/* exported Component */
 /**
  * A Base class of a Gengine component.
  * A component is a piece of the Engine and the Engine consists of multiple
@@ -8,7 +9,8 @@
  * of itself to the Component constructor and then call the init() method of the
  * component.
  */
-class Component extends GameObject{
+class Component extends GameObject {
+
 	constructor(params, engine) {
 		super(params);
 		this.engine = engine;

@@ -1,9 +1,12 @@
+/* exported Camera */
 /**
  * Component for managing camera position on the screen.
  * The Camera is the viewport of the game, meaning you see the game world
  * through the camera.
+ * exported Camera
  */
-class Camera extends Component{
+class Camera extends Component {
+
 	constructor(params, engine) {
 		super(params, engine);
 		this.speed = 10;

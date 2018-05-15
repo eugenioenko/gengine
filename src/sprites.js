@@ -1,19 +1,24 @@
+/* exported Sprite */
 /**
  * Base Sprite component. Every Sprite of the engine should derive from this class.
  * Sprites are object which per each loop of the game move and draw.
  */
-class Sprite extends GameObject{
+class Sprite extends GameObject {
+
 	constructor(params) {
 		super(params);
 		this.colliders = [];
 		this.colliding = false;
 	}
+
 	__params__() {
 		return ["x", "y", "width", "height"];
 	}
+
 	getComponent(name) {
 		return this.engine.getComponent(name);
 	}
+
 	addCollider(x, y, width, height) {
 		this.colliders.push(new RectCollider({
 			parent: this,
@@ -23,10 +28,12 @@ class Sprite extends GameObject{
 			height:height
 		}));
 	}
+
 	debugDraw(color = "red") {
 		if (this.parent && this.parent.display)
 			this.parent.display.rect(this.x, this.y, this.width, this.height, color);
 	}
+
 	/**
 	 * Tests for possible collision between two sprites and if
 	 * that happens, tests for individual colliders;
@@ -46,14 +53,17 @@ class Sprite extends GameObject{
 	 * Method called when the sprite is added to a scene after creation
 	 */
 	init() { }
+
 	/**
 	 * Method executed each game loop
 	 */
 	move() { }
+
 	/**
 	 * Method executed each loop of the game
 	 */
 	draw() { }
+
 	/**
 	 * Callback method executed when the sprite collided with another sprite.
 	 * @param {sprite} the other sprite whith whom the collision ocurred

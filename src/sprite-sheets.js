@@ -1,3 +1,4 @@
+/* exported Point, SpriteSheet */
 class Point{
 	constructor(x, y) {
 		this.x = x;
@@ -9,7 +10,8 @@ class Point{
  * When created, the Spritesheet will create the coordinates of each sprite/tile on
  * the image depending on the width/height of the frame/tile on the sheet.
  */
-class SpriteSheet extends GameObject{
+class SpriteSheet extends GameObject {
+
 	constructor(params) {
 		super(params);
 		this.tiles = [];
@@ -33,9 +35,11 @@ class SpriteSheet extends GameObject{
 			}
 		}
 	}
+
 	__params__() {
 		return ["width", "height", "image"];
 	}
+
 	__config__() {
 		return {
 			offsetX: 0,
@@ -43,5 +47,4 @@ class SpriteSheet extends GameObject{
 			padding: 0
 		};
 	}
-
 }

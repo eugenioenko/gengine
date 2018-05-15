@@ -1,25 +1,29 @@
+/* exported Scene */
 /**
  * Scene is a collection of sprites of a game level or a game scene.
  * The engine can have a single scene or multiple. Depending on the active scene of
  * the engine, that scene sprites would be draw, moved and collided on the stage.
  */
-class Scene extends Component{
+class Scene extends Component {
 	constructor(params, engine) {
 		super(params, engine);
 		this.sprites = [];
 	}
+
 	init() {
 		this.input = this.getComponent("Input");
 		this.camera = this.getComponent("Camera");
 		this.display = this.getComponent("Display");
 		super.init();
 	}
+
 	move() {
 		this.collision();
 		for (let sprite of this.sprites) {
 			sprite.move();
 		}
 	}
+
 	draw() {
 		for (let sprite of this.sprites) {
 			sprite.draw();
@@ -28,6 +32,7 @@ class Scene extends Component{
 			this.display.circle(this.camera.x + this.input.mouse.x - 1, this.camera.y + this.input.mouse.y - 1, 4, 'red');
 		}
 	}
+
 	addSprite(sprite) {
 		sprite.engine = this.engine;
 		sprite.init();
@@ -54,6 +59,4 @@ class Scene extends Component{
 			}
 		}
 	}
-
-
 }

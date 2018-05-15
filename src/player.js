@@ -1,15 +1,20 @@
+/* exported PlatformController, Player */
 class PlatformController extends Component {
+
 	constructor(params, engine) {
 		super(params, engine);
 		this.maxVelocityY = 10;
 		this.gravity = 0.5;
 	}
+
 	__params__() {
 		return ["tilemap"];
 	}
+
 	getCoorners(x1, y1, width, height) {
 		return this.tilemap.getCoorners(x1, y1, width, height);
 	}
+
 	checkForWalls(sprite, moveDistanceX) {
 		moveDistanceX = Math.floor(moveDistanceX);
 		let coorners = this.getCoorners(sprite.x + moveDistanceX, sprite.y, sprite.width, sprite.height);
@@ -28,6 +33,7 @@ class PlatformController extends Component {
 		}
 		return moveDistanceX;
 	}
+
 	applyGravity(sprite) {
 		let moveDistanceY = Math.floor(sprite.velocityY);
 		if (!sprite.jumping) {
@@ -51,12 +57,15 @@ class PlatformController extends Component {
 		}
 		return moveDistanceY;
 	}
+
 	init() {
 		super.init();
 		this.time = this.getComponent("Time");
 	}
 }
-class Player extends Sprite{
+
+class Player extends Sprite {
+
 	constructor(params) {
 		super(params);
 		this.color = "blue";
@@ -80,9 +89,11 @@ class Player extends Sprite{
 		this.dirX = 0;
 		this.addCollider(-10, -10, this.width+10, this.height+10);
 	}
+
 	getCoorners(x, y) {
 		return this.controller.getCoorners(x, y, this.width, this.height);
 	}
+
 	init() {
 		this.input = this.getComponent("Input");
 		this.display = this.getComponent("Display");
@@ -95,6 +106,7 @@ class Player extends Sprite{
 		this.camera.x = Math.floor(this.x - this.camera.width / 2);
 		this.camera.y = Math.floor(this.y - this.camera.height / 2);
 	}
+
 	move() {
 		// left right movement
 		let moveDistanceX = 0;
@@ -146,10 +158,12 @@ class Player extends Sprite{
 			}
 		}
 	}
+
 	draw() {
 		this.display.fillRect(this.x, this.y, this.width, this.height, this.color);
 	}
-	collision(sprite) {
+
+	collision(sprite) {  // jshint ignore:line
 
 	}
 }

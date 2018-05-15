@@ -1,4 +1,6 @@
+/* exported QuadTree */
 class QuadTree extends Rect {
+
     constructor (params) {
         super(params);
         this.sectors = [];

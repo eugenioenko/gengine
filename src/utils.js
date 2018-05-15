@@ -1,5 +1,7 @@
+/* exported Utils */
 class Utils{
 	constructor() {
+
 		this.autoIncrementGen = (function*() {
 			let count = 0;
 			while(count++ < Number.MAX_SAFE_INTEGER) {
@@ -7,8 +9,13 @@ class Utils{
 			}
 		})();
 
-		this.characters = ['A','a','B','b','C','c','D','d','E','e','F','f','G','g','H','h','I','i','J','j','K','k','L','l','M','m','N','n','O','o','P','p','Q','q','R','r','S','s','T','t','U','u','V','v','W','w','X','x','Y','y','Z','z','$'];
+		this.characters = [
+			'A','a','B','b','C','c','D','d','E','e','F','f','G','g','H','h','I','i',
+			'J','j','K','k','L','l','M','m','N','n','O','o','P','p','Q','q','R','r',
+			'S','s','T','t','U','u','V','v','W','w','X','x','Y','y','Z','z','$'
+		];
 	}
+
 	randomId(length=6) {
 		let result = '';
 		for (let i = 0; i < length; ++i) {
@@ -16,6 +23,7 @@ class Utils{
 		}
 		return result;
 	}
+
 	/**
 	 * Auto Increment generator
 	 * @return {Number} An autoIncremented Number
@@ -23,4 +31,5 @@ class Utils{
 	autoIncrement() {
 		return this.autoIncrementGen.next().value;
 	}
+
 }
