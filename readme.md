@@ -1,55 +1,42 @@
 
 
-##  Objetivo Incial del proyecto
-Crear un motor de juegos modular basado en micro componentes. (como un lego)
-Como objetivo final, estaria bueno hacer una interface que permita generar juegos sencillos programando lo menos possible. Algo entre Unity* y GameMaker. (Unity entre comillas muuuuuuuy gordas.)
+##  Initial project Objective
+Create a game engine based on micro components
+As final objective, create a visual enviroment for creating 2d games
 
-### Trabajo en progreso
->[demo de avances aqui](https://eugenioenko.github.io/gengine/index.html)
+### Work in progress
+>[demo here](https://eugenioenko.github.io/gengine/index.html)
+
 #### Sorry
-No hay nada comentado de momento, apenas una estructura.
+There is no much comentary on the code yet
 
 
 
-## Descripcion
+## Description
+The has three basic classes
+**GameObject**, **Component**, and **Sprites**.
 
-El motor tiene 2 clases clave.
-**Component** y **Sprites**.
-
-#### Sprites
-Son todos aquellos que se genera una instancia nueva cada vez que se agregan. Normalmente son los visibles en pantalla.
+#### GameObject
+Its the base class of almost all object inside the engine.
+It's main functionality is to generate an easy way to pass arguments when creating new instances.
+It provides functionality to establish optional and necesary arguments.
 
 #### Component
-Son micromodulos de unica instancia que se inyectan en el motor.
-La idea es tener como componentes Display, Sound, Diversos controladores de Jugadores y enemigos.
-Cada componente que se agrega al motor, el motor crea la instancia, inicializa el componente y lo deja visible a todos los otros componentes y sprites mediante getComponent(name);
-
-El golazo seria: ir creando distintos componentes y luego agregar los escenciales al motoro. El resto a gusto del usuario.
-
-
-#### Network
-contiene un modulo basico de multiplayer.
-En el constructor del componente hay que pasar como parametro la instancia del sprite del jugador y el nombre de la classe para construir "dummy" sprites.
+They are mico modules singletons which are injected inside the engine.
+The idea is to have every part of the engine as a Component: Display, Sound, Input, Scene, AI, etc...
+Each component is added to the engine, the engine creates the instance, initialize the componend and makes it visible to
+the rest of the components.
 
 #### Time
-Es un componente de tiempo, contiene:
-* contador segundos desde que se inicio el juego
-* segundos que tardo en dibujarse el ultimo frame
-* **deltaTime** es una unidad relativa a los fps. Si el juego corre a 60 fps es 1. si corre a 30 es 2. Basicametne es para tener el movimiento en el juego independiente de los fps
+Time is a component which contains:
+* Counter of seconds since the game started
+* Count of miliseconds it took do draw the last frame
+* **deltaTime** is a inverse relative unit to fps. If the game runs at 60 fps, its 1. If its 30fps then 2. Used to make the movement be independent of frames
 
-#### Maths
-Una clase con metodos estaticos matematicos que no estan dentro de Math de javascript.
+## Instalation
 
-#### Collisions
-Una clase con metodos estaticos que chequea colisiones entre colliders.
-
-
-#### Collision Tree
-* Actualmente chequea las colisiones entre Todos los Sprites N^2 (estaria buenisimo pasar eso a quadtrees or spacial hashmaps o alguno de esos).
-* Cada Sprite puede tener varios Colliders adentro.
-* Actualmente se revise colision entre los rectangulos de 2 sprites y si hay colision, revisa a fondo cada collider del sprite contra cada collider del otro sprite.
-* Si hay colision, ejecuta los metodos Sprite.collision(sprite2). Le pasa como parametro el sprite con el que se colisiono.
-
+>npm install
+>gulp
 
 
 #### Tilemap uintarray16bit
@@ -80,50 +67,4 @@ Existe una estructura para validar los parametros pasados en los constructores d
 
 
 
-#### Pendientes e ideas
-* Motor Fisico
-* Motor de Sonido
-* Pathfind
 
-
-## Instalacion
-
->npm install
-
-luego
->gulp
-
-Gulp va a combinar todos los js en uno solo y de paso corre jshint por si se olvidan algun ";".
-Si se agrega un script archivo de script nuevo, hay que agregarlo manualmente en el gulpfile.js.
-
-
-## Importante
-Nada esta escrito en piedra, todo es cambiable y la idea es divertirse y aprender en el camino. Ya se ha hecho 3 reescrituras estructuras clave.
-Se usta usando ECMA 2016/2017... lo ultimo que soporte chrome, para cuando avance bastante tal vez IE lo soporte tambien.
-
-
-## [Ideas, Dudas, Sugerencias y Conversasion](https://github.com/eugenioenko/gengine/issues/1)
-[aqui](https://github.com/eugenioenko/gengine/issues/1) o en algun otro lugar que sugieran.
-
-
-#### Referencias
-
-Algunas illustraciones con el modelo de sprites y colliders
-
-![sprites y colliders ](https://eugenioenko.github.io/gengine/images/sprites-colliders.png)
-
-Position relativa de colliders respecto a sprites
-![sprites y colliders ](https://eugenioenko.github.io/gengine/images/colliders-relative.png)
-
-
-### game.js y player.js
-Son dos modulos que se usan mas que nada para tests del resto de funcionalidades.
-
-
-### Algunos tests y ejemplos
-en index.html hay una mapa de tiles con un sprite player. Flechas para mover, WASD para mover la camera.
-
-
-Aqui test de collision de 700 sprites con posicion random y movimiento circular. El motor como extra solo dibujo lineas entre el sprite actual y el siguiente en la lista de sprites.
-
-[test collision](https://codepen.io/eugenioenko/full/zPJaKR/)
