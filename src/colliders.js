@@ -1,4 +1,5 @@
 /* exported Collider, CircleCollider, RectCollider */
+
 /**
  * Collider represents a rect/circle which can collide with another collider.
  * The position of the collider is relative to its parent sprite.
@@ -57,7 +58,7 @@ class CircleCollider extends Collider {
 /**
  * RectCollider is a collider with a rectange/square shape.
  */
-class RectCollider extends Collider {
+class RectCollider extends Collider { // jshint ignore:line
 
 	constructor(params) {
 		super(params);

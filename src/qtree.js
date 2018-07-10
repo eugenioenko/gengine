@@ -11,7 +11,7 @@ class QuadTree extends Rect {
         return ["x", "y", "width", "height", "capacity"];
     }
 
-    subdivide () {
+    subdivide() {
         let width = this.width / 2;
         let height = this.height / 2;
         this.sectors[0] = new QuadTree({
@@ -44,7 +44,7 @@ class QuadTree extends Rect {
         });
     }
 
-    insert (sprite) {
+    insert(sprite) {
         if (!this.contains(sprite)) {
             return false;
         }
@@ -77,7 +77,7 @@ class QuadTree extends Rect {
     }
 
 }
-
+/**
 let qtree = new QuadTree({
     x: 0,
     y: 0,
@@ -93,3 +93,4 @@ for (let i = 0; i < 30; ++i) {
         height: 10
     });
 }
+*/

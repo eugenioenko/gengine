@@ -1,4 +1,3 @@
-let global_tile_value = 2;
 /* exported Input */
 class Input extends Component {
 

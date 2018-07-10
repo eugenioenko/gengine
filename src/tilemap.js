@@ -1,22 +1,4 @@
-/* exported Tile, TileMap */
-class Tile extends GameObject {
-
-	constructor(params) {
-		super(params);
-	}
-	__params__() {
-		return [];
-	}
-	__config__() {
-		return {
-			solid: {
-				top: false, bottom: false, right: false, left: false
-			},
-			angle: 0
-		};
-	}
-
-}
+/* exported TileMap */
 class TileMap extends Sprite {
 
 	constructor(params) {
@@ -29,6 +11,7 @@ class TileMap extends Sprite {
 	__params__() {
 		return ["x", "y", "width", "height", "twidth", "theight", "sheet", "tiles"];
 	}
+
 	read(x, y) {
 		return this.map.read(x, y);
 	}
@@ -43,6 +26,7 @@ class TileMap extends Sprite {
 		}
 		this.map.load(array);
 	}
+
 	save() {
 		let result = '';
 		let count = 0;
@@ -58,7 +42,6 @@ class TileMap extends Sprite {
 			}
 		}
 		document.getElementById("map").value = result;
-
 	}
 
 	init() {
@@ -66,6 +49,7 @@ class TileMap extends Sprite {
 		this.display = this.getComponent("Display");
 		//this.map.randomize();
 	}
+
 	randomize() {
 		this.map.randomize();
 	}
@@ -135,7 +119,7 @@ class TileMap extends Sprite {
 		return;
 	}
 
-	getCorners(x, y, sprite) {
+	getCorners(x, y, sprite) { // jshint ignore:line
 
 	}
 }

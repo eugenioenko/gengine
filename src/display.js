@@ -1,6 +1,7 @@
 /* exported Display, CanvasDisplay, WebGLDisplay */
+
 /**
- * Base/example class of the Display component of the Engine.
+ * Abstract class of the Display component of the Engine.
  */
 class Display extends Component{
 
@@ -9,7 +10,9 @@ class Display extends Component{
 		this.scale = 1;
 	}
 
-	set zoom(value) { }
+	set zoom(value) {
+		//jshint unused:false
+	}
 
 	get zoom() {
 		return this.scale;
@@ -25,13 +28,17 @@ class Display extends Component{
 
 	clear() { }
 
-	fillRect(x, y, width, height, color) { }
-
-	rect(x, y, width, height, color) {
-		// to do: draws a rectangle
+	fillRect(x, y, width, height, color) {
+		//jshint unused:false
 	}
 
-	circle(x, y, width, color) { }
+	rect(x, y, width, height, color) {
+		//jshint unused:false
+	}
+
+	circle(x, y, width, color) {
+		//jshint unused:false
+	 }
 
 	move() {
 		this.clear();
@@ -141,7 +148,7 @@ class CanvasDisplay extends Component{
 	}
 
 	drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight) {
-		this.ctx.drawImage(image, sx, sy, sWidth, sHeight, dx, dy,dWidth, dHeight);
+		this.ctx.drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
 	}
 
 	drawTile(x, y, width, height, sheet, index) {
@@ -158,7 +165,7 @@ class WebGLDisplay extends Display {
 		this.gl = this.canvas.getContext('webgl');
 		this.scale = 1;
 		if (!this.gl) {
-			new Error("Unable to initialize WebGL. Your browser or machine may not support it.");
+			Debug.error("Unable to initialize WebGL. Your browser or machine may not support it.");
 		}
 		// Set clear color to black, fully opaque
 		this.gl.clearColor(0.0, 0.0, 0.0, 1.0);

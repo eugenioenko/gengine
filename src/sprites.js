@@ -68,7 +68,7 @@ class Sprite extends GameObject {
 	 * Callback method executed when the sprite collided with another sprite.
 	 * @param {sprite} the other sprite whith whom the collision ocurred
 	 */
-	collision(sprite) { }
+	collision(sprite) { } // jshint ignore:line
 
 	/**
 	 * This a "destructor", when a sprite needs to be removed from a scene, executed destroy.

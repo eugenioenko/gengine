@@ -302,7 +302,6 @@ class Time extends Component {
 	}
 }
 
-let global_tile_value = 2;
 /* exported Input */
 class Input extends Component {
 
@@ -374,8 +373,9 @@ class Input extends Component {
 }
 
 /* exported Display, CanvasDisplay, WebGLDisplay */
+
 /**
- * Base/example class of the Display component of the Engine.
+ * Abstract class of the Display component of the Engine.
  */
 class Display extends Component{
 
@@ -384,7 +384,9 @@ class Display extends Component{
 		this.scale = 1;
 	}
 
-	set zoom(value) { }
+	set zoom(value) {
+		//jshint unused:false
+	}
 
 	get zoom() {
 		return this.scale;
@@ -400,13 +402,17 @@ class Display extends Component{
 
 	clear() { }
 
-	fillRect(x, y, width, height, color) { }
-
-	rect(x, y, width, height, color) {
-		// to do: draws a rectangle
+	fillRect(x, y, width, height, color) {
+		//jshint unused:false
 	}
 
-	circle(x, y, width, color) { }
+	rect(x, y, width, height, color) {
+		//jshint unused:false
+	}
+
+	circle(x, y, width, color) {
+		//jshint unused:false
+	 }
 
 	move() {
 		this.clear();
@@ -516,7 +522,7 @@ class CanvasDisplay extends Component{
 	}
 
 	drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight) {
-		this.ctx.drawImage(image, sx, sy, sWidth, sHeight, dx, dy,dWidth, dHeight);
+		this.ctx.drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
 	}
 
 	drawTile(x, y, width, height, sheet, index) {
@@ -533,7 +539,7 @@ class WebGLDisplay extends Display {
 		this.gl = this.canvas.getContext('webgl');
 		this.scale = 1;
 		if (!this.gl) {
-			new Error("Unable to initialize WebGL. Your browser or machine may not support it.");
+			Debug.error("Unable to initialize WebGL. Your browser or machine may not support it.");
 		}
 		// Set clear color to black, fully opaque
 		this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
@@ -679,7 +685,7 @@ class QuadTree extends Rect {
         return ["x", "y", "width", "height", "capacity"];
     }
 
-    subdivide () {
+    subdivide() {
         let width = this.width / 2;
         let height = this.height / 2;
         this.sectors[0] = new QuadTree({
@@ -712,7 +718,7 @@ class QuadTree extends Rect {
         });
     }
 
-    insert (sprite) {
+    insert(sprite) {
         if (!this.contains(sprite)) {
             return false;
         }
@@ -745,7 +751,7 @@ class QuadTree extends Rect {
     }
 
 }
-
+/**
 let qtree = new QuadTree({
     x: 0,
     y: 0,
@@ -761,6 +767,7 @@ for (let i = 0; i < 30; ++i) {
         height: 10
     });
 }
+*/
 
 /* exported TestCollision */
 /**
@@ -811,6 +818,7 @@ class TestCollision {
 }
 
 /* exported Collider, CircleCollider, RectCollider */
+
 /**
  * Collider represents a rect/circle which can collide with another collider.
  * The position of the collider is relative to its parent sprite.
@@ -869,7 +877,7 @@ class CircleCollider extends Collider {
 /**
  * RectCollider is a collider with a rectange/square shape.
  */
-class RectCollider extends Collider {
+class RectCollider extends Collider { // jshint ignore:line
 
 	constructor(params) {
 		super(params);
@@ -1019,7 +1027,7 @@ class Sprite extends GameObject {
 	 * Callback method executed when the sprite collided with another sprite.
 	 * @param {sprite} the other sprite whith whom the collision ocurred
 	 */
-	collision(sprite) { }
+	collision(sprite) { } // jshint ignore:line
 
 	/**
 	 * This a "destructor", when a sprite needs to be removed from a scene, executed destroy.
@@ -1322,15 +1330,17 @@ class Matrix {
 
 }
 
-/* exported Tile, TileMap */
+/* exported Tile */
 class Tile extends GameObject {
 
 	constructor(params) {
 		super(params);
 	}
+
 	__params__() {
 		return [];
 	}
+
 	__config__() {
 		return {
 			solid: {
@@ -1341,6 +1351,7 @@ class Tile extends GameObject {
 	}
 
 }
+/* exported TileMap */
 class TileMap extends Sprite {
 
 	constructor(params) {
@@ -1353,6 +1364,7 @@ class TileMap extends Sprite {
 	__params__() {
 		return ["x", "y", "width", "height", "twidth", "theight", "sheet", "tiles"];
 	}
+
 	read(x, y) {
 		return this.map.read(x, y);
 	}
@@ -1367,6 +1379,7 @@ class TileMap extends Sprite {
 		}
 		this.map.load(array);
 	}
+
 	save() {
 		let result = '';
 		let count = 0;
@@ -1382,7 +1395,6 @@ class TileMap extends Sprite {
 			}
 		}
 		document.getElementById("map").value = result;
-
 	}
 
 	init() {
@@ -1390,6 +1402,7 @@ class TileMap extends Sprite {
 		this.display = this.getComponent("Display");
 		//this.map.randomize();
 	}
+
 	randomize() {
 		this.map.randomize();
 	}
@@ -1459,7 +1472,7 @@ class TileMap extends Sprite {
 		return;
 	}
 
-	getCorners(x, y, sprite) {
+	getCorners(x, y, sprite) { // jshint ignore:line
 
 	}
 }

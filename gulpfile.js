@@ -38,6 +38,7 @@ gulp.task('combine', function() {
       "src/engine.js",
       "src/camera.js",
       "src/matrix.js",
+      "src/tile.js",
       "src/tilemap.js",
       "src/resources.js",
       "src/player.js"
