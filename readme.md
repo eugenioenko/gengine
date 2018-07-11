@@ -7,19 +7,18 @@ As final objective, create a visual enviroment for creating 2d games
 ### Work in progress
 >[demo here](https://eugenioenko.github.io/gengine/index.html)
 
-#### Sorry
 There is no much comentary on the code yet
 
 
 
 ## Description
-The has three basic classes
+The engine has three basic classes
 **GameObject**, **Component**, and **Sprites**.
 
 #### GameObject
 Its the base class of almost all object inside the engine.
 It's main functionality is to generate an easy way to pass arguments when creating new instances.
-It provides functionality to establish optional and necesary arguments.
+It provides functionality to establish optional and necesary arguments. Those validation only ocurre during debug mode.
 
 #### Component
 They are mico modules singletons which are injected inside the engine.
@@ -39,6 +38,17 @@ Time is a component which contains:
 >gulp
 
 
+## Debug Mode
+There is a Debug class to log in messages and throw errors.
+* Debug.log
+* Debug.warn
+* Debug.error
+
+Those method only function if debug mode is active, to activate it create a global variable and set it to true:
+
+>window.GENGINE_DEBUG_MODE = true;
+
+
 #### Tilemap uintarray16bit
 * El Tilemap contiene una clase Matrix adentro qu es un Uint16Array. Con un par de pruebas anda aprox 20% mas rapido que un array comun.
 * El Tilemap solo dibuja los tiles que son visibles en la pantalla. Si el mapa es de 1000x1000 y  en la pantalla entran 20x20 tiles, dibujara 20x20.
@@ -54,17 +64,3 @@ Time is a component which contains:
 
 #### Display
 El display es actualmente solo es Canvas, pero se podria extender luego a un display con WebGL.
-
-
-## Modo Debug.
-para logear mensajes existe una clase con metodos estaticos 'Debug'.  Solo logea los mensajes si el modo de Debug esta activo.
-Para activar modo Debug
-
->window.GENGINE_DEBUG_MODE = true;
-
-Existe una estructura para validar los parametros pasados en los constructores de Sprites y Componentes que solo funciona en el modo debug. Cada componente deberia tener un metodo llamado '__args__' que devuelve un array con la lista de keys que deben estar presente en el constructor.
-(Esto creado para no perder horas depurando un bug solo por olvidarse de pasar un argumento en el constructor). Ejemplos de esto en objects.js, camera.js, time.js, sprites.js...
-
-
-
-
