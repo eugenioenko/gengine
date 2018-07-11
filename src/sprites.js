@@ -1,7 +1,14 @@
 /* exported Sprite */
+
 /**
  * Base Sprite component. Every Sprite of the engine should derive from this class.
- * Sprites are object which per each loop of the game move and draw.
+ * Sprites are object which per each loop of the game move, draw and test collision.
+ * @param {object}	params  		Object literal of the constructor
+ * @param {number}	params.x 		X position of the sprite
+ * @param {number}	params.y 		Y position of the sprite
+ * @param {number}	params.width	Width of the sprite
+ * @param {number}	params.height	Height of the sprite
+ * @return {object} Returns the sprite instance
  */
 class Sprite extends GameObject {
 
@@ -15,28 +22,37 @@ class Sprite extends GameObject {
 		return ["x", "y", "width", "height"];
 	}
 
+	/**
+	 * Returns the instance of the Component loaded in the engine
+	 * @param  {string}		name Name of the component
+	 * @return {object}		The Instance of the Component
+	 */
 	getComponent(name) {
 		return this.engine.getComponent(name);
 	}
 
-	addCollider(x, y, width, height) {
-		this.colliders.push(new RectCollider({
-			parent: this,
-			x: x,
-			y: y,
-			width: width,
-			height:height
-		}));
+	/**
+	 * Adds a collider to the sprite
+	 * @param {object} collider Instance of the collider to be added
+	 */
+	addCollider(collider) {
+		collider.parent = this;
+		this.colliders.push(collider);
 	}
 
+	/**
+	 * Draws a box around the sprite
+	 * @param  {string} color Color of the rectangle, default red
+	 */
 	debugDraw(color = "red") {
 		if (this.parent && this.parent.display)
 			this.parent.display.rect(this.x, this.y, this.width, this.height, color);
 	}
 
 	/**
-	 * Tests for possible collision between two sprites and if
-	 * that happens, tests for individual colliders;
+	 * Tests for collision between each collider of the sprite against a sprite
+	 * @param {object} sprite Sprite to test the collision with
+	 * @return {boolean} True if collision detected
 	 */
 	testCollision(sprite) {
 		if (!TestCollision.RectVsRect(this, sprite)) {
@@ -65,17 +81,25 @@ class Sprite extends GameObject {
 	draw() { }
 
 	/**
-	 * Callback method executed when the sprite collided with another sprite.
-	 * @param {sprite} the other sprite whith whom the collision ocurred
+	 * Method executed when the sprite collided with another sprite.
+	 * @param {object} sprite The other sprite with whom the collision ocurred
 	 */
-	collision(sprite) { } // jshint ignore:line
+	collision(sprite) {
+		//jshint unused:false
+	}
 
 	/**
-	 * This a "destructor", when a sprite needs to be removed from a scene, executed destroy.
-	 * @important on derrived Sprite classes, don't forget to execute super.destroy() at the end.
+	 * Method executed when the sprite is removed from the engine scene
+	 */
+	destroy() { }
+
+	/**
+	 * Removes the sprite from the scene after calling the destroy method.
+	 * @important on derrived Sprite classes, don't forget to execute super.remove() at the end
 	 * otherwise the sprite won't be removed.
 	 */
-	destroy() {
+	remove() {
+		this.destroy();
 		this.engine.scene.removeSprite(this);
 	}
 }

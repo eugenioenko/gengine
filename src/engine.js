@@ -16,6 +16,7 @@ class Engine extends GameObject {
 		this.component = {};
 		this.components = [];
 		this.objects = {};
+		this.utils = new Utils();
 		this.gameLoop = this.loop.bind(this);
 	}
 

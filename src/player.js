@@ -87,7 +87,12 @@ class Player extends Sprite {
 		this.velocityX = 0;
 		this.frictionX = 0.9;
 		this.dirX = 0;
-		this.addCollider(-10, -10, this.width+10, this.height+10);
+		this.addCollider(new RectCollider({
+			x: -10,
+			y: -10,
+			width: this.width + 10,
+			height: this.height + 10
+		}));
 	}
 
 	getCoorners(x, y) {

@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "gulp",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "docs": "doxdox 'src/*.js' --layout bootstrap --output docs/index.html",
+    "lint": "jshint src/*.js"
   },
   "repository": {
     "type": "git",

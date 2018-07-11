@@ -189,20 +189,29 @@ class Rect extends GameObject {
 }
 
 /* exported Utils */
-class Utils{
+
+class Utils {
 	constructor() {
 
-		this.autoIncrementGen = (function*() {
+		let autoIncrementGen = (function*() {
 			let count = 0;
 			while(count++ < Number.MAX_SAFE_INTEGER) {
 				yield count;
 			}
 		})();
 
+		/**
+		 * Auto Increment generator
+		 * @return {Number} An autoIncremented Number
+		 */
+		this.autoIncrementId = function() {
+			return autoIncrementGen.next().value;
+		};
+
 		this.characters = [
 			'A','a','B','b','C','c','D','d','E','e','F','f','G','g','H','h','I','i',
 			'J','j','K','k','L','l','M','m','N','n','O','o','P','p','Q','q','R','r',
-			'S','s','T','t','U','u','V','v','W','w','X','x','Y','y','Z','z','$'
+			'S','s','T','t','U','u','V','v','W','w','X','x','Y','y','Z','z'
 		];
 	}
 
@@ -214,26 +223,21 @@ class Utils{
 		return result;
 	}
 
-	/**
-	 * Auto Increment generator
-	 * @return {Number} An autoIncremented Number
-	 */
-	autoIncrement() {
-		return this.autoIncrementGen.next().value;
-	}
-
 }
 
 /* exported Component */
+
 /**
- * A Base class of a Gengine component.
- * A component is a piece of the Engine and the Engine consists of multiple
- * components. Some Components form part of the core of the Engine, others could
+ * This is a base class of the component of the engine,
+ * Components are single instance pieces of the engine.
+ * The engine consist of multiple components which perform various tasks.
+ * Some Components form part of the core of the Engine, others could
  * be added as need at runtime.
- *
- * When the Engine is ready, it will add a component to itself passing the instance
- * of itself to the Component constructor and then call the init() method of the
- * component.
+ * When the Engine is ready, it will create the instance of the component and pass itself as the engine parameter.
+ * Each Component instance has access to the engine
+ * The engine is the responsable for calling new Component, this constructor shouldn't be called in the game code
+ * @param {object} params Object literal with parameters passed to the component constructed
+ * @param {object} engine The instance of the engine, this will be passed by the engine
  */
 class Component extends GameObject {
 
@@ -242,18 +246,32 @@ class Component extends GameObject {
 		this.engine = engine;
 		this.name = params.name;
 	}
-
+	/**
+	 * Returns an instance of an engine component
+	 * @param  {string} name The name of the component
+	 * @return {object}      Instance of the component
+	 */
 	getComponent(name) {
 		return this.engine.getComponent(name);
 	}
 
+	/**
+	 * Method called when the component has been added to the engine and is ready
+	 */
 	init() {
 		Debug.success(`${this.name} initialized`);
 	}
 
+	/**
+	 * Method called each cycle of the engine game loop
+	 */
 	move() { }
 
+	/**
+	 * Method called each cycle of the engine game loop
+	 */
 	draw() { }
+
 }
 
 /* exported Time */
@@ -884,7 +902,7 @@ class RectCollider extends Collider { // jshint ignore:line
 	}
 
 	__params__() {
-		return ["parent", "x", "y", "width", "height"];
+		return ["x", "y", "width", "height"];
 	}
 
 	test(collider) {
@@ -958,9 +976,16 @@ class SpriteSheet extends GameObject {
 }
 
 /* exported Sprite */
+
 /**
  * Base Sprite component. Every Sprite of the engine should derive from this class.
- * Sprites are object which per each loop of the game move and draw.
+ * Sprites are object which per each loop of the game move, draw and test collision.
+ * @param {object}	params  		Object literal of the constructor
+ * @param {number}	params.x 		X position of the sprite
+ * @param {number}	params.y 		Y position of the sprite
+ * @param {number}	params.width	Width of the sprite
+ * @param {number}	params.height	Height of the sprite
+ * @return {object} Returns the sprite instance
  */
 class Sprite extends GameObject {
 
@@ -974,28 +999,37 @@ class Sprite extends GameObject {
 		return ["x", "y", "width", "height"];
 	}
 
+	/**
+	 * Returns the instance of the Component loaded in the engine
+	 * @param  {string}		name Name of the component
+	 * @return {object}		The Instance of the Component
+	 */
 	getComponent(name) {
 		return this.engine.getComponent(name);
 	}
 
-	addCollider(x, y, width, height) {
-		this.colliders.push(new RectCollider({
-			parent: this,
-			x: x,
-			y: y,
-			width: width,
-			height:height
-		}));
+	/**
+	 * Adds a collider to the sprite
+	 * @param {object} collider Instance of the collider to be added
+	 */
+	addCollider(collider) {
+		collider.parent = this;
+		this.colliders.push(collider);
 	}
 
+	/**
+	 * Draws a box around the sprite
+	 * @param  {string} color Color of the rectangle, default red
+	 */
 	debugDraw(color = "red") {
 		if (this.parent && this.parent.display)
 			this.parent.display.rect(this.x, this.y, this.width, this.height, color);
 	}
 
 	/**
-	 * Tests for possible collision between two sprites and if
-	 * that happens, tests for individual colliders;
+	 * Tests for collision between each collider of the sprite against a sprite
+	 * @param {object} sprite Sprite to test the collision with
+	 * @return {boolean} True if collision detected
 	 */
 	testCollision(sprite) {
 		if (!TestCollision.RectVsRect(this, sprite)) {
@@ -1024,17 +1058,25 @@ class Sprite extends GameObject {
 	draw() { }
 
 	/**
-	 * Callback method executed when the sprite collided with another sprite.
-	 * @param {sprite} the other sprite whith whom the collision ocurred
+	 * Method executed when the sprite collided with another sprite.
+	 * @param {object} sprite The other sprite with whom the collision ocurred
 	 */
-	collision(sprite) { } // jshint ignore:line
+	collision(sprite) {
+		//jshint unused:false
+	}
 
 	/**
-	 * This a "destructor", when a sprite needs to be removed from a scene, executed destroy.
-	 * @important on derrived Sprite classes, don't forget to execute super.destroy() at the end.
+	 * Method executed when the sprite is removed from the engine scene
+	 */
+	destroy() { }
+
+	/**
+	 * Removes the sprite from the scene after calling the destroy method.
+	 * @important on derrived Sprite classes, don't forget to execute super.remove() at the end
 	 * otherwise the sprite won't be removed.
 	 */
-	destroy() {
+	remove() {
+		this.destroy();
 		this.engine.scene.removeSprite(this);
 	}
 }
@@ -1153,6 +1195,7 @@ class Engine extends GameObject {
 		this.component = {};
 		this.components = [];
 		this.objects = {};
+		this.utils = new Utils();
 		this.gameLoop = this.loop.bind(this);
 	}
 
@@ -1678,7 +1721,12 @@ class Player extends Sprite {
 		this.velocityX = 0;
 		this.frictionX = 0.9;
 		this.dirX = 0;
-		this.addCollider(-10, -10, this.width+10, this.height+10);
+		this.addCollider(new RectCollider({
+			x: -10,
+			y: -10,
+			width: this.width + 10,
+			height: this.height + 10
+		}));
 	}
 
 	getCoorners(x, y) {
