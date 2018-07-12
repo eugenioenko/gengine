@@ -191,6 +191,7 @@ class Rect extends GameObject {
 /* exported Utils */
 
 class Utils {
+
 	constructor() {
 
 		let autoIncrementGen = (function*() {
@@ -201,8 +202,8 @@ class Utils {
 		})();
 
 		/**
-		 * Auto Increment generator
-		 * @return {Number} An autoIncremented Number
+		 * Auto Increment generator, starts with 1
+		 * @return {number} An autoIncremented number
 		 */
 		this.autoIncrementId = function() {
 			return autoIncrementGen.next().value;
@@ -1083,7 +1084,8 @@ class Sprite extends GameObject {
 
 /* exported Scene */
 /**
- * Scene is a collection of sprites of a game level or a game scene.
+ * Scene is a collection of sprites of a game.
+ * Only the sprites in the same scene can collide with each other.
  * The engine can have a single scene or multiple. Depending on the active scene of
  * the engine, that scene sprites would be draw, moved and collided on the stage.
  */
@@ -1093,14 +1095,21 @@ class Scene extends Component {
 		this.sprites = [];
 	}
 
+	__config__() {
+		return {
+			active: true,
+			visible: true
+		};
+	}
+
 	init() {
-		this.input = this.getComponent("Input");
-		this.camera = this.getComponent("Camera");
-		this.display = this.getComponent("Display");
 		super.init();
 	}
 
 	move() {
+		if (!this.active) {
+			return;
+		}
 		this.collision();
 		for (let sprite of this.sprites) {
 			sprite.move();
@@ -1108,11 +1117,11 @@ class Scene extends Component {
 	}
 
 	draw() {
+		if (!this.visible) {
+			return;
+		}
 		for (let sprite of this.sprites) {
 			sprite.draw();
-		}
-		if (this.input.mouse.inside) {
-			this.display.circle(this.camera.x + this.input.mouse.x - 1, this.camera.y + this.input.mouse.y - 1, 4, 'red');
 		}
 	}
 
@@ -1140,6 +1149,44 @@ class Scene extends Component {
 					sprite2.collision(sprite1);
 				}
 			}
+		}
+	}
+}
+
+/* exported Stage */
+
+/**
+ * Stage is a collection of scenes.
+ * Engine can have multiple scenes active or visible at the same time.
+ */
+class Stage extends Component {
+	constructor(params, engine) {
+		super(params, engine);
+		this.scenes = [];
+		let scene = new Scene({}, engine);
+		scene.init();
+		this.scenes.push(scene);
+	}
+
+	init() {
+		this.input = this.getComponent("Input");
+		this.camera = this.getComponent("Camera");
+		this.display = this.getComponent("Display");
+		super.init();
+	}
+
+	move() {
+		for (let scene of this.scenes) {
+			scene.move();
+		}
+	}
+
+	draw() {
+		for (let scene of this.scenes) {
+			scene.draw();
+		}
+		if (this.input.mouse.inside) {
+			this.display.circle(this.camera.x + this.input.mouse.x - 1, this.camera.y + this.input.mouse.y - 1, 4, 'red');
 		}
 	}
 }
@@ -1222,12 +1269,12 @@ class Engine extends GameObject {
 			width: this.width,
 			height: this.height
 		});
-		this.addComponent("Scene", Scene);
+		this.addComponent("Stage", Stage);
 		this.addComponent("Events", Events);
 		Debug.groupEnd();
 		this.time = this.component.Time;
 		this.display = this.component.Display;
-		this.scene = this.component.Scene;
+		this.stage = this.component.Stage;
 		this.resources = this.component.Resources;
 		this.sound = this.component.Sound;
 		this.input = this.component.Input;
@@ -1274,14 +1321,6 @@ class Engine extends GameObject {
 			}
 		}
 		return this.component[name];
-	}
-
-	addSprite(sprite) {
-		this.scene.addSprite(sprite);
-	}
-
-	removeSprite(sprite) {
-		this.scene.removeSprite(sprite);
 	}
 
 	move() {
@@ -1738,7 +1777,6 @@ class Player extends Sprite {
 		this.display = this.getComponent("Display");
 		this.time = this.getComponent("Time");
 		this.sound = this.getComponent("Sound");
-		this.scene = this.getComponent("Scene");
 		this.camera = this.getComponent("Camera");
 		this.controller = this.getComponent("PlatformController");
 

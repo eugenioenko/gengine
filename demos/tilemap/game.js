@@ -93,34 +93,8 @@ function Game(engine) {
 	engine.addComponent("PlatformController", PlatformController, {
 		"tilemap": tilemap
 	});
-	engine.addSprite(tilemap);
-	engine.addSprite(player);
-
-	/*
-	engine.addSprite(new Enemy({
-		x: 1440,
-		y: 520,
-		width: 22,
-		height: 22
-	}));
-	engine.addSprite(new Enemy({
-		x: 440,
-		y: 220,
-		width: 22,
-		height: 22
-	}));
-	engine.addSprite(new Enemy({
-		x: 1940,
-		y: 120,
-		width: 22,
-		height: 22
-	}));
-	engine.addSprite(new Enemy({
-		x: 1240,
-		y: 620,
-		width: 22,
-		height: 22
-	}));*/
+	engine.stage.scenes[0].addSprite(tilemap);
+	engine.stage.scenes[0].addSprite(player);
 
 }
 

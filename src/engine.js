@@ -43,12 +43,12 @@ class Engine extends GameObject {
 			width: this.width,
 			height: this.height
 		});
-		this.addComponent("Scene", Scene);
+		this.addComponent("Stage", Stage);
 		this.addComponent("Events", Events);
 		Debug.groupEnd();
 		this.time = this.component.Time;
 		this.display = this.component.Display;
-		this.scene = this.component.Scene;
+		this.stage = this.component.Stage;
 		this.resources = this.component.Resources;
 		this.sound = this.component.Sound;
 		this.input = this.component.Input;
@@ -95,14 +95,6 @@ class Engine extends GameObject {
 			}
 		}
 		return this.component[name];
-	}
-
-	addSprite(sprite) {
-		this.scene.addSprite(sprite);
-	}
-
-	removeSprite(sprite) {
-		this.scene.removeSprite(sprite);
 	}
 
 	move() {

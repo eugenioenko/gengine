@@ -104,7 +104,6 @@ class Player extends Sprite {
 		this.display = this.getComponent("Display");
 		this.time = this.getComponent("Time");
 		this.sound = this.getComponent("Sound");
-		this.scene = this.getComponent("Scene");
 		this.camera = this.getComponent("Camera");
 		this.controller = this.getComponent("PlatformController");
 

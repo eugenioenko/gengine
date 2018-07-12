@@ -69,5 +69,5 @@
 	"wsh": false,
 	"yui": false,
 	"globals": {},
-	"predef": ["GameObject", "Component", "AudioContext", "RectCollider", "Maths", "Tile", "TileMap", "Matrix", "Resources", "Sound", "CanvasDisplay", "Scene", "Events", "TestCollision", "Sprite", "Input", "Time", "Camera", "Sprite", "RectCollider", "Rect", "io"]
+	"predef": ["GameObject", "Component", "AudioContext", "RectCollider", "Maths", "Tile", "TileMap", "Matrix", "Resources", "Sound", "CanvasDisplay", "Scene", "Events", "TestCollision", "Sprite", "Input", "Time", "Camera", "Sprite", "RectCollider", "Rect", "io", "Utils", "Stage"]
 }
