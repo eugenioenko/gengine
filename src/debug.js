@@ -58,6 +58,10 @@ class Debug {
 	 */
 	static validateParams(name, params, required) {
 		if (!Debug.active()) return;
+		if (!required || !required.length) return;
+		if (required.length && !params){
+			Debug.warn(`${name} requires this members in the constructor: {${required.join(',')}}`);
+		}
 		for (let key of required) {
 			if (typeof params[key] === "undefined") {
 				Debug.error(`${name} requires of "${key}" in the constructor`);
