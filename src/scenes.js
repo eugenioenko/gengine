@@ -11,7 +11,7 @@ class Scene extends Component {
 		this.sprites = [];
 	}
 
-	__config__() {
+	config() {
 		return {
 			active: true,
 			visible: true
@@ -43,6 +43,11 @@ class Scene extends Component {
 
 	addSprite(sprite) {
 		sprite.engine = this.engine;
+		sprite.id = this.engine.utils.autoIncrementId();
+		sprite.scene = this;
+		this.engine.objects[sprite.id] = {
+			sprite: sprite
+		};
 		sprite.init();
 		this.sprites.push(sprite);
 		return;

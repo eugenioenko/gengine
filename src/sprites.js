@@ -18,7 +18,7 @@ class Sprite extends GameObject {
 		this.colliding = false;
 	}
 
-	__params__() {
+	params() {
 		return ["x", "y", "width", "height"];
 	}
 

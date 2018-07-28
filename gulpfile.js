@@ -21,6 +21,7 @@ gulp.task('combine', function() {
       "src/maths.js",
       "src/debug.js",
       "src/objects.js",
+      "src/rect.js",
       "src/utils.js",
       "src/components.js",
       "src/time.js",

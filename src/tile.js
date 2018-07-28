@@ -5,11 +5,11 @@ class Tile extends GameObject {
 		super(params);
 	}
 
-	__params__() {
+	params() {
 		return [];
 	}
 
-	__config__() {
+	config() {
 		return {
 			solid: {
 				top: false, bottom: false, right: false, left: false

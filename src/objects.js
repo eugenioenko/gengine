@@ -4,8 +4,8 @@
  * It creates a structure so that when instances of objects are created,
  * the parameters are passed as object literals.
  *
- * The __params__ is used as validation of the arguments pased in the constructor.
- * __params__ should return an array with the names of all the keys which should be
+ * The params is used as validation of the arguments pased in the constructor.
+ * params should return an array with the names of all the keys which should be
  * present during the construction of an gameObject. This will only happen if the debug
  * mode is activated.
  *
@@ -16,9 +16,9 @@
 class GameObject {
 
 	constructor(params) {
-		Debug.validateParams(this.constructor.name, params, this.__params__());
+		Debug.validateParams(this.constructor.name, params, this.params());
 		Object.assign(this, params);
-		const config = this.__config__();
+		const config = this.config();
 		for (let key in config) {
 			if (typeof this[key] === "undefined") {
 				this[key] = config[key];
@@ -26,38 +26,13 @@ class GameObject {
 		}
 	}
 
-	__params__() {
+	params() {
 		return [];
 	}
 
-	__config__() {
+	config() {
 		return {};
 	}
 
 	init() { }
-}
-
-class Rect extends GameObject {
-
-	constructor(params) {
-		super(params);
-	}
-
-	__params__() {
-		return ["x", "y", "width", "height"];
-	}
-
-	contains(point) {
-		return (point.x >= this.x &&
-			point.x <= this.x + this.width &&
-			point.y >= this.y &&
-			point.y <= this.y + this.height);
-	}
-
-	intersects(rect) {
-		return (this.x <= rect.x + rect.width &&
-			this.x + this.width > rect.x &&
-			this.y <= rect.y + rect.height &&
-			this.height + this.y >= rect.y);
-	}
 }

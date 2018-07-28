@@ -18,7 +18,7 @@ class Network extends Component{
 		this.socket.on('update_network_player', this.onUpdateNetworkPlayer.bind(this));
 	}
 
-	__params__() {
+	params() {
 		return ["url", "player", "dummy"];
 	}
 

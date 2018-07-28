@@ -17,7 +17,7 @@ class Events extends Component {
 		super.init();
 	}
 
-	__params__() {
+	params() {
 		return [];
 	}
 

@@ -36,11 +36,11 @@ class SpriteSheet extends GameObject {
 		}
 	}
 
-	__params__() {
+	params() {
 		return ["width", "height", "image"];
 	}
 
-	__config__() {
+	config() {
 		return {
 			offsetX: 0,
 			offsetY: 0,

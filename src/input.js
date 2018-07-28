@@ -15,7 +15,7 @@ class Input extends Component {
 		this.camera = this.getComponent("Camera");
 		super.init();
 	}
-	__params__() {
+	params() {
 		return [];
 	}
 

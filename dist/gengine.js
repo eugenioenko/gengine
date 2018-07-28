@@ -19,10 +19,6 @@ class Maths{
 		return Math.floor(Math.random() * (max - min + 1)) + min;
 	}
 
-	static randRange(min, max) {
-		return Math.floor(Math.random() * (max - min + 1)) + min;
-	}
-
 	static smoothDamp(current, target, $currentVelocity, smoothTime, maxSpeed, deltaTime) {
 		smoothTime = Math.max(0.0001, smoothTime);
 		let num = 2.0 / smoothTime;
@@ -134,8 +130,8 @@ class Debug {
  * It creates a structure so that when instances of objects are created,
  * the parameters are passed as object literals.
  *
- * The __params__ is used as validation of the arguments pased in the constructor.
- * __params__ should return an array with the names of all the keys which should be
+ * The params is used as validation of the arguments pased in the constructor.
+ * params should return an array with the names of all the keys which should be
  * present during the construction of an gameObject. This will only happen if the debug
  * mode is activated.
  *
@@ -146,9 +142,9 @@ class Debug {
 class GameObject {
 
 	constructor(params) {
-		Debug.validateParams(this.constructor.name, params, this.__params__());
+		Debug.validateParams(this.constructor.name, params, this.params());
 		Object.assign(this, params);
-		const config = this.__config__();
+		const config = this.config();
 		for (let key in config) {
 			if (typeof this[key] === "undefined") {
 				this[key] = config[key];
@@ -156,24 +152,25 @@ class GameObject {
 		}
 	}
 
-	__params__() {
+	params() {
 		return [];
 	}
 
-	__config__() {
+	config() {
 		return {};
 	}
 
 	init() { }
 }
 
+/* exported Rect */
 class Rect extends GameObject {
 
 	constructor(params) {
 		super(params);
 	}
 
-	__params__() {
+	params() {
 		return ["x", "y", "width", "height"];
 	}
 
@@ -220,8 +217,8 @@ class Utils {
 		];
 	}
 
-	randomId(length=6) {
-		let result = '';
+	randomId(length=7) {
+		let result = '#';
 		for (let i = 0; i < length; ++i) {
 			result += this.characters[Math.floor(Math.random() * this.characters.length)];
 		}
@@ -305,7 +302,7 @@ class Time extends Component {
 		this.lastTime = this.startTime;
 	}
 
-	__params__() {
+	params() {
 		return [];
 	}
 
@@ -342,7 +339,7 @@ class Input extends Component {
 		this.camera = this.getComponent("Camera");
 		super.init();
 	}
-	__params__() {
+	params() {
 		return [];
 	}
 
@@ -450,7 +447,7 @@ class CanvasDisplay extends Component{
 		this.scale = 1;
 	}
 
-	__params__() {
+	params() {
 		return ["x", "y", "width", "height"];
 	}
 
@@ -590,7 +587,7 @@ class Events extends Component {
 		super.init();
 	}
 
-	__params__() {
+	params() {
 		return [];
 	}
 
@@ -616,7 +613,7 @@ class Network extends Component{
 		this.socket.on('update_network_player', this.onUpdateNetworkPlayer.bind(this));
 	}
 
-	__params__() {
+	params() {
 		return ["url", "player", "dummy"];
 	}
 
@@ -704,7 +701,7 @@ class QuadTree extends Rect {
         this.sprites = [];
     }
 
-    __params__() {
+    params() {
         return ["x", "y", "width", "height", "capacity"];
     }
 
@@ -906,7 +903,7 @@ class RectCollider extends Collider { // jshint ignore:line
 		super(params);
 	}
 
-	__params__() {
+	params() {
 		return ["x", "y", "width", "height"];
 	}
 
@@ -967,11 +964,11 @@ class SpriteSheet extends GameObject {
 		}
 	}
 
-	__params__() {
+	params() {
 		return ["width", "height", "image"];
 	}
 
-	__config__() {
+	config() {
 		return {
 			offsetX: 0,
 			offsetY: 0,
@@ -1000,7 +997,7 @@ class Sprite extends GameObject {
 		this.colliding = false;
 	}
 
-	__params__() {
+	params() {
 		return ["x", "y", "width", "height"];
 	}
 
@@ -1086,7 +1083,7 @@ class Sprite extends GameObject {
 	}
 }
 
-/* exported Animation */
+/* exported Animation, Animator, AnimatedSprite */
 
 class Animation extends GameObject {
 
@@ -1098,11 +1095,11 @@ class Animation extends GameObject {
 		this.finished = false;
 	}
 
-	__params__() {
+	params() {
 		return ["name", "spriteSheet", "frames"];
 	}
 
-	__config__() {
+	config() {
 		return {
 			fps: 60,
 			loop: false
@@ -1143,8 +1140,8 @@ class AnimatedSprite extends Sprite {
 		super(params);
 	}
 
-	__params__() {
-		return super.__params__().concat(["animator"]);
+	params() {
+		return super.params().concat(["animator"]);
 	}
 
 	draw() {
@@ -1174,7 +1171,7 @@ class Scene extends Component {
 		this.sprites = [];
 	}
 
-	__config__() {
+	config() {
 		return {
 			active: true,
 			visible: true
@@ -1206,6 +1203,11 @@ class Scene extends Component {
 
 	addSprite(sprite) {
 		sprite.engine = this.engine;
+		sprite.id = this.engine.utils.autoIncrementId();
+		sprite.scene = this;
+		this.engine.objects[sprite.id] = {
+			sprite: sprite
+		};
 		sprite.init();
 		this.sprites.push(sprite);
 		return;
@@ -1242,8 +1244,9 @@ class Stage extends Component {
 	constructor(params, engine) {
 		super(params, engine);
 		this.scenes = [];
-		let scene = new Scene({}, engine);
+		let scene = new Scene({name: "main"}, engine);
 		scene.init();
+		scene.stage = this;
 		this.scenes.push(scene);
 	}
 
@@ -1325,7 +1328,7 @@ class Engine extends GameObject {
 		this.gameLoop = this.loop.bind(this);
 	}
 
-	__params__() {
+	params() {
 		return ["canvas", "width", "height"];
 	}
 
@@ -1444,7 +1447,7 @@ class Camera extends Component {
 		super(params, engine);
 		this.speed = 10;
 	}
-	__params__() {
+	params() {
 		return ["x", "y", "width", "height"];
 	}
 
@@ -1498,11 +1501,11 @@ class Tile extends GameObject {
 		super(params);
 	}
 
-	__params__() {
+	params() {
 		return [];
 	}
 
-	__config__() {
+	config() {
 		return {
 			solid: {
 				top: false, bottom: false, right: false, left: false
@@ -1522,7 +1525,7 @@ class TileMap extends Sprite {
 		this.mheight = this.height * this.theight;
 	}
 
-	__params__() {
+	params() {
 		return ["x", "y", "width", "height", "twidth", "theight", "sheet", "tiles"];
 	}
 
@@ -1759,7 +1762,7 @@ class PlatformController extends Component {
 		this.gravity = 0.5;
 	}
 
-	__params__() {
+	params() {
 		return ["tilemap"];
 	}
 

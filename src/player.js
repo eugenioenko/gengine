@@ -7,7 +7,7 @@ class PlatformController extends Component {
 		this.gravity = 0.5;
 	}
 
-	__params__() {
+	params() {
 		return ["tilemap"];
 	}
 

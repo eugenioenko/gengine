@@ -7,7 +7,7 @@ class QuadTree extends Rect {
         this.sprites = [];
     }
 
-    __params__() {
+    params() {
         return ["x", "y", "width", "height", "capacity"];
     }
 

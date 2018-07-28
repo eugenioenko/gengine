@@ -26,8 +26,8 @@ class Utils {
 		];
 	}
 
-	randomId(length=6) {
-		let result = '';
+	randomId(length=7) {
+		let result = '#';
 		for (let i = 0; i < length; ++i) {
 			result += this.characters[Math.floor(Math.random() * this.characters.length)];
 		}

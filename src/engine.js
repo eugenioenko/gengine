@@ -20,7 +20,7 @@ class Engine extends GameObject {
 		this.gameLoop = this.loop.bind(this);
 	}
 
-	__params__() {
+	params() {
 		return ["canvas", "width", "height"];
 	}
 

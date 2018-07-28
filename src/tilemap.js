@@ -8,7 +8,7 @@ class TileMap extends Sprite {
 		this.mheight = this.height * this.theight;
 	}
 
-	__params__() {
+	params() {
 		return ["x", "y", "width", "height", "twidth", "theight", "sheet", "tiles"];
 	}
 

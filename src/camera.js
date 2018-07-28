@@ -11,7 +11,7 @@ class Camera extends Component {
 		super(params, engine);
 		this.speed = 10;
 	}
-	__params__() {
+	params() {
 		return ["x", "y", "width", "height"];
 	}
 

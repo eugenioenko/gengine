@@ -8,8 +8,9 @@ class Stage extends Component {
 	constructor(params, engine) {
 		super(params, engine);
 		this.scenes = [];
-		let scene = new Scene({}, engine);
+		let scene = new Scene({name: "main"}, engine);
 		scene.init();
+		scene.stage = this;
 		this.scenes.push(scene);
 	}
 

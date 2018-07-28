@@ -1,4 +1,4 @@
-/* exported Animation */
+/* exported Animation, Animator, AnimatedSprite */
 
 class Animation extends GameObject {
 
@@ -10,11 +10,11 @@ class Animation extends GameObject {
 		this.finished = false;
 	}
 
-	__params__() {
+	params() {
 		return ["name", "spriteSheet", "frames"];
 	}
 
-	__config__() {
+	config() {
 		return {
 			fps: 60,
 			loop: false
@@ -55,8 +55,8 @@ class AnimatedSprite extends Sprite {
 		super(params);
 	}
 
-	__params__() {
-		return super.__params__().concat(["animator"]);
+	params() {
+		return super.params().concat(["animator"]);
 	}
 
 	draw() {

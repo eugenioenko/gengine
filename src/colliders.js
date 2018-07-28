@@ -64,7 +64,7 @@ class RectCollider extends Collider { // jshint ignore:line
 		super(params);
 	}
 
-	__params__() {
+	params() {
 		return ["x", "y", "width", "height"];
 	}
 

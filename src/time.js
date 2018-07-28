@@ -24,7 +24,7 @@ class Time extends Component {
 		this.lastTime = this.startTime;
 	}
 
-	__params__() {
+	params() {
 		return [];
 	}
 

@@ -53,7 +53,7 @@ class CanvasDisplay extends Component{
 		this.scale = 1;
 	}
 
-	__params__() {
+	params() {
 		return ["x", "y", "width", "height"];
 	}
 
