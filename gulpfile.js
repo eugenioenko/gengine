@@ -2,13 +2,15 @@ const jshint = require('gulp-jshint');
 const gulp   = require('gulp');
 const gutil  = require('gulp-util');
 const concat = require('gulp-concat');
-var gap = require('gulp-append-prepend');
-
+const connect = require('gulp-connect');
 
 gulp.task('default', function() {
+  connect.server({
+    root: '',
+    livereload: true
+  });
   return gutil.log('Gulp started')
 });
-
 
 gulp.task('lint', function() {
   return gulp.src('./src/*.js')
@@ -47,7 +49,8 @@ gulp.task('combine', function() {
       "src/player.js"
     ])
     .pipe(concat({ path: 'gengine.js'}))
-    .pipe(gulp.dest('./dist'));
+    .pipe(gulp.dest('./dist'))
+    .pipe(connect.reload());
 });
 
 gulp.watch('src/*.js', [ 'combine']);
