@@ -7,7 +7,6 @@ var e;
 function Preload(engine) {
 	e = engine;
 	engine.resources.add({ url: 'resources/images/mario.png', type: 'img', name: "marioworld" });
-
 }
 
 function Game(engine) {

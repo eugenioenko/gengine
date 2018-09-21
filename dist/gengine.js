@@ -1646,31 +1646,36 @@ class TileMap extends Sprite {
  * A RecourceItem is a media object like image, audio. It is used by the Resources class
  * during the preload phase of the engine loading.
  */
+
 class ResourceItem {
-	constructor(params, event={success: 'load', error: 'error'}) {
+	constructor(params) {
 		Debug.validateParams('Resources.add', params, ["url", "type", "name"]);
 		Object.assign(this, params);
-		this.event = event;
+		this.buffer = {};
 		this.item = {};
 	}
 
-	load(success, error) {
-		this.item = document.createElement(this.type);
-		this.item.src = this.url;
-		(function(that) {
-			function listenSuccess() {
-				Debug.success(`Loaded resource ${that.name}`);
-				that.item.removeEventListener(that.event.success, listenSuccess);
-				success();
+	load(successCallback, errorCallback) {
+		const request = new XMLHttpRequest();
+		request.responseType = "blob";
+		request.onload = () => {
+			if (request.status >= 200 && request.status < 400) {
+				this.buffer  = request.response;
+				this.item = new Image();
+				this.item.src = window.URL.createObjectURL(request.response);
+				Debug.info(`Success loading ${this.name}`);
+				successCallback();
+			} else {
+				Debug.error(`Error loading ${this.name}`);
+				errorCallback();
 			}
-			function listenError() {
-				Debug.success(`Loaded resource ${that.name}`);
-				that.item.removeEventListener(that.event.error, listenError);
-				error();
-			}
-			that.item.addEventListener(that.event.success, listenSuccess);
-			that.item.addEventListener(that.event.error, listenError);
-		})(this);
+		};
+		request.onerror = () => {
+			Debug.error(`Error loading ${this.name}`);
+			errorCallback();
+		};
+		request.open('GET', this.url, true);
+		request.send();
 	}
 
 }
@@ -1678,23 +1683,13 @@ class ResourceItem {
  * Resources component is set of the images and audio resources of the game.
  * It handles adding and getting the resources by a name and also the preload phase of the engine loading.
  */
-class Resources extends Component{
+class Resources extends Component {
 	constructor(params, engine) {
 		super(params, engine);
 		this.items = {};
 		this.length = 0;
 		this.loaded = 0;
 		this.errors = 0;
-		this.events = {
-			"img" : {
-				success: "load",
-				error: "error"
-			},
-			"audio": {
-				success: "canplaythrough",
-				error: "error"
-			}
-		};
 	}
 
 	init() {
@@ -1703,7 +1698,7 @@ class Resources extends Component{
 
 	add(params) {
 		// resources will be always overrided if existed before, problem in the future?
-		this.items[params.name] = new ResourceItem(params, this.events[params.type]);
+		this.items[params.name] = new ResourceItem(params);
 		this.length++;
 	}
 
@@ -1738,7 +1733,10 @@ class Resources extends Component{
 			/**
 			 *  callback to create game!
 			 */
-			this.callback(this.engine);
+			setTimeout(() => {
+				this.callback(this.engine);
+			}, 1);
+
 		}
 	}
 
