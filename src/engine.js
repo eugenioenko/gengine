@@ -59,8 +59,8 @@ class Engine extends GameObject {
 	 * the preloader and when preloader loaded all the resources, create the game
 	 * and execute the gameloop.
 	 */
-	static ready(params) {
-		Debug.validateParams('Engine.ready', params, ["canvas", "width", "height", "preload", "create"]);
+	static create(params) {
+		Debug.validateParams('Engine.create', params, ["canvas", "width", "height", "preload", "game"]);
 		(function() {
 			let engine = new Engine({
 				canvas: params.canvas,
@@ -70,7 +70,7 @@ class Engine extends GameObject {
 			window.addEventListener('load', function() {
 				engine.init();
 				params.preload(engine);
-				engine.resources.preload(params.create); // important: preload on complete calls create function
+				engine.resources.preload(params.game); // important: preload on complete calls game function
 				engine.gameLoop();
 			});
 		})();

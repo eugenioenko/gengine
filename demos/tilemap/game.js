@@ -4,7 +4,7 @@
 
 var e;
 
-function Preload(engine) {
+function Preloader(engine) {
 	e = engine;
 	engine.resources.add({ url: 'resources/images/mario.png', type: 'img', name: "marioworld" });
 }
@@ -67,9 +67,6 @@ function Game(engine) {
 	tiles[42] = tiles[4];
 	tiles[43] = tiles[4];
 
-
-
-
 	let tilemap = new TileMap({
 		x: 0,
 		y: 0,
@@ -97,10 +94,10 @@ function Game(engine) {
 
 }
 
-Engine.ready({
+Engine.create({
 	canvas: 'canvas',
 	width: 600,
 	height: 400,
-	preload: Preload,
-	create: Game
+	preload: Preloader,
+	game: Game
 });
