@@ -1735,7 +1735,7 @@ class Resources extends Component {
 			 */
 			setTimeout(() => {
 				this.callback(this.engine);
-			}, 1);
+			}, 1000);
 
 		}
 	}
